@@ -19,7 +19,7 @@ Using an endpoint:
 ```
 var kucoin = new KuCoinClient("my-key", "my-secret");  
   
-var balance = kucoin.GetBalance();
+var balance = kucoin.KuCoinRepository.GetBalance();
 ```  
 
 Non-secure endpoints:  
