@@ -16,9 +16,7 @@ var kucoin = new KuCoinClient("api-key", "api-secret");
 ```  
 
 Using an endpoint:  
-```
-var kucoin = new KuCoinClient("my-key", "my-secret");  
-  
+```  
 var balance = await kucoin.KuCoinRepository.GetBalance();
 ```  
 or  
