@@ -19,8 +19,12 @@ Using an endpoint:
 ```
 var kucoin = new KuCoinClient("my-key", "my-secret");  
   
-var balance = kucoin.KuCoinRepository.GetBalance();
+var balance = await kucoin.KuCoinRepository.GetBalance();
 ```  
+or  
+```
+var balance = kucoin.KuCoinRepository.GetBalance().Result;
+```
 
 Non-secure endpoints:  
 GetCandlesticks() - Get charting candlesticks  
