@@ -1,6 +1,12 @@
 # KuCoinApi.NetCore
 .Net Core library for accessing the [KuCoin Exchange](https://www.kucoin.com) api  
   
+This library is available on NuGet for download: https://www.nuget.org/packages/KuCoinApi.NetCore  
+```
+PM> Install-Package KuCoinApi.NetCore -Version 1.0.0
+```
+
+  
 To trade, log into your KuCoin account and create an api key with trading permissions:  
 Account -> API Keys -> Create (with Read Information & Trading Authority)  
   
