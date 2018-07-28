@@ -4,6 +4,7 @@ using KuCoinApi.NetCore.Data.Interface;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace KuCoinApi.NetCore.Data
 {
@@ -353,6 +354,145 @@ namespace KuCoinApi.NetCore.Data
                 return response.data;
             }
             catch(Exception ex)
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Get Markets trading on exchange
+        /// </summary>
+        /// <returns>Array of symbol strings</returns>
+        public async Task<string[]> GetMarkets()
+        {
+            var endpoint = $"/v1/open/markets";
+            var url = baseUrl + endpoint;
+
+            try
+            {
+                var response = await _restRepo.GetApiStream<ApiResponse<string[]>>(url);
+
+                return response.data;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Get details for all coins
+        /// </summary>
+        /// <returns>Array of Tick objects</returns>
+        public async Task<Tick[]> GetTradingSymbolTick()
+        {
+            var endpoint = $"/v1/market/open/symbols";
+            var url = baseUrl + endpoint;
+
+            try
+            {
+                var response = await _restRepo.GetApiStream<ApiResponse<Tick[]>>(url);
+
+                return response.data;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Get all trading pairs
+        /// </summary>
+        /// <returns>Array of trading pair strings</returns>
+        public async Task<string[]> GetTradingPairs()
+        {
+            var endpoint = $"/v1/market/open/symbols";
+            var url = baseUrl + endpoint;
+
+            try
+            {
+                var response = await _restRepo.GetApiStream<ApiResponse<Tick[]>>(url);
+
+                var pairs = new List<string>();
+                for(var i = 0; i < response.data.Length; i++)
+                {
+                    var pair = string.Empty;
+                    pair = response.data[i].coinType + "-" + response.data[i].coinTypePair;
+                    pairs.Add(pair);
+                }
+
+                return pairs.OrderBy(p => p).ToArray();
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Get details for a coin
+        /// </summary>
+        /// <returns>CoinInfo object</returns>
+        public async Task<CoinInfo> GetCoin(string coin)
+        {
+            var endpoint = $"/v1/market/open/coin-info?coin={coin}";
+            var url = baseUrl + endpoint;
+
+            try
+            {
+                var response = await _restRepo.GetApiStream<ApiResponse<CoinInfo>>(url);
+
+                return response.data;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Get details for all coins
+        /// </summary>
+        /// <returns>Array of CoinInfo objects</returns>
+        public async Task<CoinInfo[]> GetCoins()
+        {
+            var endpoint = $"/v1/market/open/coins";
+            var url = baseUrl + endpoint;
+
+            try
+            {
+                var response = await _restRepo.GetApiStream<ApiResponse<CoinInfo[]>>(url);
+
+                return response.data;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Get open sells
+        /// </summary>
+        /// <param name="market">Market to check: BTC, ETH, KCS, etc (default = "")</param>
+        /// <returns>Array of Trending objects</returns>
+        public async Task<Trending[]> GetTrendings(string market = "")
+        {
+            var endpoint = $"/v1/market/open/coins-trending";
+            if (!string.IsNullOrEmpty(market))
+            {
+                endpoint += $"?market={market}";
+            }
+            var url = baseUrl + endpoint;
+
+            try
+            {
+                var response = await _restRepo.GetApiStream<ApiResponse<Trending[]>>(url);
+
+                return response.data;
+            }
+            catch (Exception ex)
             {
                 return null;
             }

@@ -92,6 +92,43 @@ namespace KuCoinApi.NetCore.Data.Interface
         Task<Tick> GetTick(string symbol);
 
         /// <summary>
+        /// Get Markets trading on exchange
+        /// </summary>
+        /// <returns>Array of symbol strings</returns>
+        Task<string[]> GetMarkets();
+
+        /// <summary>
+        /// Get details for all coins
+        /// </summary>
+        /// <returns>Array of Tick objects</returns>
+        Task<Tick[]> GetTradingSymbolTick();
+
+        /// <summary>
+        /// Get all trading pairs
+        /// </summary>
+        /// <returns>Array of trading pair strings</returns>
+        Task<string[]> GetTradingPairs();
+
+        /// <summary>
+        /// Get details for a coin
+        /// </summary>
+        /// <returns>CoinInfo object</returns>
+        Task<CoinInfo> GetCoin(string coin);
+
+        /// <summary>
+        /// Get details for all coins
+        /// </summary>
+        /// <returns>Array of CoinInfo objects</returns>
+        Task<CoinInfo[]> GetCoins();
+
+        /// <summary>
+        /// Get open sells
+        /// </summary>
+        /// <param name="market">Market to check: BTC, ETH, KCS, etc (default = "")</param>
+        /// <returns>Array of Trending objects</returns>
+        Task<Trending[]> GetTrendings(string market = "");
+
+        /// <summary>
         /// Get KuCoinTime
         /// </summary>
         /// <returns>long of timestamp</returns>

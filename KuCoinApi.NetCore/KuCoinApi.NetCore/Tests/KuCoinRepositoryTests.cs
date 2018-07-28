@@ -147,5 +147,67 @@ namespace KuCoinApi.NetCore.Tests
                 Assert.True(cancelDetail != null);
             }
         }
+
+        [Fact]
+        public void GetMarketsTest()
+        {
+            IKuCoinRepository repo = new KuCoinRepository();
+
+            var markets = repo.GetMarkets().Result;
+
+            Assert.NotNull(markets);
+        }
+
+        [Fact]
+        public void GetTradingSymbolTickTest()
+        {
+            IKuCoinRepository repo = new KuCoinRepository();
+
+            var ticks = repo.GetTradingSymbolTick().Result;
+
+            Assert.NotNull(ticks);
+        }
+
+        [Fact]
+        public void GetTradingPairsTest()
+        {
+            IKuCoinRepository repo = new KuCoinRepository();
+
+            var pairs = repo.GetTradingPairs().Result;
+
+            Assert.NotNull(pairs);
+        }
+
+        [Fact]
+        public void GetCoinTest()
+        {
+            IKuCoinRepository repo = new KuCoinRepository();
+            var symbol = "KCS";
+
+            var coin = repo.GetCoin(symbol).Result;
+
+            Assert.NotNull(coin);
+        }
+
+        [Fact]
+        public void GetCoinsTest()
+        {
+            IKuCoinRepository repo = new KuCoinRepository();
+
+            var coins = repo.GetCoins().Result;
+
+            Assert.NotNull(coins);
+        }
+
+        [Fact]
+        public void GetTrendingsTest()
+        {
+            IKuCoinRepository repo = new KuCoinRepository();
+            var market = "USDT";
+
+            var trendings = repo.GetTrendings(market).Result;
+
+            Assert.NotNull(trendings);
+        }
     }
 }
