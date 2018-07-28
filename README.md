@@ -27,6 +27,12 @@ GetCandlesticks() - Get charting candlesticks
 GetOrderBook() - Get current order book for a trading pair  
 GetTick() - Get tick for a trading pair  
 GetTicks() - Get ticker for all trading pairs  
+GetMarkets() - Get markets trading on exchange  
+GetTradingSymbolTick() - Get details for all coins  
+GetTradingPairs() - Get all trading pairs on exchange  
+GetCoin() - Get information about a coin
+GetCoins() - Get information about all coins
+GetTrendings() - Get open sells for all pairs or a market  
 GetKuCoinTime() - Get current KuCoin server time  
 
 Secure endpoints:  
