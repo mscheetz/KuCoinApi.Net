@@ -9,12 +9,20 @@ namespace KuCoinApi.NetCore.Tests
 {
     public class KuCoinRepositoryTests : IDisposable
     {
-
+        private IKuCoinRepository _repo;
         private string apiKey = "Enter your key";
         private string apiSecret = "Enter your secret";
 
         public KuCoinRepositoryTests()
         {
+            if(apiKey.Equals("Enter your key"))
+            {
+                _repo = new KuCoinRepository();
+            }
+            else
+            {
+                _repo = new KuCoinRepository(apiKey, apiSecret);
+            }
         }
 
         public void Dispose()
@@ -24,11 +32,10 @@ namespace KuCoinApi.NetCore.Tests
         [Fact]
         public void GetCandlesticksTest()
         {
-            IKuCoinRepository repo = new KuCoinRepository(apiKey, apiSecret);
             var interval = Interval.FifteenM;
             var symbol = "ETH-BTC";
 
-            var sticks = repo.GetCandlesticks(symbol, interval, 10).Result;
+            var sticks= _repo.GetCandlesticks(symbol, interval, 10).Result;
 
             Assert.True(sticks != null);
             Assert.True(sticks.close.Length > 0);
@@ -38,9 +45,7 @@ namespace KuCoinApi.NetCore.Tests
         [Fact]
         public void GetAccountBalanceTest()
         {
-            IKuCoinRepository repo = new KuCoinRepository(apiKey, apiSecret);
-
-            var balances = repo.GetBalance().Result;
+            var balances= _repo.GetBalance().Result;
 
             Assert.True(balances != null);
         }
@@ -48,10 +53,9 @@ namespace KuCoinApi.NetCore.Tests
         [Fact]
         public void GetOrderBookTest()
         {
-            IKuCoinRepository repo = new KuCoinRepository(apiKey, apiSecret);
             var symbol = "ETH-BTC";
 
-            var orderBook = repo.GetOrderBook(symbol).Result;
+            var orderBook= _repo.GetOrderBook(symbol).Result;
 
             Assert.True(orderBook != null);
             Assert.True(orderBook.buys.Length > 0);
@@ -61,9 +65,7 @@ namespace KuCoinApi.NetCore.Tests
         [Fact]
         public void GetTicksTest()
         {
-            IKuCoinRepository repo = new KuCoinRepository(apiKey, apiSecret);
-
-            var ticks = repo.GetTicks().Result;
+            var ticks= _repo.GetTicks().Result;
 
             Assert.True(ticks != null);
         }
@@ -71,10 +73,9 @@ namespace KuCoinApi.NetCore.Tests
         [Fact]
         public void GetTickTest()
         {
-            IKuCoinRepository repo = new KuCoinRepository(apiKey, apiSecret);
             var symbol = "ETH-BTC";
 
-            var tick = repo.GetTick(symbol).Result;
+            var tick= _repo.GetTick(symbol).Result;
 
             Assert.True(tick != null);
         }
@@ -82,10 +83,9 @@ namespace KuCoinApi.NetCore.Tests
         [Fact]
         public void GetOrdersTest()
         {
-            IKuCoinRepository repo = new KuCoinRepository(apiKey, apiSecret);
             var symbol = "DCC-BTC";
 
-            var orders = repo.GetOrders(symbol).Result;
+            var orders= _repo.GetOrders(symbol).Result;
 
             Assert.True(orders != null);
         }
@@ -93,10 +93,9 @@ namespace KuCoinApi.NetCore.Tests
         [Fact]
         public void GetOpenOrdersTest()
         {
-            IKuCoinRepository repo = new KuCoinRepository(apiKey, apiSecret);
             var symbol = "DCC-BTC";
 
-            var orders = repo.GetOpenOrders(symbol).Result;
+            var orders= _repo.GetOpenOrders(symbol).Result;
 
             Assert.True(orders != null);
         }
@@ -104,7 +103,6 @@ namespace KuCoinApi.NetCore.Tests
         [Fact]
         public void PostTradeTest()
         {
-            IKuCoinRepository repo = new KuCoinRepository(apiKey, apiSecret);
             var symbol = "DCC-BTC";
             var tradeParams = new TradeParams
             {
@@ -114,7 +112,7 @@ namespace KuCoinApi.NetCore.Tests
                 type = "BUY"
             };
 
-            var orderDetail = repo.PostTrade(tradeParams).Result;
+            var orderDetail= _repo.PostTrade(tradeParams).Result;
 
             Assert.True(orderDetail != null);
         }
@@ -122,10 +120,9 @@ namespace KuCoinApi.NetCore.Tests
         [Fact]
         public void GetAndCancelOpenTradeTest()
         {
-            IKuCoinRepository repo = new KuCoinRepository(apiKey, apiSecret);
             var symbol = "DCC-BTC";
 
-            var orders = repo.GetOpenOrders(symbol).Result;
+            var orders= _repo.GetOpenOrders(symbol).Result;
 
             Assert.True(orders != null);
 
@@ -133,7 +130,7 @@ namespace KuCoinApi.NetCore.Tests
             {
                 var orderId = orders.openBuys[0].orderId;
 
-                var cancelDetail = repo.DeleteTrade(symbol, orderId, orders.openBuys[0].type).Result;
+                var cancelDetail= _repo.DeleteTrade(symbol, orderId, orders.openBuys[0].type).Result;
 
                 Assert.True(cancelDetail != null);
             }
@@ -142,7 +139,7 @@ namespace KuCoinApi.NetCore.Tests
             {
                 var orderId = orders.openSells[0].orderId;
 
-                var cancelDetail = repo.DeleteTrade(symbol, orderId, orders.openSells[0].type).Result;
+                var cancelDetail= _repo.DeleteTrade(symbol, orderId, orders.openSells[0].type).Result;
 
                 Assert.True(cancelDetail != null);
             }
@@ -151,9 +148,7 @@ namespace KuCoinApi.NetCore.Tests
         [Fact]
         public void GetMarketsTest()
         {
-            IKuCoinRepository repo = new KuCoinRepository();
-
-            var markets = repo.GetMarkets().Result;
+            var markets= _repo.GetMarkets().Result;
 
             Assert.NotNull(markets);
         }
@@ -161,9 +156,7 @@ namespace KuCoinApi.NetCore.Tests
         [Fact]
         public void GetTradingSymbolTickTest()
         {
-            IKuCoinRepository repo = new KuCoinRepository();
-
-            var ticks = repo.GetTradingSymbolTick().Result;
+            var ticks= _repo.GetTradingSymbolTick().Result;
 
             Assert.NotNull(ticks);
         }
@@ -171,9 +164,7 @@ namespace KuCoinApi.NetCore.Tests
         [Fact]
         public void GetTradingPairsTest()
         {
-            IKuCoinRepository repo = new KuCoinRepository();
-
-            var pairs = repo.GetTradingPairs().Result;
+            var pairs= _repo.GetTradingPairs().Result;
 
             Assert.NotNull(pairs);
         }
@@ -181,10 +172,9 @@ namespace KuCoinApi.NetCore.Tests
         [Fact]
         public void GetCoinTest()
         {
-            IKuCoinRepository repo = new KuCoinRepository();
             var symbol = "KCS";
 
-            var coin = repo.GetCoin(symbol).Result;
+            var coin= _repo.GetCoin(symbol).Result;
 
             Assert.NotNull(coin);
         }
@@ -192,9 +182,7 @@ namespace KuCoinApi.NetCore.Tests
         [Fact]
         public void GetCoinsTest()
         {
-            IKuCoinRepository repo = new KuCoinRepository();
-
-            var coins = repo.GetCoins().Result;
+            var coins= _repo.GetCoins().Result;
 
             Assert.NotNull(coins);
         }
@@ -202,10 +190,9 @@ namespace KuCoinApi.NetCore.Tests
         [Fact]
         public void GetTrendingsTest()
         {
-            IKuCoinRepository repo = new KuCoinRepository();
             var market = "USDT";
 
-            var trendings = repo.GetTrendings(market).Result;
+            var trendings= _repo.GetTrendings(market).Result;
 
             Assert.NotNull(trendings);
         }

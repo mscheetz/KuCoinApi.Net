@@ -8,14 +8,20 @@
     <PackageTags>kucoin cryptocurrency exchange trading api net core</PackageTags>
     <Description>Api library for accessing the KuCoin exchange Api</Description>
     <Copyright>2018 Matt Scheetz</Copyright>
-    <PackageReleaseNotes>Api library for accessing the KuCoin exchange Api</PackageReleaseNotes>
+    <PackageReleaseNotes>Use RESTful Api library, added comments</PackageReleaseNotes>
     <IsPackable>true</IsPackable>
+    <Version>1.1.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+    <PackageReference Include="RESTApiAccess" Version="1.0.0" />
     <PackageReference Include="xunit" Version="2.4.0" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Core.Interface\" />
   </ItemGroup>
 
 </Project>

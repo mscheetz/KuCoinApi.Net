@@ -7,23 +7,13 @@ namespace KuCoinApi.NetCore.Core
 {
     public class Security
     {
-        public string SHA256_hash(string value)
-        {
-            StringBuilder Sb = new StringBuilder();
-
-            using (var hash = SHA256.Create())
-            {
-                Encoding enc = Encoding.UTF8;
-                Byte[] result = hash.ComputeHash(enc.GetBytes(value));
-
-                foreach (Byte b in result)
-                    Sb.Append(b.ToString("x2"));
-            }
-
-            return Sb.ToString();
-        }
-
-        public string GetKuCoinHMCACSignature(string secretKey, string message)
+        /// <summary>
+        /// Get KuCoin HMAC Signature
+        /// </summary>
+        /// <param name="secretKey">Api secret</param>
+        /// <param name="message">Message to sign</param>
+        /// <returns>Signature for request</returns>
+        public string GetKuCoinHMACSignature(string secretKey, string message)
         {
             var msgString = Convert.ToBase64String(Encoding.UTF8.GetBytes(message));
 

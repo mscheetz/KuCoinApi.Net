@@ -5,6 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Linq;
+using RESTApiAccess.Interface;
+using RESTApiAccess;
 
 namespace KuCoinApi.NetCore.Data
 {
@@ -512,6 +514,12 @@ namespace KuCoinApi.NetCore.Data
             return response;
         }
 
+        /// <summary>
+        /// Get GET headers
+        /// </summary>
+        /// <param name="endpoint">Endpoint to access</param>
+        /// <param name="queryString">Querystring to be passed</param>
+        /// <returns>Dictionary of request headers</returns>
         private Dictionary<string, string> GetRequestHeaders(string endpoint, string[] queryString = null)
         {
             var nonce = _dtHelper.UTCtoUnixTimeMilliseconds().ToString();
@@ -525,6 +533,14 @@ namespace KuCoinApi.NetCore.Data
             return headers;
         }
 
+        /// <summary>
+        /// Get POST headers
+        /// </summary>
+        /// <typeparam name="T">Type of data in post request</typeparam>
+        /// <param name="endpoint">Endpoint to access</param>
+        /// <param name="queryString">Querystring to be passed</param>
+        /// <param name="postData">Data to be sent</param>
+        /// <returns>Dictionary of request headers</returns>
         private Dictionary<string, string> PostRequestHeaders<T>(string endpoint, string[] queryString, T postData)
         {
             var nonce = _dtHelper.UTCtoUnixTimeMilliseconds().ToString();
@@ -538,6 +554,15 @@ namespace KuCoinApi.NetCore.Data
             return headers;
         }
         
+        /// <summary>
+        /// Create signature for message
+        /// </summary>
+        /// <typeparam name="T">Type of data in post request</typeparam>
+        /// <param name="endpoint">Endpoint to access</param>
+        /// <param name="nonce">Current nonce</param>
+        /// <param name="queryString">Querystring to be passed</param>
+        /// <param name="value">Data to be sent</param>
+        /// <returns>String of signature</returns>
         private string GetSignature<T>(string endpoint, string nonce, string[] queryString = null, T value = default(T))
         {
             queryString = queryString ?? new string[0];
@@ -557,7 +582,7 @@ namespace KuCoinApi.NetCore.Data
 
             var sigString = $"{endpoint}/{nonce}/{qsValues}";
 
-            var signature = security.GetKuCoinHMCACSignature(_apiInfo.apiSecret, sigString);
+            var signature = security.GetKuCoinHMACSignature(_apiInfo.apiSecret, sigString);
 
             return signature;
         }
