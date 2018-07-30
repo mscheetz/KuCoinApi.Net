@@ -1,6 +1,12 @@
 # KuCoinApi.NetCore
 .Net Core library for accessing the [KuCoin Exchange](https://www.kucoin.com) api  
   
+This library is available on NuGet for download: https://www.nuget.org/packages/KuCoinApi.NetCore  
+```
+PM> Install-Package KuCoinApi.NetCore -Version 1.0.0
+```
+
+  
 To trade, log into your KuCoin account and create an api key with trading permissions:  
 Account -> API Keys -> Create (with Read Information & Trading Authority)  
   
@@ -16,17 +22,25 @@ var kucoin = new KuCoinClient("api-key", "api-secret");
 ```  
 
 Using an endpoint:  
-```
-var kucoin = new KuCoinClient("my-key", "my-secret");  
-  
-var balance = kucoin.GetBalance();
 ```  
+var balance = await kucoin.KuCoinRepository.GetBalance();
+```  
+or  
+```
+var balance = kucoin.KuCoinRepository.GetBalance().Result;
+```
 
 Non-secure endpoints:  
 GetCandlesticks() - Get charting candlesticks  
 GetOrderBook() - Get current order book for a trading pair  
 GetTick() - Get tick for a trading pair  
 GetTicks() - Get ticker for all trading pairs  
+GetMarkets() - Get markets trading on exchange  
+GetTradingSymbolTick() - Get details for all coins  
+GetTradingPairs() - Get all trading pairs on exchange  
+GetCoin() - Get information about a coin
+GetCoins() - Get information about all coins
+GetTrendings() - Get open sells for all pairs or a market  
 GetKuCoinTime() - Get current KuCoin server time  
 
 Secure endpoints:  
