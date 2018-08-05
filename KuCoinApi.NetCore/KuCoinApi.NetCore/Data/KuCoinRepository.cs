@@ -38,6 +38,25 @@ namespace KuCoinApi.NetCore.Data
         }
 
         /// <summary>
+        /// Constructor for signed endpoints
+        /// </summary>
+        /// <param name="configPath">String of path to configuration file</param>
+        public KuCoinRepository(string configPath)
+        {
+            IFileRepository _fileRepo = new FileRepository();
+
+            if (_fileRepo.FileExists(configPath))
+            {
+                _apiInfo = _fileRepo.GetDataFromFile<ApiInformation>(configPath);
+                LoadRepository();
+            }
+            else
+            {
+                throw new Exception("Config file not found");
+            }
+        }
+
+        /// <summary>
         /// Load repository
         /// </summary>
         /// <param name="key">Api key value (default = "")</param>

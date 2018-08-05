@@ -9,19 +9,26 @@ namespace KuCoinApi.NetCore.Tests
 {
     public class KuCoinRepositoryTests : IDisposable
     {
+        private ApiInformation _exchangeApi = null;
         private IKuCoinRepository _repo;
-        private string apiKey = "Enter your key";
-        private string apiSecret = "Enter your secret";
+        private string configPath = "";
+        private string apiKey = string.Empty;
+        private string apiSecret = string.Empty;
 
         public KuCoinRepositoryTests()
         {
-            if(apiKey.Equals("Enter your key"))
+            IFileRepository _fileRepo = new FileRepository();
+            if (_fileRepo.FileExists(configPath))
             {
-                _repo = new KuCoinRepository();
+                _exchangeApi = _fileRepo.GetDataFromFile<ApiInformation>(configPath);
+            }
+            if (_exchangeApi != null || !string.IsNullOrEmpty(apiKey))
+            {
+                _repo = new KuCoinRepository(_exchangeApi.apiKey, _exchangeApi.apiSecret);
             }
             else
             {
-                _repo = new KuCoinRepository(apiKey, apiSecret);
+                _repo = new KuCoinRepository();
             }
         }
 

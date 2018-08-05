@@ -25,5 +25,14 @@ namespace KuCoinApi.NetCore
         {
             KuCoinRepository = new KuCoinRepository(apiKey, apiSecret);
         }
+
+        /// <summary>
+        /// Constructor - with authentication
+        /// </summary>
+        /// <param name="configPath">Path to config file</param>
+        public KuCoinApiClient(string configPath)
+        {
+            KuCoinRepository = new KuCoinRepository(configPath);
+        }
     }
 }
