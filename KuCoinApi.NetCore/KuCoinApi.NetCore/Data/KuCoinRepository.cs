@@ -8,6 +8,7 @@ using System.Linq;
 using RESTApiAccess.Interface;
 using RESTApiAccess;
 using DateTimeHelpers;
+using FileRepository;
 
 namespace KuCoinApi.NetCore.Data
 {
@@ -44,7 +45,7 @@ namespace KuCoinApi.NetCore.Data
         /// <param name="configPath">String of path to configuration file</param>
         public KuCoinRepository(string configPath)
         {
-            IFileRepository _fileRepo = new FileRepository();
+            IFileRepository _fileRepo = new FileRepository.FileRepository();
 
             if (_fileRepo.FileExists(configPath))
             {

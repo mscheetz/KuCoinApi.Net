@@ -4,6 +4,7 @@ using System;
 using System.Linq;
 using Xunit;
 using KuCoinApi.NetCore.Data;
+using FileRepository;
 
 namespace KuCoinApi.NetCore.Tests
 {
@@ -17,7 +18,7 @@ namespace KuCoinApi.NetCore.Tests
 
         public KuCoinRepositoryTests()
         {
-            IFileRepository _fileRepo = new FileRepository();
+            IFileRepository _fileRepo = new FileRepository.FileRepository();
             if (_fileRepo.FileExists(configPath))
             {
                 _exchangeApi = _fileRepo.GetDataFromFile<ApiInformation>(configPath);

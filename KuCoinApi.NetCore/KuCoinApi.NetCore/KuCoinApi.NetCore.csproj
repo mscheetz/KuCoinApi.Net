@@ -8,9 +8,9 @@
     <PackageTags>kucoin cryptocurrency exchange trading api net core</PackageTags>
     <Description>Api library for accessing the KuCoin exchange Api</Description>
     <Copyright>2018 Matt Scheetz</Copyright>
-    <PackageReleaseNotes>Ability to use config file for api connection credentials</PackageReleaseNotes>
+    <PackageReleaseNotes>Utilize reusable projects</PackageReleaseNotes>
     <IsPackable>true</IsPackable>
-    <Version>1.2.0</Version>
+    <Version>1.3.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
