@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Linq;
 using RESTApiAccess.Interface;
 using RESTApiAccess;
+using DateTimeHelpers;
 
 namespace KuCoinApi.NetCore.Data
 {
