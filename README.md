@@ -20,6 +20,15 @@ Secure & non-secure endpoints:
 ```
 var kucoin = new KuCoinClient("api-key", "api-secret");
 ```  
+or
+```
+create config file config.json
+{
+  "apiKey": "api-key",
+  "apiSecret": "api-secret"
+}
+var kucoin = new KuCoinClient("/path-to/config.json");
+```
 
 Using an endpoint:  
 ```  
