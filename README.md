@@ -32,11 +32,11 @@ var kucoin = new KuCoinClient("/path-to/config.json");
 
 Using an endpoint:  
 ```  
-var balance = await kucoin.KuCoinRepository.GetBalance();
+var balance = await kucoin.GetBalanceAsync();
 ```  
 or  
 ```
-var balance = kucoin.KuCoinRepository.GetBalance().Result;
+var balance = kucoin.GetBalance();
 ```
 
 Non-secure endpoints:  
