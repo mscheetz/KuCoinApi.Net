@@ -1,5 +1,5 @@
 # KuCoinApi.NetCore
-.Net Core library for accessing the [KuCoin Exchange](https://www.kucoin.com) api  
+.Net Core library for accessing the [KuCoin Exchange](https://www.kucoin.com/#/?r=1ds25) api  
   
 This library is available on NuGet for download: https://www.nuget.org/packages/KuCoinApi.NetCore  
 ```
