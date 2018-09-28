@@ -3,7 +3,7 @@
   
 This library is available on NuGet for download: https://www.nuget.org/packages/KuCoinApi.NetCore  
 ```
-PM> Install-Package KuCoinApi.NetCore -Version 1.0.0
+PM> Install-Package KuCoinApi.NetCore
 ```
 
   
