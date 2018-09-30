@@ -5,12 +5,13 @@
     <Authors>Matt Scheetz</Authors>
     <PackageProjectUrl>https://github.com/mscheetz/KuCoinApi.NetCore</PackageProjectUrl>
     <RepositoryUrl>https://github.com/mscheetz/KuCoinApi.NetCore</RepositoryUrl>
-    <PackageTags>kucoin cryptocurrency exchange trading api net core</PackageTags>
+    <PackageTags>kucoin cryptocurrency exchange trading api net core bitcoin</PackageTags>
     <Description>Api library for accessing the KuCoin exchange Api</Description>
     <Copyright>2018 Matt Scheetz</Copyright>
-    <PackageReleaseNotes>New initializer</PackageReleaseNotes>
+    <PackageReleaseNotes>Get deposit addresses</PackageReleaseNotes>
     <IsPackable>true</IsPackable>
-    <Version>1.4.0</Version>
+    <Version>1.4.1</Version>
+    <PackageLicenseUrl>https://github.com/mscheetz/KuCoinApi.NetCore/blob/master/LICENSE</PackageLicenseUrl>
   </PropertyGroup>
 
   <ItemGroup>
