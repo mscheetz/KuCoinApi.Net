@@ -1,9 +1,9 @@
 # KuCoinApi.NetCore
-.Net Core library for accessing the [KuCoin Exchange](https://www.kucoin.com) api  
+.Net Core library for accessing the [KuCoin Exchange](https://www.kucoin.com/#/?r=1ds25) api  
   
 This library is available on NuGet for download: https://www.nuget.org/packages/KuCoinApi.NetCore  
 ```
-PM> Install-Package KuCoinApi.NetCore -Version 1.0.0
+PM> Install-Package KuCoinApi.NetCore
 ```
 
   
@@ -32,11 +32,11 @@ var kucoin = new KuCoinClient("/path-to/config.json");
 
 Using an endpoint:  
 ```  
-var balance = await kucoin.KuCoinRepository.GetBalance();
+var balance = await kucoin.GetBalanceAsync();
 ```  
 or  
 ```
-var balance = kucoin.KuCoinRepository.GetBalance().Result;
+var balance = kucoin.GetBalance();
 ```
 
 Non-secure endpoints:  
