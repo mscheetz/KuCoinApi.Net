@@ -47,8 +47,8 @@ GetTicks() | GetTicksAsync() - Get ticker for all trading pairs
 GetMarkets() | GetMarketsAsync() - Get markets trading on exchange  
 GetTradingSymbolTick() GetTradingSymbolTickAsync() - Get details for all coins  
 GetTradingPairs() | GetTradingPairsAsync() - Get all trading pairs on exchange  
-GetCoin() | GetCoinAsync() - Get information about a coin
-GetCoins() | GetCoinsAsync() - Get information about all coins
+GetCoin() | GetCoinAsync() - Get information about a coin  
+GetCoins() | GetCoinsAsync() - Get information about all coins  
 GetTrendings() | GetTrendingsAsync() - Get open sells for all pairs or a market  
 GetKuCoinTime() - Get current KuCoin server time  
 
