@@ -133,5 +133,12 @@ namespace KuCoinApi.NetCore.Data.Interface
         /// </summary>
         /// <returns>long of timestamp</returns>
         Task<long> GetKuCoinTime();
+
+        /// <summary>
+        /// Get deposit address
+        /// </summary>
+        /// <param name="symbol">String of symbol</param>
+        /// <returns>String of address</returns>
+        Task<string> GetDepositAddress(string symbol);
     }
 }

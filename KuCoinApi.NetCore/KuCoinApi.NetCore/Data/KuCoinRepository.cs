@@ -5,8 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Linq;
-using RESTApiAccess.Interface;
-using RESTApiAccess;
+//using RESTApiAccess.Interface;
+//using RESTApiAccess;
 using DateTimeHelpers;
 using FileRepository;
 
@@ -36,7 +36,7 @@ namespace KuCoinApi.NetCore.Data
         /// <param name="apiSecret">Api secret</param>
         public KuCoinRepository(string apiKey, string apiSecret)
         {
-            LoadRepository();
+            LoadRepository(apiKey, apiSecret);
         }
 
         /// <summary>
@@ -533,6 +533,31 @@ namespace KuCoinApi.NetCore.Data
             var response = await _restRepo.GetApi<long>(url);
 
             return response;
+        }
+
+        /// <summary>
+        /// Get deposit address
+        /// </summary>
+        /// <param name="symbol">String of symbol</param>
+        /// <returns>String of address</returns>
+        public async Task<string> GetDepositAddress(string symbol)
+        {
+            var endpoint = $"/v1/account/{symbol}/wallet/address";
+
+            var headers = GetRequestHeaders(endpoint);
+
+            var url = baseUrl + endpoint;
+
+            try
+            {
+                var response = await _restRepo.GetApi<ApiResponse<Dictionary<string, object>>>(url, headers);
+
+                return response.data["address"].ToString();
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
         }
 
         /// <summary>

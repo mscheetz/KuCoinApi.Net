@@ -226,6 +226,16 @@ namespace KuCoinApi.NetCore
         }
 
         /// <summary>
+        /// Get deposit address
+        /// </summary>
+        /// <param name="symbol">String of symbol</param>
+        /// <returns>String of address</returns>
+        public string GetDepositAddress(string symbol)
+        {
+            return _repository.GetDepositAddress(symbol).Result;
+        }
+
+        /// <summary>
         /// Get candlesticks
         /// </summary>
         /// <param name="symbol">String of symbol</param>
@@ -387,6 +397,16 @@ namespace KuCoinApi.NetCore
         public async Task<Trending[]> GetTrendingsAsync(string market = "")
         {
             return await _repository.GetTrendings(market);
+        }
+
+        /// <summary>
+        /// Get deposit address
+        /// </summary>
+        /// <param name="symbol">String of symbol</param>
+        /// <returns>String of address</returns>
+        public async Task<string> GetDepositAddressAsync(string symbol)
+        {
+            return await _repository.GetDepositAddress(symbol);
         }
     }
 }

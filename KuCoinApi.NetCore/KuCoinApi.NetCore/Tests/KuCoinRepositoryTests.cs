@@ -12,7 +12,7 @@ namespace KuCoinApi.NetCore.Tests
     {
         private ApiInformation _exchangeApi = null;
         private IKuCoinRepository _repo;
-        private string configPath = "";
+        private string configPath = "config.json";
         private string apiKey = string.Empty;
         private string apiSecret = string.Empty;
 
@@ -182,7 +182,7 @@ namespace KuCoinApi.NetCore.Tests
         {
             var symbol = "KCS";
 
-            var coin= _repo.GetCoin(symbol).Result;
+            var coin = _repo.GetCoin(symbol).Result;
 
             Assert.NotNull(coin);
         }
@@ -190,7 +190,7 @@ namespace KuCoinApi.NetCore.Tests
         [Fact]
         public void GetCoinsTest()
         {
-            var coins= _repo.GetCoins().Result;
+            var coins = _repo.GetCoins().Result;
 
             Assert.NotNull(coins);
         }
@@ -200,9 +200,19 @@ namespace KuCoinApi.NetCore.Tests
         {
             var market = "USDT";
 
-            var trendings= _repo.GetTrendings(market).Result;
+            var trendings = _repo.GetTrendings(market).Result;
 
             Assert.NotNull(trendings);
+        }
+
+        [Fact]
+        public void GetDepositAddress()
+        {
+            var symbol = "NANO";
+
+            var address = _repo.GetDepositAddress(symbol).Result;
+
+            Assert.NotNull(address);
         }
     }
 }
