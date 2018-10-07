@@ -20,6 +20,7 @@ namespace KuCoinApi.NetCore.Data
         private ApiInformation _apiInfo;
         private DateTimeHelper _dtHelper;
         private Helper _helper;
+        private bool _systemTimetamp = false;
 
         /// <summary>
         /// Constructor for non-signed endpoints
@@ -75,6 +76,41 @@ namespace KuCoinApi.NetCore.Data
                 apiKey = key,
                 apiSecret = secret
             };
+            _systemTimetamp = TimestampCompare();
+        }
+
+        /// <summary>
+        /// Compare exchange and system unix timestamps
+        /// </summary>
+        /// <returns>True if difference less than 1000 MS, otherwise false</returns>
+        private bool TimestampCompare()
+        {
+            var exchangeTS = GetTimestamp();
+            var systemTS = _dtHelper.UTCtoUnixTimeMilliseconds();
+            if (exchangeTS == systemTS || Math.Abs((decimal)exchangeTS - (decimal)systemTS) < 1000)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Get unix timestamp
+        /// </summary>
+        /// <returns>Long of timestamp</returns>
+        private long GetTimestamp()
+        {
+            if (_systemTimetamp)
+            {
+                return _dtHelper.UTCtoUnixTimeMilliseconds();
+            }
+            else
+            {
+                return GetKuCoinTime().Result;
+            }
         }
 
         /// <summary>
@@ -114,7 +150,7 @@ namespace KuCoinApi.NetCore.Data
             }
             catch (Exception ex)
             {
-                return null;
+                throw new Exception(ex.Message);
             }
         }
 
@@ -122,9 +158,40 @@ namespace KuCoinApi.NetCore.Data
         /// Get account balance
         /// </summary>
         /// <returns>Balance array</returns>
-        public async Task<Balance[]> GetBalance()
+        public async Task<Balance[]> GetBalances()
         {
-            var endpoint = "/v1/account/balance";
+            return await OnGetBalances(0, 0);
+        }
+
+        /// <summary>
+        /// Get account balance
+        /// </summary>
+        /// <param name="limit">Number of balances per page</param>
+        /// <param name="pageNo">Page to return</param>
+        /// <returns>Balance array</returns>
+        public async Task<Balance[]> GetBalances(int limit, int pageNo)
+        {
+            if (limit <= 0 || pageNo <= 0)
+            {
+                throw new Exception("limit and pageNo must be greater than 0.");
+            }
+
+            return await OnGetBalances(limit, pageNo);
+        }
+
+        /// <summary>
+        /// Get account balances
+        /// </summary>
+        /// <param name="limit">Number of balances per page</param>
+        /// <param name="pageNo">Page to return</param>
+        /// <returns>Balance array</returns>
+        private async Task<Balance[]> OnGetBalances(int limit, int pageNo)
+        {
+            var endpoint = "/v1/account/balances";
+            endpoint = limit != 0 && pageNo != 0 
+                ? endpoint + $"?limit={limit}&page={pageNo}" 
+                : endpoint;
+
             var url = baseUrl + endpoint;
 
             var headers = GetRequestHeaders(endpoint, null);
@@ -137,7 +204,33 @@ namespace KuCoinApi.NetCore.Data
             }
             catch (Exception ex)
             {
-                return null;
+                throw new Exception(ex.Message);
+            }
+        }
+
+
+
+        /// <summary>
+        /// Get account balance of a coin
+        /// </summary>
+        /// <param name="symbol">Symbol of currency</param>
+        /// <returns>Balance object</returns>
+        public async Task<Balance> GetBalance(string symbol)
+        {
+            var endpoint = $"/v1/account/{symbol}/balance";
+            var url = baseUrl + endpoint;
+
+            var headers = GetRequestHeaders(endpoint, null);
+
+            try
+            {
+                var response = await _restRepo.GetApiStream<ApiResponse<Balance>>(url, headers);
+
+                return response.data;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
             }
         }
 
@@ -175,7 +268,7 @@ namespace KuCoinApi.NetCore.Data
             }
             catch (Exception ex)
             {
-                return null;
+                throw new Exception(ex.Message);
             }
         }
 
@@ -210,7 +303,7 @@ namespace KuCoinApi.NetCore.Data
             }
             catch (Exception ex)
             {
-                return null;
+                throw new Exception(ex.Message);
             }
         }
 
@@ -241,7 +334,7 @@ namespace KuCoinApi.NetCore.Data
             }
             catch (Exception ex)
             {
-                return null;
+                throw new Exception(ex.Message);
             }
         }
 
@@ -265,7 +358,7 @@ namespace KuCoinApi.NetCore.Data
             }
             catch (Exception ex)
             {
-                return null;
+                throw new Exception(ex.Message);
             }
         }
 
@@ -299,7 +392,7 @@ namespace KuCoinApi.NetCore.Data
             }
             catch (Exception ex)
             {
-                return null;
+                throw new Exception(ex.Message);
             }
         }
 
@@ -334,7 +427,7 @@ namespace KuCoinApi.NetCore.Data
             }
             catch (Exception ex)
             {
-                return null;
+                throw new Exception(ex.Message);
             }
         }
 
@@ -355,7 +448,7 @@ namespace KuCoinApi.NetCore.Data
             }
             catch (Exception ex)
             {
-                return null;
+                throw new Exception(ex.Message);
             }
         }
 
@@ -378,7 +471,7 @@ namespace KuCoinApi.NetCore.Data
             }
             catch(Exception ex)
             {
-                return null;
+                throw new Exception(ex.Message);
             }
         }
 
@@ -399,7 +492,7 @@ namespace KuCoinApi.NetCore.Data
             }
             catch (Exception ex)
             {
-                return null;
+                throw new Exception(ex.Message);
             }
         }
 
@@ -420,7 +513,7 @@ namespace KuCoinApi.NetCore.Data
             }
             catch (Exception ex)
             {
-                return null;
+                throw new Exception(ex.Message);
             }
         }
 
@@ -449,7 +542,7 @@ namespace KuCoinApi.NetCore.Data
             }
             catch (Exception ex)
             {
-                return null;
+                throw new Exception(ex.Message);
             }
         }
 
@@ -470,7 +563,7 @@ namespace KuCoinApi.NetCore.Data
             }
             catch (Exception ex)
             {
-                return null;
+                throw new Exception(ex.Message);
             }
         }
 
@@ -491,7 +584,7 @@ namespace KuCoinApi.NetCore.Data
             }
             catch (Exception ex)
             {
-                return null;
+                throw new Exception(ex.Message);
             }
         }
 
@@ -517,7 +610,7 @@ namespace KuCoinApi.NetCore.Data
             }
             catch (Exception ex)
             {
-                return null;
+                throw new Exception(ex.Message);
             }
         }
 
@@ -530,9 +623,9 @@ namespace KuCoinApi.NetCore.Data
             var endpoint = "/v1/time";
             var url = baseUrl + endpoint;
 
-            var response = await _restRepo.GetApi<long>(url);
+            var response = await _restRepo.GetApi<Dictionary<string, object>>(url);
 
-            return response;
+            return Convert.ToInt64(response["timestamp"]);
         }
 
         /// <summary>
@@ -556,7 +649,172 @@ namespace KuCoinApi.NetCore.Data
             }
             catch (Exception ex)
             {
-                return null;
+                throw new Exception(ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Withdraw funds from exchange
+        /// </summary>
+        /// <param name="symbol">String of symbol</param>
+        /// <param name="amount">Amount to send</param>
+        /// <param name="address">Address to send funds</param>
+        /// <returns>Boolean of withdraw attempt</returns>
+        public async Task<bool> WithdrawFunds(string symbol, decimal amount, string address)
+        {
+            return await OnWithdrawFunds(symbol, amount, address, string.Empty);
+        }
+
+        /// <summary>
+        /// Withdraw funds from exchange
+        /// </summary>
+        /// <param name="symbol">String of symbol</param>
+        /// <param name="amount">Amount to send</param>
+        /// <param name="address">Address to send funds</param>
+        /// <param name="memo">Address memo</param>
+        /// <returns>Boolean of withdraw attempt</returns>
+        public async Task<bool> WithdrawFunds(string symbol, decimal amount, string address, string memo)
+        {
+            return await OnWithdrawFunds(symbol, amount, address, memo);
+        }
+
+        /// <summary>
+        /// Withdraw funds from exchange
+        /// </summary>
+        /// <param name="symbol">String of symbol</param>
+        /// <param name="amount">Amount to send</param>
+        /// <param name="address">Address to send funds</param>
+        /// <param name="memo">Address memo</param>
+        /// <returns>Boolean of withdraw attempt</returns>
+        private async Task<bool> OnWithdrawFunds(string symbol, decimal amount, string address, string memo)
+        {
+            var endpoint = $"/v1/account/{symbol}/withdraw/apply";
+
+            address = !string.IsNullOrEmpty(memo) ? $"{address}@{memo}" : address;
+
+            var queryString = new List<string>
+            {
+                $"address={address}",
+                $"amount={amount}",
+                $"coin={symbol}"
+            };
+
+            var headers = GetRequestHeaders(endpoint, queryString.ToArray());
+
+            var url = baseUrl + endpoint + "?" + _helper.ArrayToString(queryString.ToArray());
+
+            try
+            {
+                var response = await _restRepo.PostApi<ApiResponse<string>>(url, headers);
+
+                return response.success;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// List account deposits
+        /// </summary>
+        /// <param name="symbol">String of symbol</param>
+        /// <returns>Collection of deposits</returns>
+        public async Task<DealOrder<DepositWithdrawTransaction[]>> GetDeposits(string symbol)
+        {
+            return await OnGetDepositsAndWithdrawals(symbol, DWType.DEPOSIT, DWStatus.NONE, 1);
+        }
+
+        /// <summary>
+        /// List account withdrawals
+        /// </summary>
+        /// <param name="symbol">String of symbol</param>
+        /// <returns>Collection of withdrawals</returns>
+        public async Task<DealOrder<DepositWithdrawTransaction[]>> GetWithdrawals(string symbol)
+        {
+            return await OnGetDepositsAndWithdrawals(symbol, DWType.WITHDRAW, DWStatus.NONE, 1);
+        }
+
+        /// <summary>
+        /// List account deposits
+        /// </summary>
+        /// <param name="symbol">String of symbol</param>
+        /// <param name="status">Status of deposit</param>
+        /// <returns>Collection of deposits</returns>
+        public async Task<DealOrder<DepositWithdrawTransaction[]>> GetDeposits(string symbol, DWStatus status)
+        {
+            return await OnGetDepositsAndWithdrawals(symbol, DWType.DEPOSIT, status, 1);
+        }
+
+        /// <summary>
+        /// List account withdrawals
+        /// </summary>
+        /// <param name="symbol">String of symbol</param>
+        /// <param name="status">Status of withdrawals</param>
+        /// <returns>Collection of withdrawals</returns>
+        public async Task<DealOrder<DepositWithdrawTransaction[]>> GetWithdrawals(string symbol, DWStatus status)
+        {
+            return await OnGetDepositsAndWithdrawals(symbol, DWType.WITHDRAW, status, 1);
+        }
+
+        /// <summary>
+        /// List account deposits
+        /// </summary>
+        /// <param name="symbol">String of symbol</param>
+        /// <param name="status">Status of deposit</param>
+        /// <param name="page">Page to return (default = 1)</param>
+        /// <returns>Collection of deposits</returns>
+        public async Task<DealOrder<DepositWithdrawTransaction[]>> GetDeposits(string symbol, DWStatus status, int page = 1)
+        {
+            return await OnGetDepositsAndWithdrawals(symbol, DWType.DEPOSIT, status, page);
+        }
+
+        /// <summary>
+        /// List account withdrawals
+        /// </summary>
+        /// <param name="symbol">String of symbol</param>
+        /// <param name="status">Status of withdrawals</param>
+        /// <param name="page">Page to return (default = 1)</param>
+        /// <returns>Collection of withdrawals</returns>
+        public async Task<DealOrder<DepositWithdrawTransaction[]>> GetWithdrawals(string symbol, DWStatus status, int page = 1)
+        {
+            return await OnGetDepositsAndWithdrawals(symbol, DWType.WITHDRAW, status, page);
+        }
+
+        /// <summary>
+        /// Withdraw funds from exchange
+        /// </summary>
+        /// <param name="symbol">String of symbol</param>
+        /// <param name="type">Type to return</param>
+        /// <param name="status">Status of action</param>
+        /// <param name="page">Page to return (default = 1)</param>
+        /// <returns>Boolean of withdraw attempt</returns>
+        private async Task<DealOrder<DepositWithdrawTransaction[]>> OnGetDepositsAndWithdrawals(string symbol, DWType type, DWStatus status, int page = 1)
+        {
+            var endpoint = $"/v1/account/{symbol}/wallet/records";
+
+            var queryString = new List<string>();
+
+            queryString.Add($"page={page}");
+            if (status != DWStatus.NONE)
+            {
+                queryString.Add($"status={status.ToString()}");
+            }
+            queryString.Add($"type={type.ToString()}");
+
+            var headers = GetRequestHeaders(endpoint, queryString.ToArray());
+
+            var url = baseUrl + endpoint + "?" + _helper.ArrayToString(queryString.ToArray());
+
+            try
+            {
+                var response = await _restRepo.GetApiStream<ApiResponse<DealOrder<DepositWithdrawTransaction[]>>>(url, headers);
+
+                return response.data;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
             }
         }
 
@@ -568,7 +826,7 @@ namespace KuCoinApi.NetCore.Data
         /// <returns>Dictionary of request headers</returns>
         private Dictionary<string, string> GetRequestHeaders(string endpoint, string[] queryString = null)
         {
-            var nonce = _dtHelper.UTCtoUnixTimeMilliseconds().ToString();
+            var nonce = GetTimestamp().ToString();
             var headers = new Dictionary<string, string>();
 
             headers.Add("KC-API-KEY", _apiInfo.apiKey);
@@ -589,7 +847,7 @@ namespace KuCoinApi.NetCore.Data
         /// <returns>Dictionary of request headers</returns>
         private Dictionary<string, string> PostRequestHeaders<T>(string endpoint, string[] queryString, T postData)
         {
-            var nonce = _dtHelper.UTCtoUnixTimeMilliseconds().ToString();
+            var nonce = GetTimestamp().ToString();
             var headers = new Dictionary<string, string>();
 
             headers.Add("KC-API-KEY", _apiInfo.apiKey);

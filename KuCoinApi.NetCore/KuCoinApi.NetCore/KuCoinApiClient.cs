@@ -65,12 +65,22 @@ namespace KuCoinApi.NetCore
         }
 
         /// <summary>
+        /// Get account balance of a coin
+        /// </summary>
+        /// <param name="symbol">Symbol of currency</param>
+        /// <returns>Balance object</returns>
+        public Balance GetBalance(string symbol)
+        {
+            return _repository.GetBalance(symbol).Result;
+        }
+
+        /// <summary>
         /// Get account balance
         /// </summary>
         /// <returns>Balance array</returns>
         public Balance[] GetBalance()
         {
-            return _repository.GetBalance().Result;
+            return _repository.GetBalances().Result;
         }
 
         /// <summary>
@@ -236,6 +246,97 @@ namespace KuCoinApi.NetCore
         }
 
         /// <summary>
+        /// Withdraw funds from exchange
+        /// </summary>
+        /// <param name="symbol">String of symbol</param>
+        /// <param name="amount">Amount to send</param>
+        /// <param name="address">Address to send funds</param>
+        /// <returns>Boolean of withdraw attempt</returns>
+        public bool WithdrawFunds(string symbol, decimal amount, string address)
+        {
+            return _repository.WithdrawFunds(symbol, amount, address).Result;
+        }
+
+        /// <summary>
+        /// Withdraw funds from exchange
+        /// </summary>
+        /// <param name="symbol">String of symbol</param>
+        /// <param name="amount">Amount to send</param>
+        /// <param name="address">Address to send funds</param>
+        /// <param name="memo">Address memo</param>
+        /// <returns>Boolean of withdraw attempt</returns>
+        public bool WithdrawFunds(string symbol, decimal amount, string address, string memo)
+        {
+            return _repository.WithdrawFunds(symbol, amount, address, memo).Result;
+        }
+
+        /// <summary>
+        /// List account deposits
+        /// </summary>
+        /// <param name="symbol">String of symbol</param>
+        /// <returns>Collection of deposits</returns>
+        public DealOrder<DepositWithdrawTransaction[]> GetDeposits(string symbol)
+        {
+            return _repository.GetDeposits(symbol).Result;
+        }
+
+        /// <summary>
+        /// List account withdrawals
+        /// </summary>
+        /// <param name="symbol">String of symbol</param>
+        /// <returns>Collection of withdrawals</returns>
+        public DealOrder<DepositWithdrawTransaction[]> GetWithdrawals(string symbol)
+        {
+            return _repository.GetWithdrawals(symbol).Result;
+        }
+
+        /// <summary>
+        /// List account deposits
+        /// </summary>
+        /// <param name="symbol">String of symbol</param>
+        /// <param name="status">Status of deposit</param>
+        /// <returns>Collection of deposits</returns>
+        public DealOrder<DepositWithdrawTransaction[]> GetDeposits(string symbol, DWStatus status)
+        {
+            return _repository.GetDeposits(symbol, status).Result;
+        }
+
+        /// <summary>
+        /// List account withdrawals
+        /// </summary>
+        /// <param name="symbol">String of symbol</param>
+        /// <param name="status">Status of withdrawals</param>
+        /// <returns>Collection of withdrawals</returns>
+        public DealOrder<DepositWithdrawTransaction[]> GetWithdrawals(string symbol, DWStatus status)
+        {
+            return _repository.GetWithdrawals(symbol, status).Result;
+        }
+
+        /// <summary>
+        /// List account deposits
+        /// </summary>
+        /// <param name="symbol">String of symbol</param>
+        /// <param name="status">Status of deposit</param>
+        /// <param name="page">Page to return (default = 1)</param>
+        /// <returns>Collection of deposits</returns>
+        public DealOrder<DepositWithdrawTransaction[]> GetDeposits(string symbol, DWStatus status, int page = 1)
+        {
+            return _repository.GetDeposits(symbol, status, page).Result;
+        }
+
+        /// <summary>
+        /// List account withdrawals
+        /// </summary>
+        /// <param name="symbol">String of symbol</param>
+        /// <param name="status">Status of withdrawals</param>
+        /// <param name="page">Page to return (default = 1)</param>
+        /// <returns>Collection of withdrawals</returns>
+        public DealOrder<DepositWithdrawTransaction[]> GetWithdrawals(string symbol, DWStatus status, int page = 1)
+        {
+            return _repository.GetWithdrawals(symbol, status, page).Result;
+        }
+
+        /// <summary>
         /// Get candlesticks
         /// </summary>
         /// <param name="symbol">String of symbol</param>
@@ -248,12 +349,22 @@ namespace KuCoinApi.NetCore
         }
 
         /// <summary>
+        /// Get account balance of a coin
+        /// </summary>
+        /// <param name="symbol">Symbol of currency</param>
+        /// <returns>Balance object</returns>
+        public async Task<Balance> GetBalanceAsync(string symbol)
+        {
+            return await _repository.GetBalance(symbol);
+        }
+
+        /// <summary>
         /// Get account balance
         /// </summary>
         /// <returns>Balance array</returns>
         public async Task<Balance[]> GetBalanceAsync()
         {
-            return await _repository.GetBalance();
+            return await _repository.GetBalances();
         }
 
         /// <summary>
@@ -407,6 +518,97 @@ namespace KuCoinApi.NetCore
         public async Task<string> GetDepositAddressAsync(string symbol)
         {
             return await _repository.GetDepositAddress(symbol);
+        }
+
+        /// <summary>
+        /// Withdraw funds from exchange
+        /// </summary>
+        /// <param name="symbol">String of symbol</param>
+        /// <param name="amount">Amount to send</param>
+        /// <param name="address">Address to send funds</param>
+        /// <returns>Boolean of withdraw attempt</returns>
+        public async Task<bool> WithdrawFundsAsync(string symbol, decimal amount, string address)
+        {
+            return await _repository.WithdrawFunds(symbol, amount, address);
+        }
+
+        /// <summary>
+        /// Withdraw funds from exchange
+        /// </summary>
+        /// <param name="symbol">String of symbol</param>
+        /// <param name="amount">Amount to send</param>
+        /// <param name="address">Address to send funds</param>
+        /// <param name="memo">Address memo</param>
+        /// <returns>Boolean of withdraw attempt</returns>
+        public async Task<bool> WithdrawFundsAsync(string symbol, decimal amount, string address, string memo)
+        {
+            return await _repository.WithdrawFunds(symbol, amount, address, memo);
+        }
+
+        /// <summary>
+        /// List account deposits
+        /// </summary>
+        /// <param name="symbol">String of symbol</param>
+        /// <returns>Collection of deposits</returns>
+        public async Task<DealOrder<DepositWithdrawTransaction[]>> GetDepositsAsync(string symbol)
+        {
+            return await _repository.GetDeposits(symbol);
+        }
+
+        /// <summary>
+        /// List account withdrawals
+        /// </summary>
+        /// <param name="symbol">String of symbol</param>
+        /// <returns>Collection of withdrawals</returns>
+        public async Task<DealOrder<DepositWithdrawTransaction[]>> GetWithdrawalsAsync(string symbol)
+        {
+            return await _repository.GetWithdrawals(symbol);
+        }
+
+        /// <summary>
+        /// List account deposits
+        /// </summary>
+        /// <param name="symbol">String of symbol</param>
+        /// <param name="status">Status of deposit</param>
+        /// <returns>Collection of deposits</returns>
+        public async Task<DealOrder<DepositWithdrawTransaction[]>> GetDepositsAsync(string symbol, DWStatus status)
+        {
+            return await _repository.GetDeposits(symbol, status);
+        }
+
+        /// <summary>
+        /// List account withdrawals
+        /// </summary>
+        /// <param name="symbol">String of symbol</param>
+        /// <param name="status">Status of deposit</param>
+        /// <returns>Collection of withdrawals</returns>
+        public async Task<DealOrder<DepositWithdrawTransaction[]>> GetWithdrawalsAsync(string symbol, DWStatus status)
+        {
+            return await _repository.GetWithdrawals(symbol, status);
+        }
+
+        /// <summary>
+        /// List account deposits
+        /// </summary>
+        /// <param name="symbol">String of symbol</param>
+        /// <param name="status">Status of deposit</param>
+        /// <param name="page">Page to return (default = 1)</param>
+        /// <returns>Collection of deposits</returns>
+        public async Task<DealOrder<DepositWithdrawTransaction[]>> GetDepositsAsync(string symbol, DWStatus status, int page = 1)
+        {
+            return await _repository.GetWithdrawals(symbol, status, page);
+        }
+
+        /// <summary>
+        /// List account withdrawals
+        /// </summary>
+        /// <param name="symbol">String of symbol</param>
+        /// <param name="status">Status of deposit</param>
+        /// <param name="page">Page to return (default = 1)</param>
+        /// <returns>Collection of withdrawals</returns>
+        public async Task<DealOrder<DepositWithdrawTransaction[]>> GetWithdrawalsAsync(string symbol, DWStatus status, int page = 1)
+        {
+            return await _repository.GetWithdrawals(symbol, status, page);
         }
     }
 }

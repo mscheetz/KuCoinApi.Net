@@ -51,11 +51,28 @@ namespace KuCoinApi.NetCore.Tests
         }
 
         [Fact]
-        public void GetAccountBalanceTest()
+        public void GetAccountBalancesTest()
         {
-            var balances= _repo.GetBalance().Result;
+            var balances= _repo.GetBalances().Result;
 
             Assert.True(balances != null);
+        }
+
+        [Fact]
+        public void GetAccountBalancesLimitsTest()
+        {
+            var balances = _repo.GetBalances(5, 1).Result;
+
+            Assert.True(balances != null);
+        }
+
+        [Fact]
+        public void GetAccountBalanceOneCoinTest()
+        {
+            var symbol = "KCS";
+            var balance = _repo.GetBalance(symbol).Result;
+
+            Assert.True(balance != null);
         }
 
         [Fact]
@@ -213,6 +230,41 @@ namespace KuCoinApi.NetCore.Tests
             var address = _repo.GetDepositAddress(symbol).Result;
 
             Assert.NotNull(address);
+        }
+
+        [Fact]
+        public void WithdrawFundsTest()
+        {
+            var symbol = "XLM";
+            var amount = 29.98M;
+            var address = "GAHK7EEG2WWHVKDNT4CEQFZGKF2LGDSW2IVM4S5DP42RBW3K6BTODB4A";
+            var memo = "1046303265";
+
+            var confirmation = _repo.WithdrawFunds(symbol, amount, address, memo).Result;
+
+            Assert.True(confirmation);
+        }
+
+        [Fact]
+        public void GetDepositsTest()
+        {
+            var symbol = "XLM";
+            var status = DWStatus.SUCCESS;
+
+            var deposits = _repo.GetDeposits(symbol, status).Result;
+
+            Assert.NotNull(deposits);
+        }
+
+        [Fact]
+        public void GetWithdrawalsTest()
+        {
+            var symbol = "XLM";
+            var status = DWStatus.SUCCESS;
+
+            var deposits = _repo.GetWithdrawals(symbol, status).Result;
+
+            Assert.NotNull(deposits);
         }
     }
 }

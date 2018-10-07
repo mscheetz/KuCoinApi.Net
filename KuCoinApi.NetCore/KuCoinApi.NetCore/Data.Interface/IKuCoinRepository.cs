@@ -25,7 +25,22 @@ namespace KuCoinApi.NetCore.Data.Interface
         /// Get account balance
         /// </summary>
         /// <returns>Balance array</returns>
-        Task<Balance[]> GetBalance();
+        Task<Balance[]> GetBalances();
+
+        /// <summary>
+        /// Get account balance
+        /// </summary>
+        /// <param name="limit">Number of balances per page</param>
+        /// <param name="pageNo">Page to return</param>
+        /// <returns>Balance array</returns>
+        Task<Balance[]> GetBalances(int limit, int pageNo);
+
+        /// <summary>
+        /// Get account balance of a coin
+        /// </summary>
+        /// <param name="symbol">Symbol of currency</param>
+        /// <returns>Balance object</returns>
+        Task<Balance> GetBalance(string symbol);
 
         /// <summary>
         /// Get order information
@@ -140,5 +155,72 @@ namespace KuCoinApi.NetCore.Data.Interface
         /// <param name="symbol">String of symbol</param>
         /// <returns>String of address</returns>
         Task<string> GetDepositAddress(string symbol);
+
+        /// <summary>
+        /// Withdraw funds from exchange
+        /// </summary>
+        /// <param name="symbol">String of symbol</param>
+        /// <param name="amount">Amount to send</param>
+        /// <param name="address">Address to send funds</param>
+        /// <returns>Boolean of withdraw attempt</returns>
+        Task<bool> WithdrawFunds(string symbol, decimal amount, string address);
+
+        /// <summary>
+        /// Withdraw funds from exchange
+        /// </summary>
+        /// <param name="symbol">String of symbol</param>
+        /// <param name="amount">Amount to send</param>
+        /// <param name="address">Address to send funds</param>
+        /// <param name="memo">Address memo</param>
+        /// <returns>Boolean of withdraw attempt</returns>
+        Task<bool> WithdrawFunds(string symbol, decimal amount, string address, string memo);
+
+        /// <summary>
+        /// List account deposits
+        /// </summary>
+        /// <param name="symbol">String of symbol</param>
+        /// <returns>Collection of deposits</returns>
+        Task<DealOrder<DepositWithdrawTransaction[]>> GetDeposits(string symbol);
+
+        /// <summary>
+        /// List account withdrawals
+        /// </summary>
+        /// <param name="symbol">String of symbol</param>
+        /// <returns>Collection of withdrawals</returns>
+        Task<DealOrder<DepositWithdrawTransaction[]>> GetWithdrawals(string symbol);
+
+        /// <summary>
+        /// List account deposits
+        /// </summary>
+        /// <param name="symbol">String of symbol</param>
+        /// <param name="status">Status of deposit</param>
+        /// <returns>Collection of deposits</returns>
+        Task<DealOrder<DepositWithdrawTransaction[]>> GetDeposits(string symbol, DWStatus status);
+
+        /// <summary>
+        /// List account withdrawals
+        /// </summary>
+        /// <param name="symbol">String of symbol</param>
+        /// <param name="status">Status of withdrawals</param>
+        /// <returns>Collection of withdrawals</returns>
+        Task<DealOrder<DepositWithdrawTransaction[]>> GetWithdrawals(string symbol, DWStatus status);
+
+        /// <summary>
+        /// List account deposits
+        /// </summary>
+        /// <param name="symbol">String of symbol</param>
+        /// <param name="status">Status of deposit</param>
+        /// <param name="page">Page to return (default = 1)</param>
+        /// <returns>Collection of deposits</returns>
+        Task<DealOrder<DepositWithdrawTransaction[]>> GetDeposits(string symbol, DWStatus status, int page = 1);
+
+        /// <summary>
+        /// List account withdrawals
+        /// </summary>
+        /// <param name="symbol">String of symbol</param>
+        /// <param name="status">Status of withdrawals</param>
+        /// <param name="page">Page to return (default = 1)</param>
+        /// <returns>Collection of withdrawals</returns>
+        Task<DealOrder<DepositWithdrawTransaction[]>> GetWithdrawals(string symbol, DWStatus status, int page = 1);
     }
 }
