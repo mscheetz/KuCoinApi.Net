@@ -40,25 +40,26 @@ var balance = kucoin.GetBalance();
 ```
 
 Non-secure endpoints:  
-GetCandlesticks() - Get charting candlesticks  
-GetOrderBook() - Get current order book for a trading pair  
-GetTick() - Get tick for a trading pair  
-GetTicks() - Get ticker for all trading pairs  
-GetMarkets() - Get markets trading on exchange  
-GetTradingSymbolTick() - Get details for all coins  
-GetTradingPairs() - Get all trading pairs on exchange  
-GetCoin() - Get information about a coin
-GetCoins() - Get information about all coins
-GetTrendings() - Get open sells for all pairs or a market  
+GetCandlesticks() | GetCandlesticksAsync() - Get charting candlesticks  
+GetOrderBook() | GetOrderBookAsync() - Get current order book for a trading pair  
+GetTick() | GetTickAsync()- Get tick for a trading pair  
+GetTicks() | GetTicksAsync() - Get ticker for all trading pairs  
+GetMarkets() | GetMarketsAsync() - Get markets trading on exchange  
+GetTradingSymbolTick() GetTradingSymbolTickAsync() - Get details for all coins  
+GetTradingPairs() | GetTradingPairsAsync() - Get all trading pairs on exchange  
+GetCoin() | GetCoinAsync() - Get information about a coin  
+GetCoins() | GetCoinsAsync() - Get information about all coins  
+GetTrendings() | GetTrendingsAsync() - Get open sells for all pairs or a market  
 GetKuCoinTime() - Get current KuCoin server time  
 
 Secure endpoints:  
-GetBalance() - Get current asset balances  
-GetOrder() - Get information for an order  
-GetOrders() - Get all current user order information  
-GetOpenOrders() - Get all current user open orders   
-PostTrade() - Post a new trade  
-DeleteTrade() - Delete a current open trade  
+GetBalance() | GetBalanceAsync() - Get current asset balances  
+GetOrder() | GetOrderAsync() - Get information for an order  
+GetOrders() | GetOrdersAsync() - Get all current user order information  
+GetOpenOrders() | GetOpenOrdersAsync() - Get all current user open orders   
+PostTrade() | PostTradeAsync() - Post a new trade  
+DeleteTrade() | DeleteTradeAsync() - Delete a current open trade  
+GetDepositAddress() | GetDepositAddressAsync() - Get deposit address  
 
 KCS:  
 0x011bd184fc7fd1964702844ffd668318f7c3d4c4  
