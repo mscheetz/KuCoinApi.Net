@@ -9,6 +9,7 @@ PM> Install-Package KuCoinApi.NetCore
   
 To trade, log into your KuCoin account and create an api key with trading permissions:  
 Account -> API Keys -> Create (with Read Information & Trading Authority)  
+** if you wish to use withdraw endpoint, you need to enable withdraws on your API key  
   
 Initialization:  
 Non-secured endpoints only:  
@@ -60,6 +61,9 @@ GetOpenOrders() | GetOpenOrdersAsync() - Get all current user open orders
 PostTrade() | PostTradeAsync() - Post a new trade  
 DeleteTrade() | DeleteTradeAsync() - Delete a current open trade  
 GetDepositAddress() | GetDepositAddressAsync() - Get deposit address  
+WithdrawFunds() | WithdrawFundsAsync() - Withdraw from exchange  
+GetDeposits() | GetDepositsAsync() - Get deposit history  
+GetWithdrawals() | GetWithdrawalsAsync() - Get withdraw history  
 
 KCS:  
 0x011bd184fc7fd1964702844ffd668318f7c3d4c4  
