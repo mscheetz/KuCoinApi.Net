@@ -1,26 +1,24 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <Authors>Matt Scheetz</Authors>
     <PackageProjectUrl>https://github.com/mscheetz/KuCoinApi.NetCore</PackageProjectUrl>
     <RepositoryUrl>https://github.com/mscheetz/KuCoinApi.NetCore</RepositoryUrl>
-    <PackageTags>kucoin cryptocurrency exchange trading api net core bitcoin</PackageTags>
-    <Description>Api library for accessing the KuCoin exchange Api</Description>
+    <PackageTags>kucoin cryptocurrency exchange trading api net standard bitcoin</PackageTags>
+    <Description>Api library for accessing the KuCoin exchange Api using .Net Standard</Description>
     <Copyright>2018 Matt Scheetz</Copyright>
-    <PackageReleaseNotes>Withdrawal endpoints plus deposit/withdraw history</PackageReleaseNotes>
+    <PackageReleaseNotes>Update to use .Net Standard</PackageReleaseNotes>
     <IsPackable>true</IsPackable>
-    <Version>1.4.2</Version>
+    <Version>1.5.0</Version>
     <PackageLicenseUrl>https://github.com/mscheetz/KuCoinApi.NetCore/blob/master/LICENSE</PackageLicenseUrl>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DateTimeHelpers" Version="1.0.0" />
-    <PackageReference Include="FileRepository" Version="1.0.0" />
+    <PackageReference Include="DateTimeHelpers" Version="1.3.0" />
+    <PackageReference Include="FileRepository" Version="1.1.0" />
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
-    <PackageReference Include="RESTApiAccess" Version="1.0.0" />
-    <PackageReference Include="xunit" Version="2.4.0" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.0" />
+    <PackageReference Include="RESTApiAccess" Version="1.2.1" />
   </ItemGroup>
 
   <ItemGroup>
