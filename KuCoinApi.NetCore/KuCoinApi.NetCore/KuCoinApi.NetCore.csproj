@@ -8,9 +8,9 @@
     <PackageTags>kucoin cryptocurrency exchange trading api net standard bitcoin</PackageTags>
     <Description>Api library for accessing the KuCoin exchange Api using .Net Standard</Description>
     <Copyright>2018 Matt Scheetz</Copyright>
-    <PackageReleaseNotes>Include comments for nuget package</PackageReleaseNotes>
+    <PackageReleaseNotes>New limit order and market order endpoints</PackageReleaseNotes>
     <IsPackable>true</IsPackable>
-    <Version>1.5.1</Version>
+    <Version>1.5.2</Version>
     <PackageLicenseUrl>https://github.com/mscheetz/KuCoinApi.NetCore/blob/master/LICENSE</PackageLicenseUrl>
   </PropertyGroup>
 
