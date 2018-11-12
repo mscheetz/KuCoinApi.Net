@@ -80,4 +80,10 @@ namespace KuCoinApi.NetCore.Entities
         SUCCESS,
         NONE
     }
+
+    public enum Side
+    {
+        BUY,
+        SELL
+    }
 }
