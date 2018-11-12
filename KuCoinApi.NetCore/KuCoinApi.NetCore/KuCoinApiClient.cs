@@ -55,13 +55,13 @@ namespace KuCoinApi.NetCore
         /// <summary>
         /// Get candlesticks
         /// </summary>
-        /// <param name="symbol">String of symbol</param>
+        /// <param name="pair">String of pair</param>
         /// <param name="size">stick size</param>
         /// <param name="limit">number of sticks</param>
         /// <returns>ChartValue object</returns>
-        public ChartValue GetCandlesticks(string symbol, Interval size, int limit)
+        public ChartValue GetCandlesticks(string pair, Interval size, int limit)
         {
-            return _repository.GetCandlesticks(symbol, size, limit).Result;
+            return _repository.GetCandlesticks(pair, size, limit).Result;
         }
 
         /// <summary>
@@ -84,50 +84,102 @@ namespace KuCoinApi.NetCore
         }
 
         /// <summary>
+        /// Get account balances of all coins
+        /// </summary>
+        /// <returns>Balance array</returns>
+        public Balance[] GetBalances()
+        {
+            return _repository.GetBalances().Result;
+        }
+
+        /// <summary>
         /// Get order information
         /// </summary>
-        /// <param name="symbol">string of symbol</param>
+        /// <param name="pair">string of pair</param>
         /// <param name="tradeType">Trade type</param>
         /// <param name="orderId">long of orderId</param>
         /// <param name="page">Page number, default 1</param>
         /// <param name="limit">Number of fills to return, default 20</param>
         /// <returns>OrderResponse object</returns>
-        public OrderListDetail GetOrder(string symbol, TradeType tradeType, long orderId, int page = 1, int limit = 20)
+        public OrderListDetail GetOrder(string pair, TradeType tradeType, long orderId, int page = 1, int limit = 20)
         {
-            return _repository.GetOrder(symbol, tradeType, orderId, page, limit).Result;
+            return _repository.GetOrder(pair, tradeType, orderId, page, limit).Result;
         }
 
         /// <summary>
         /// Get all current user order information
         /// </summary>
-        /// <param name="symbol">string of symbol</param>
+        /// <param name="pair">string of pair</param>
         /// <param name="limit">Int of orders count to return, default 20</param>
         /// <param name="page">Int of page number</param>
         /// <returns>OpenOrderResponse object</returns>
-        public OrderListDetail[] GetOrders(string symbol, int limit = 20, int page = 1)
+        public OrderListDetail[] GetOrders(string pair, int limit = 20, int page = 1)
         {
-            return _repository.GetOrders(symbol, limit, page).Result;
+            return _repository.GetOrders(pair, limit, page).Result;
         }
 
         /// <summary>
         /// Get all open orders
         /// </summary>
-        /// <param name="symbol">string of symbol</param>
+        /// <param name="pair">string of pair</param>
         /// <returns>KuCoinOpenOrders object</returns>
-        public OpenOrderResponse GetOpenOrders(string symbol)
+        public OpenOrderResponse GetOpenOrders(string pair)
         {
-            return _repository.GetOpenOrders(symbol).Result;
+            return _repository.GetOpenOrders(pair).Result;
         }
 
         /// <summary>
         /// Get Order Book for a pair
         /// </summary>
-        /// <param name="symbol">string of trading pair</param>
+        /// <param name="pair">string of trading pair</param>
         /// <param name="limit">number of orders to return per side, default 100</param>
         /// <returns>OrderBook object</returns>
-        public OrderBookResponse GetOrderBook(string symbol, int limit = 100)
+        public OrderBookResponse GetOrderBook(string pair, int limit = 100)
         {
-            return _repository.GetOrderBook(symbol, limit).Result;
+            return _repository.GetOrderBook(pair, limit).Result;
+        }
+
+        /// <summary>
+        /// Place a limit order
+        /// </summary>
+        /// <param name="pair">String of trading pair</param>
+        /// <param name="price">price of trade</param>
+        /// <param name="quantity">quantity to trade</param>
+        /// <param name="side">trade side</param>
+        /// <returns>KuCoinResponse object</returns>
+        public ApiResponse<Dictionary<string, string>> LimitOrder(string pair, decimal price, decimal quantity, Side side)
+        {
+            var parms = new TradeParams
+            {
+                price = price,
+                quantity = quantity,
+                symbol = pair,
+                side = side.ToString()
+            };
+
+            return _repository.PostTrade(parms).Result;
+        }
+
+        /// <summary>
+        /// Place a market order
+        /// </summary>
+        /// <param name="pair">String of trading pair</param>
+        /// <param name="quantity">quantity to trade</param>
+        /// <param name="side">trade side</param>
+        /// <returns>KuCoinResponse object</returns>
+        public ApiResponse<Dictionary<string, string>> MarketOrder(string pair, decimal quantity, Side side)
+        {
+            var price = GetTick(pair).lastDealPrice;
+
+            var parms = new TradeParams
+            {
+                price = price,
+                quantity = quantity,
+                symbol = pair,
+                side = side.ToString()
+            };
+
+            return _repository.PostTrade(parms).Result;
         }
 
         /// <summary>
@@ -143,13 +195,13 @@ namespace KuCoinApi.NetCore
         /// <summary>
         /// Delete/Cancel a trade
         /// </summary>
-        /// <param name="symbol">Trading symbol</param>
+        /// <param name="pair">Trading pair</param>
         /// <param name="orderOid">Order id to cancel</param>
         /// <param name="tradeType">Trade type to cancel</param>
         /// <returns>TradeResponse object</returns>
-        public DeleteResponse DeleteTrade(string symbol, string orderOid, string tradeType)
+        public DeleteResponse DeleteTrade(string pair, string orderOid, string tradeType)
         {
-            return _repository.DeleteTrade(symbol, orderOid, tradeType).Result;
+            return _repository.DeleteTrade(pair, orderOid, tradeType).Result;
         }
 
         /// <summary>
@@ -162,19 +214,19 @@ namespace KuCoinApi.NetCore
         }
 
         /// <summary>
-        /// Get Tick for a symbol
+        /// Get Tick for a pair
         /// </summary>
-        /// <param name="symbol">Trading symbol</param>
+        /// <param name="pair">Trading pair</param>
         /// <returns>KuCoinTick object</returns>
-        public Tick GetTick(string symbol)
+        public Tick GetTick(string pair)
         {
-            return _repository.GetTick(symbol).Result;
+            return _repository.GetTick(pair).Result;
         }
 
         /// <summary>
         /// Get Markets trading on exchange
         /// </summary>
-        /// <returns>Array of symbol strings</returns>
+        /// <returns>Array of pair strings</returns>
         public string[] GetMarkets()
         {
             return _repository.GetMarkets().Result;
@@ -368,50 +420,102 @@ namespace KuCoinApi.NetCore
         }
 
         /// <summary>
+        /// Get account balances of all coins
+        /// </summary>
+        /// <returns>Balance array</returns>
+        public async Task<Balance[]> GetBalancesAsync()
+        {
+            return await _repository.GetBalances();
+        }
+
+        /// <summary>
         /// Get order information
         /// </summary>
-        /// <param name="symbol">string of symbol</param>
+        /// <param name="pair">string of pair</param>
         /// <param name="tradeType">Trade type</param>
         /// <param name="orderId">long of orderId</param>
         /// <param name="page">Page number, default 1</param>
         /// <param name="limit">Number of fills to return, default 20</param>
         /// <returns>OrderResponse object</returns>
-        public async Task<OrderListDetail> GetOrderAsync(string symbol, TradeType tradeType, long orderId, int page = 1, int limit = 20)
+        public async Task<OrderListDetail> GetOrderAsync(string pair, TradeType tradeType, long orderId, int page = 1, int limit = 20)
         {
-            return await _repository.GetOrder(symbol, tradeType, orderId, page, limit);
+            return await _repository.GetOrder(pair, tradeType, orderId, page, limit);
         }
 
         /// <summary>
         /// Get all current user order information
         /// </summary>
-        /// <param name="symbol">string of symbol</param>
+        /// <param name="pair">string of pair</param>
         /// <param name="limit">Int of orders count to return, default 20</param>
         /// <param name="page">Int of page number</param>
         /// <returns>OpenOrderResponse object</returns>
-        public async Task<OrderListDetail[]> GetOrdersAsync(string symbol, int limit = 20, int page = 1)
+        public async Task<OrderListDetail[]> GetOrdersAsync(string pair, int limit = 20, int page = 1)
         {
-            return await _repository.GetOrders(symbol, limit, page);
+            return await _repository.GetOrders(pair, limit, page);
         }
 
         /// <summary>
         /// Get all open orders
         /// </summary>
-        /// <param name="symbol">string of symbol</param>
+        /// <param name="pair">string of pair</param>
         /// <returns>KuCoinOpenOrders object</returns>
-        public async Task<OpenOrderResponse> GetOpenOrdersAsync(string symbol)
+        public async Task<OpenOrderResponse> GetOpenOrdersAsync(string pair)
         {
-            return await _repository.GetOpenOrders(symbol);
+            return await _repository.GetOpenOrders(pair);
         }
 
         /// <summary>
         /// Get Order Book for a pair
         /// </summary>
-        /// <param name="symbol">string of trading pair</param>
+        /// <param name="pair">string of trading pair</param>
         /// <param name="limit">number of orders to return per side, default 100</param>
         /// <returns>OrderBook object</returns>
-        public async Task<OrderBookResponse> GetOrderBookAsync(string symbol, int limit = 100)
+        public async Task<OrderBookResponse> GetOrderBookAsync(string pair, int limit = 100)
         {
-            return await _repository.GetOrderBook(symbol, limit);
+            return await _repository.GetOrderBook(pair, limit);
+        }
+
+        /// <summary>
+        /// Place a limit order
+        /// </summary>
+        /// <param name="pair">String of trading pair</param>
+        /// <param name="price">price of trade</param>
+        /// <param name="quantity">quantity to trade</param>
+        /// <param name="side">trade side</param>
+        /// <returns>KuCoinResponse object</returns>
+        public async Task<ApiResponse<Dictionary<string, string>>> LimitOrderAsync(string pair, decimal price, decimal quantity, Side side)
+        {
+            var parms = new TradeParams
+            {
+                price = price,
+                quantity = quantity,
+                symbol = pair,
+                side = side.ToString()
+            };
+
+            return await _repository.PostTrade(parms);
+        }
+
+        /// <summary>
+        /// Place a market order
+        /// </summary>
+        /// <param name="pair">String of trading pair</param>
+        /// <param name="quantity">quantity to trade</param>
+        /// <param name="side">trade side</param>
+        /// <returns>KuCoinResponse object</returns>
+        public async Task<ApiResponse<Dictionary<string, string>>> MarketOrderAsync(string pair, decimal quantity, Side side)
+        {
+            var tick = await GetTickAsync(pair);
+            var price = tick.lastDealPrice;
+            var parms = new TradeParams
+            {
+                price = price,
+                quantity = quantity,
+                symbol = pair,
+                side = side.ToString()
+            };
+
+            return await _repository.PostTrade(parms);
         }
 
         /// <summary>
@@ -427,13 +531,13 @@ namespace KuCoinApi.NetCore
         /// <summary>
         /// Delete/Cancel a trade
         /// </summary>
-        /// <param name="symbol">Trading symbol</param>
+        /// <param name="pair">Trading pair</param>
         /// <param name="orderOid">Order id to cancel</param>
         /// <param name="tradeType">Trade type to cancel</param>
         /// <returns>TradeResponse object</returns>
-        public async Task<DeleteResponse> DeleteTradeAsync(string symbol, string orderOid, string tradeType)
+        public async Task<DeleteResponse> DeleteTradeAsync(string pair, string orderOid, string tradeType)
         {
-            return await _repository.DeleteTrade(symbol, orderOid, tradeType);
+            return await _repository.DeleteTrade(pair, orderOid, tradeType);
         }
 
         /// <summary>
@@ -446,19 +550,19 @@ namespace KuCoinApi.NetCore
         }
 
         /// <summary>
-        /// Get Tick for a symbol
+        /// Get Tick for a pair
         /// </summary>
-        /// <param name="symbol">Trading symbol</param>
+        /// <param name="pair">Trading pair</param>
         /// <returns>KuCoinTick object</returns>
-        public async Task<Tick> GetTickAsync(string symbol)
+        public async Task<Tick> GetTickAsync(string pair)
         {
-            return await _repository.GetTick(symbol);
+            return await _repository.GetTick(pair);
         }
 
         /// <summary>
         /// Get Markets trading on exchange
         /// </summary>
-        /// <returns>Array of symbol strings</returns>
+        /// <returns>Array of pair strings</returns>
         public async Task<string[]> GetMarketsAsync()
         {
             return await _repository.GetMarkets();
