@@ -59,6 +59,14 @@ namespace KuCoinApi.NetCore.Tests
         }
 
         [Fact]
+        public void GetAccountBalancesNoZerosTest()
+        {
+            var balances = _repo.GetBalances(true).Result;
+
+            Assert.True(balances != null);
+        }
+
+        [Fact]
         public void GetAccountBalancesLimitsTest()
         {
             var balances = _repo.GetBalances(5, 1).Result;
@@ -126,6 +134,23 @@ namespace KuCoinApi.NetCore.Tests
         }
 
         [Fact]
+        public void LimitOrderTest()
+        {
+            var symbol = "DRGN-BTC";
+            var tradeParams = new TradeParams
+            {
+                price = 0.00400000M,
+                quantity = 100,
+                symbol = symbol,
+                side = "SELL"
+            };
+
+            var orderDetail = _repo.PostTrade(tradeParams).Result;
+
+            Assert.True(orderDetail != null);
+        }
+
+        [Fact]
         public void PostTradeTest()
         {
             var symbol = "DCC-BTC";
@@ -134,7 +159,7 @@ namespace KuCoinApi.NetCore.Tests
                 price = 0.00000400M,
                 quantity = 3000,
                 symbol = symbol,
-                type = "BUY"
+                side = "BUY"
             };
 
             var orderDetail= _repo.PostTrade(tradeParams).Result;

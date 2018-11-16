@@ -15,12 +15,12 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DocumentationFile>C:\Source\Git\KuCoinApi.NetCore\KuCoinApi.NetCore\KuCoinApi.NetCore\KuCoinApi.NetCore.xml</DocumentationFile>
-    <OutputPath>bin\Release\</OutputPath>
+    <DocumentationFile>bin\Debug\KuCoinApi.NetCore.xml</DocumentationFile>
+    <OutputPath>bin\Debug</OutputPath>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DocumentationFile>C:\Source\Git\KuCoinApi.NetCore\KuCoinApi.NetCore\KuCoinApi.NetCore\KuCoinApi.NetCore.xml</DocumentationFile>
+    <DocumentationFile>bin\Release\KuCoinApi.NetCore.xml</DocumentationFile>
     <OutputPath>bin\Release\</OutputPath>
   </PropertyGroup>
 

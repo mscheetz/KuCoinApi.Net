@@ -155,12 +155,29 @@ namespace KuCoinApi.NetCore.Data
         }
 
         /// <summary>
-        /// Get account balance
+        /// Get all account balances
         /// </summary>
+        /// <param name="hideZeroBalance">Hide zero balance coins</param>
         /// <returns>Balance array</returns>
-        public async Task<Balance[]> GetBalances()
+        public async Task<Balance[]> GetBalances(bool hideZeroBalance = false)
         {
-            return await OnGetBalances(0, 0);
+            var currentPage = 0;
+            var lastPage = 1;
+            var balances = new List<Balance>();
+
+            while (currentPage < lastPage)
+            {
+                currentPage++;
+                var pagedResponse = await OnGetBalances(20, currentPage);
+
+                lastPage = pagedResponse.pageNos;
+                
+                balances.AddRange(pagedResponse.datas);
+            }
+
+            return hideZeroBalance
+                ? balances.Where(b => b.balance > 0 || b.freezeBalance > 0).Distinct().ToArray()
+                : balances.Distinct().ToArray();
         }
 
         /// <summary>
@@ -176,7 +193,9 @@ namespace KuCoinApi.NetCore.Data
                 throw new Exception("limit and pageNo must be greater than 0.");
             }
 
-            return await OnGetBalances(limit, pageNo);
+            var balances = await OnGetBalances(limit, pageNo);
+
+            return balances.datas;
         }
 
         /// <summary>
@@ -185,20 +204,24 @@ namespace KuCoinApi.NetCore.Data
         /// <param name="limit">Number of balances per page</param>
         /// <param name="pageNo">Page to return</param>
         /// <returns>Balance array</returns>
-        private async Task<Balance[]> OnGetBalances(int limit, int pageNo)
+        private async Task<PagedResponse<Balance[]>> OnGetBalances(int limit, int pageNo)
         {
             var endpoint = "/v1/account/balances";
-            endpoint = limit != 0 && pageNo != 0 
-                ? endpoint + $"?limit={limit}&page={pageNo}" 
-                : endpoint;
+            var queryString = new List<string>();
+            if (limit > 0)
+                queryString.Add($"limit={limit}");
+            if (pageNo != 0)
+                queryString.Add($"page={pageNo}");
+
+            var headers = GetRequestHeaders(endpoint, queryString.ToArray());
 
             var url = baseUrl + endpoint;
-
-            var headers = GetRequestHeaders(endpoint, null);
-
+            if(queryString.Count > 0)
+                url += $"?{_helper.ArrayToString(queryString.ToArray())}";
+            
             try
             {
-                var response = await _restRepo.GetApiStream<ApiResponse<Balance[]>>(url, headers);
+                var response = await _restRepo.GetApiStream<ApiResponse<PagedResponse<Balance[]>>>(url, headers);
 
                 return response.data;
             }
@@ -369,14 +392,14 @@ namespace KuCoinApi.NetCore.Data
         /// <returns>KuCoinResponse object</returns>
         public async Task<ApiResponse<Dictionary<string, string>>> PostTrade(TradeParams tradeParams)
         {
-            var endpoint = $"/v1/order";
             var kuPair = _helper.CreateDashedPair(tradeParams.symbol);
-
+            var endpoint = $"/v1/order";
+            var sigEndpoint = $"/v1/{kuPair}/order";
             var queryString = new List<string>
             {
-                $"symbol={kuPair}",
                 $"amount={tradeParams.quantity}",
                 $"price={tradeParams.price}",
+                $"symbol={kuPair}",
                 $"type={tradeParams.side}"
             };
 
@@ -386,7 +409,7 @@ namespace KuCoinApi.NetCore.Data
 
             try
             {
-                var response = await _restRepo.PostApi<ApiResponse<Dictionary<string, string>>>(url, headers);
+                var response = await _restRepo.PostApi<ApiResponse<Dictionary<string, string>>, List<string>>(url, queryString, headers);
 
                 return response;
             }

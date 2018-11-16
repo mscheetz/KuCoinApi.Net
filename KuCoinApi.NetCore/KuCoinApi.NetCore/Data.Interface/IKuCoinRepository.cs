@@ -22,10 +22,11 @@ namespace KuCoinApi.NetCore.Data.Interface
         Task<ChartValue> GetCandlesticks(string symbol, Interval size, int limit);
 
         /// <summary>
-        /// Get account balance
+        /// Get all account balances
         /// </summary>
+        /// <param name="hideZeroBalance">Hide zero balance coins</param>
         /// <returns>Balance array</returns>
-        Task<Balance[]> GetBalances();
+        Task<Balance[]> GetBalances(bool hideZeroBalance = false);
 
         /// <summary>
         /// Get account balance

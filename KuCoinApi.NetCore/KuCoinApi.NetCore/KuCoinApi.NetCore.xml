@@ -680,7 +680,7 @@
             <summary>
             Get candlesticks
             </summary>
-            <param name="symbol">String of symbol</param>
+            <param name="pair">String of pair</param>
             <param name="size">stick size</param>
             <param name="limit">number of sticks</param>
             <returns>ChartValue object</returns>
@@ -698,11 +698,17 @@
             </summary>
             <returns>Balance array</returns>
         </member>
+        <member name="M:KuCoinApi.NetCore.KuCoinApiClient.GetBalances">
+            <summary>
+            Get account balances of all coins
+            </summary>
+            <returns>Balance array</returns>
+        </member>
         <member name="M:KuCoinApi.NetCore.KuCoinApiClient.GetOrder(System.String,KuCoinApi.NetCore.Entities.TradeType,System.Int64,System.Int32,System.Int32)">
             <summary>
             Get order information
             </summary>
-            <param name="symbol">string of symbol</param>
+            <param name="pair">string of pair</param>
             <param name="tradeType">Trade type</param>
             <param name="orderId">long of orderId</param>
             <param name="page">Page number, default 1</param>
@@ -713,7 +719,7 @@
             <summary>
             Get all current user order information
             </summary>
-            <param name="symbol">string of symbol</param>
+            <param name="pair">string of pair</param>
             <param name="limit">Int of orders count to return, default 20</param>
             <param name="page">Int of page number</param>
             <returns>OpenOrderResponse object</returns>
@@ -722,16 +728,35 @@
             <summary>
             Get all open orders
             </summary>
-            <param name="symbol">string of symbol</param>
+            <param name="pair">string of pair</param>
             <returns>KuCoinOpenOrders object</returns>
         </member>
         <member name="M:KuCoinApi.NetCore.KuCoinApiClient.GetOrderBook(System.String,System.Int32)">
             <summary>
             Get Order Book for a pair
             </summary>
-            <param name="symbol">string of trading pair</param>
+            <param name="pair">string of trading pair</param>
             <param name="limit">number of orders to return per side, default 100</param>
             <returns>OrderBook object</returns>
+        </member>
+        <member name="M:KuCoinApi.NetCore.KuCoinApiClient.LimitOrder(System.String,System.Decimal,System.Decimal,KuCoinApi.NetCore.Entities.Side)">
+            <summary>
+            Place a limit order
+            </summary>
+            <param name="pair">String of trading pair</param>
+            <param name="price">price of trade</param>
+            <param name="quantity">quantity to trade</param>
+            <param name="side">trade side</param>
+            <returns>KuCoinResponse object</returns>
+        </member>
+        <member name="M:KuCoinApi.NetCore.KuCoinApiClient.MarketOrder(System.String,System.Decimal,KuCoinApi.NetCore.Entities.Side)">
+            <summary>
+            Place a market order
+            </summary>
+            <param name="pair">String of trading pair</param>
+            <param name="quantity">quantity to trade</param>
+            <param name="side">trade side</param>
+            <returns>KuCoinResponse object</returns>
         </member>
         <member name="M:KuCoinApi.NetCore.KuCoinApiClient.PostTrade(KuCoinApi.NetCore.Entities.TradeParams)">
             <summary>
@@ -744,7 +769,7 @@
             <summary>
             Delete/Cancel a trade
             </summary>
-            <param name="symbol">Trading symbol</param>
+            <param name="pair">Trading pair</param>
             <param name="orderOid">Order id to cancel</param>
             <param name="tradeType">Trade type to cancel</param>
             <returns>TradeResponse object</returns>
@@ -757,16 +782,16 @@
         </member>
         <member name="M:KuCoinApi.NetCore.KuCoinApiClient.GetTick(System.String)">
             <summary>
-            Get Tick for a symbol
+            Get Tick for a pair
             </summary>
-            <param name="symbol">Trading symbol</param>
+            <param name="pair">Trading pair</param>
             <returns>KuCoinTick object</returns>
         </member>
         <member name="M:KuCoinApi.NetCore.KuCoinApiClient.GetMarkets">
             <summary>
             Get Markets trading on exchange
             </summary>
-            <returns>Array of symbol strings</returns>
+            <returns>Array of pair strings</returns>
         </member>
         <member name="M:KuCoinApi.NetCore.KuCoinApiClient.GetTradingSymbolTick">
             <summary>
@@ -901,11 +926,17 @@
             </summary>
             <returns>Balance array</returns>
         </member>
+        <member name="M:KuCoinApi.NetCore.KuCoinApiClient.GetBalancesAsync">
+            <summary>
+            Get account balances of all coins
+            </summary>
+            <returns>Balance array</returns>
+        </member>
         <member name="M:KuCoinApi.NetCore.KuCoinApiClient.GetOrderAsync(System.String,KuCoinApi.NetCore.Entities.TradeType,System.Int64,System.Int32,System.Int32)">
             <summary>
             Get order information
             </summary>
-            <param name="symbol">string of symbol</param>
+            <param name="pair">string of pair</param>
             <param name="tradeType">Trade type</param>
             <param name="orderId">long of orderId</param>
             <param name="page">Page number, default 1</param>
@@ -916,7 +947,7 @@
             <summary>
             Get all current user order information
             </summary>
-            <param name="symbol">string of symbol</param>
+            <param name="pair">string of pair</param>
             <param name="limit">Int of orders count to return, default 20</param>
             <param name="page">Int of page number</param>
             <returns>OpenOrderResponse object</returns>
@@ -925,16 +956,35 @@
             <summary>
             Get all open orders
             </summary>
-            <param name="symbol">string of symbol</param>
+            <param name="pair">string of pair</param>
             <returns>KuCoinOpenOrders object</returns>
         </member>
         <member name="M:KuCoinApi.NetCore.KuCoinApiClient.GetOrderBookAsync(System.String,System.Int32)">
             <summary>
             Get Order Book for a pair
             </summary>
-            <param name="symbol">string of trading pair</param>
+            <param name="pair">string of trading pair</param>
             <param name="limit">number of orders to return per side, default 100</param>
             <returns>OrderBook object</returns>
+        </member>
+        <member name="M:KuCoinApi.NetCore.KuCoinApiClient.LimitOrderAsync(System.String,System.Decimal,System.Decimal,KuCoinApi.NetCore.Entities.Side)">
+            <summary>
+            Place a limit order
+            </summary>
+            <param name="pair">String of trading pair</param>
+            <param name="price">price of trade</param>
+            <param name="quantity">quantity to trade</param>
+            <param name="side">trade side</param>
+            <returns>KuCoinResponse object</returns>
+        </member>
+        <member name="M:KuCoinApi.NetCore.KuCoinApiClient.MarketOrderAsync(System.String,System.Decimal,KuCoinApi.NetCore.Entities.Side)">
+            <summary>
+            Place a market order
+            </summary>
+            <param name="pair">String of trading pair</param>
+            <param name="quantity">quantity to trade</param>
+            <param name="side">trade side</param>
+            <returns>KuCoinResponse object</returns>
         </member>
         <member name="M:KuCoinApi.NetCore.KuCoinApiClient.PostTradeAsync(KuCoinApi.NetCore.Entities.TradeParams)">
             <summary>
@@ -947,7 +997,7 @@
             <summary>
             Delete/Cancel a trade
             </summary>
-            <param name="symbol">Trading symbol</param>
+            <param name="pair">Trading pair</param>
             <param name="orderOid">Order id to cancel</param>
             <param name="tradeType">Trade type to cancel</param>
             <returns>TradeResponse object</returns>
@@ -960,16 +1010,16 @@
         </member>
         <member name="M:KuCoinApi.NetCore.KuCoinApiClient.GetTickAsync(System.String)">
             <summary>
-            Get Tick for a symbol
+            Get Tick for a pair
             </summary>
-            <param name="symbol">Trading symbol</param>
+            <param name="pair">Trading pair</param>
             <returns>KuCoinTick object</returns>
         </member>
         <member name="M:KuCoinApi.NetCore.KuCoinApiClient.GetMarketsAsync">
             <summary>
             Get Markets trading on exchange
             </summary>
-            <returns>Array of symbol strings</returns>
+            <returns>Array of pair strings</returns>
         </member>
         <member name="M:KuCoinApi.NetCore.KuCoinApiClient.GetTradingSymbolTickAsync">
             <summary>
