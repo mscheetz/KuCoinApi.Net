@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -12,6 +12,7 @@
     <IsPackable>true</IsPackable>
     <Version>1.5.3</Version>
     <PackageLicenseUrl>https://github.com/mscheetz/KuCoinApi.NetCore/blob/master/LICENSE</PackageLicenseUrl>
+    <IsPackable>true</IsPackable>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
