@@ -1,4 +1,5 @@
 ﻿using KuCoinApi.NetCore.Entities;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -62,6 +63,86 @@ namespace KuCoinApi.NetCore.Data.Interface
         /// <param name="page">Int of page number</param>
         /// <returns>OpenOrderResponse object</returns>
         Task<OrderListDetail[]> GetOrders(string symbol, int limit = 20, int page = 1);
+
+        /// <summary>
+        /// Get all user order information
+        /// </summary>
+        /// <returns>OpenOrderResponse object</returns>
+        Task<OrderListDetail[]> GetDealtOrders();
+
+        /// <summary>
+        /// Get all user order information
+        /// </summary>
+        /// <param name="side">Trade side</param>
+        /// <returns>OpenOrderResponse object</returns>
+        Task<OrderListDetail[]> GetDealtOrders(Side side);
+
+        /// <summary>
+        /// Get all user order information
+        /// </summary>
+        /// <param name="symbol">string of symbol</param>
+        /// <returns>OpenOrderResponse object</returns>
+        Task<OrderListDetail[]> GetDealtOrders(string symbol);
+
+        /// <summary>
+        /// Get all user order information
+        /// </summary>
+        /// <param name="from">From date</param>
+        /// <param name="to">To date</param>
+        /// <returns>OpenOrderResponse object</returns>
+        Task<OrderListDetail[]> GetDealtOrders(DateTime? from, DateTime? to);
+
+        /// <summary>
+        /// Get all user order information
+        /// </summary>
+        /// <param name="symbol">string of symbol</param>
+        /// <param name="side">Trade side</param>
+        /// <param name="from">From date</param>
+        /// <param name="to">To date</param>
+        /// <returns>OpenOrderResponse object</returns>
+        Task<OrderListDetail[]> GetDealtOrders(string symbol = "", Side? side = null, DateTime? from = null, DateTime? to = null);
+
+        /// <summary>
+        /// Get all user order information
+        /// </summary>
+        /// <param name="side">Trade side</param>
+        /// <param name="limit">Orders to return, max 100</param>
+        /// <param name="page">Page number</param>
+        /// <returns>OpenOrderResponse object</returns>
+        Task<OrderListDetail[]> GetDealtOrders(Side side, int page, int limit);
+
+        /// <summary>
+        /// Get all user order information
+        /// </summary>
+        /// <param name="side">Trade side</param>
+        /// <param name="limit">Orders to return, max 100</param>
+        /// <param name="page">Page number</param>
+        /// <param name="from">From date</param>
+        /// <param name="to">To date</param>
+        /// <returns>OpenOrderResponse object</returns>
+        Task<OrderListDetail[]> GetDealtOrders(Side side, int page, int limit, DateTime? from, DateTime? to);
+
+        /// <summary>
+        /// Get all user order information
+        /// </summary>
+        /// <param name="symbol">string of symbol</param>
+        /// <param name="side">Trade side</param>
+        /// <param name="limit">Orders to return, max 20</param>
+        /// <param name="page">Page number</param>
+        /// <returns>OpenOrderResponse object</returns>
+        Task<OrderListDetail[]> GetDealtOrders(string symbol, Side side, int page, int limit);
+
+        /// <summary>
+        /// Get all user order information
+        /// </summary>
+        /// <param name="symbol">string of symbol</param>
+        /// <param name="side">Trade side</param>
+        /// <param name="limit">Orders to return, max 20</param>
+        /// <param name="page">Page number</param>
+        /// <param name="from">From date</param>
+        /// <param name="to">To date</param>
+        /// <returns>OpenOrderResponse object</returns>
+        Task<OrderListDetail[]> GetDealtOrders(string symbol, Side side, int page, int limit, DateTime? from, DateTime? to);
 
         /// <summary>
         /// Get all open orders

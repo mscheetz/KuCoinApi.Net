@@ -331,6 +331,224 @@ namespace KuCoinApi.NetCore.Data
         }
 
         /// <summary>
+        /// Get all user order information
+        /// </summary>
+        /// <returns>OpenOrderResponse object</returns>
+        public async Task<OrderListDetail[]> GetDealtOrders()
+        {
+            var orders = await OnGetAllDealtOrders(string.Empty, null, null, null);
+
+            return orders;
+        }
+
+        /// <summary>
+        /// Get all user order information
+        /// </summary>
+        /// <param name="side">Trade side</param>
+        /// <returns>OpenOrderResponse object</returns>
+        public async Task<OrderListDetail[]> GetDealtOrders(Side side)
+        {
+            var orders = await OnGetAllDealtOrders(string.Empty, side, null, null);
+
+            return orders;
+        }
+
+        /// <summary>
+        /// Get all user order information
+        /// </summary>
+        /// <param name="symbol">string of symbol</param>
+        /// <returns>OpenOrderResponse object</returns>
+        public async Task<OrderListDetail[]> GetDealtOrders(string symbol)
+        {
+            var orders = await OnGetAllDealtOrders(symbol, null, null, null);
+
+            return orders;
+        }
+
+        /// <summary>
+        /// Get all user order information
+        /// </summary>
+        /// <param name="from">From date</param>
+        /// <param name="to">To date</param>
+        /// <returns>OpenOrderResponse object</returns>
+        public async Task<OrderListDetail[]> GetDealtOrders(DateTime? from, DateTime? to)
+        {
+            var orders = await OnGetAllDealtOrders(string.Empty, null, from, to);
+
+            return orders;
+        }
+
+        /// <summary>
+        /// Get all user order information
+        /// </summary>
+        /// <param name="symbol">string of symbol</param>
+        /// <param name="side">Trade side</param>
+        /// <param name="from">From date</param>
+        /// <param name="to">To date</param>
+        /// <returns>OpenOrderResponse object</returns>
+        public async Task<OrderListDetail[]> GetDealtOrders(string symbol = "", Side? side = null, DateTime? from = null, DateTime? to = null)
+        {
+            var orders = await OnGetAllDealtOrders(symbol, side, from, to);
+
+            return orders;
+        }
+
+        /// <summary>
+        /// Get all user order information
+        /// </summary>
+        /// <param name="side">Trade side</param>
+        /// <param name="limit">Orders to return, max 100</param>
+        /// <param name="page">Page number</param>
+        /// <returns>OpenOrderResponse object</returns>
+        public async Task<OrderListDetail[]> GetDealtOrders(Side side, int page, int limit)
+        {
+            limit = limit > 100 ? 100 : limit;
+            var response = await OnGetDealtOrders(string.Empty, side, limit, page, null, null);
+
+            return response.datas;
+        }
+
+        /// <summary>
+        /// Get all user order information
+        /// </summary>
+        /// <param name="side">Trade side</param>
+        /// <param name="limit">Orders to return, max 100</param>
+        /// <param name="page">Page number</param>
+        /// <param name="from">From date</param>
+        /// <param name="to">To date</param>
+        /// <returns>OpenOrderResponse object</returns>
+        public async Task<OrderListDetail[]> GetDealtOrders(Side side, int page, int limit, DateTime? from, DateTime? to)
+        {
+            limit = limit > 100 ? 100 : limit;
+            var response = await OnGetDealtOrders(string.Empty, side, limit, page, from, to);
+
+            return response.datas;
+        }
+
+        /// <summary>
+        /// Get all user order information
+        /// </summary>
+        /// <param name="symbol">string of symbol</param>
+        /// <param name="side">Trade side</param>
+        /// <param name="limit">Orders to return, max 20</param>
+        /// <param name="page">Page number</param>
+        /// <returns>OpenOrderResponse object</returns>
+        public async Task<OrderListDetail[]> GetDealtOrders(string symbol, Side side, int page, int limit)
+        {
+            limit = limit > 20 ? 20 : limit;
+            var response = await OnGetDealtOrders(symbol, side, limit, page, null, null);
+
+            return response.datas;
+        }
+
+        /// <summary>
+        /// Get all user order information
+        /// </summary>
+        /// <param name="symbol">string of symbol</param>
+        /// <param name="side">Trade side</param>
+        /// <param name="limit">Orders to return, max 20</param>
+        /// <param name="page">Page number</param>
+        /// <param name="from">From date</param>
+        /// <param name="to">To date</param>
+        /// <returns>OpenOrderResponse object</returns>
+        public async Task<OrderListDetail[]> GetDealtOrders(string symbol, Side side, int page, int limit, DateTime? from, DateTime? to)
+        {
+            limit = limit > 20 ? 20 : limit;
+            var response = await OnGetDealtOrders(symbol, side, limit, page, from, to);
+
+            return response.datas;
+        }
+
+        /// <summary>
+        /// Get all user order information
+        /// </summary>
+        /// <param name="symbol">string of symbol</param>
+        /// <param name="side">Trade side</param>
+        /// <param name="from">From date</param>
+        /// <param name="to">To date</param>
+        /// <returns>OpenOrderResponse object</returns>
+        private async Task<OrderListDetail[]> OnGetAllDealtOrders(string symbol, Side? side, DateTime? from, DateTime? to)
+        {
+            var limit = string.IsNullOrEmpty(symbol) ? 100 : 20;
+            var orderList = new List<OrderListDetail>();
+
+            var currentPage = 0;
+            var maxPage = 1;
+            if(side == null || side == Side.BUY)
+            {
+                while (currentPage < maxPage)
+                {
+                    currentPage++;
+                    var response = await OnGetDealtOrders(symbol, Side.BUY, limit, currentPage, from, to);
+
+                    orderList.AddRange(response.datas);
+                    maxPage = response.pageNos;
+                }
+            }
+            if (side == null || side == Side.SELL)
+            {
+                while (currentPage < maxPage)
+                {
+                    currentPage++;
+                    var response = await OnGetDealtOrders(symbol, Side.SELL, limit, currentPage, from, to);
+                    
+                    orderList.AddRange(response.datas);
+                    maxPage = response.pageNos;
+                }
+            }
+
+            return orderList.OrderByDescending(o => o.createdAt).ToArray();
+        }
+
+        /// <summary>
+        /// Get all user order information
+        /// </summary>
+        /// <param name="symbol">string of symbol</param>
+        /// <param name="side">Trade side</param>
+        /// <param name="limit">Int of orders count to return</param>
+        /// <param name="page">Page number</param>
+        /// <param name="from">From date</param>
+        /// <param name="to">To date</param>
+        /// <returns>OpenOrderResponse object</returns>
+        private async Task<DealOrder<OrderListDetail[]>> OnGetDealtOrders(string symbol, Side side, int limit, int page, DateTime? from, DateTime? to)
+        {
+            var endpoint = "/v1/order/dealt";
+
+            var fromTS = from != null ? _dtHelper.LocalToUnixTime((DateTime)from) : 0;
+            var toTS = to != null ? _dtHelper.LocalToUnixTime((DateTime)to) : 0;
+            var queryString = new List<string>();
+
+            if (to != null)
+                queryString.Add($"before={toTS}");
+            queryString.Add($"limit={limit}");
+            if (page > 1)
+                queryString.Add($"page={page}");
+            if (from != null)
+                queryString.Add($"since={fromTS}");
+            if (!string.IsNullOrEmpty(symbol))
+            {
+                var kuPair = _helper.CreateDashedPair(symbol);
+                queryString.Add($"symbol={kuPair}");
+            }
+            queryString.Add($"type={side.ToString()}");
+
+            var headers = GetRequestHeaders(endpoint, queryString.ToArray());
+
+            var url = baseUrl + endpoint + $"?{_helper.ArrayToString(queryString.ToArray())}";
+
+            try
+            {
+                var response = await _restRepo.GetApiStream<ApiResponse<DealOrder<OrderListDetail[]>>>(url, headers);
+
+                return response.data;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        /// <summary>
         /// Get all open orders
         /// </summary>
         /// <param name="symbol">string of symbol</param>
