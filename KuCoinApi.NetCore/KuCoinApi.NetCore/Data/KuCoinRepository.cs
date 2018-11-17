@@ -397,8 +397,8 @@ namespace KuCoinApi.NetCore.Data
             var sigEndpoint = $"/v1/{kuPair}/order";
             var queryString = new List<string>
             {
-                $"amount={tradeParams.quantity}",
-                $"price={tradeParams.price}",
+                $"amount={_helper.DecimalToString(tradeParams.quantity)}",
+                $"price={_helper.DecimalToString(tradeParams.price)}",
                 $"symbol={kuPair}",
                 $"type={tradeParams.side}"
             };
@@ -718,7 +718,7 @@ namespace KuCoinApi.NetCore.Data
             var queryString = new List<string>
             {
                 $"address={address}",
-                $"amount={amount}",
+                $"amount={_helper.DecimalToString(amount)}",
                 $"coin={symbol}"
             };
 

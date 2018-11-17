@@ -263,5 +263,17 @@ namespace KuCoinApi.NetCore.Core
 
             return ending - totalSeconds;
         }
+
+        /// <summary>
+        /// Cultural nutral decimal to string
+        /// </summary>
+        /// <param name="value">Decimal value</param>
+        /// <returns>String of decimal value</returns>
+        public string DecimalToString(decimal value)
+        {
+            var decimalString = value.ToString();
+
+            return decimalString.Replace(",", ".");
+        }
     }
 }
