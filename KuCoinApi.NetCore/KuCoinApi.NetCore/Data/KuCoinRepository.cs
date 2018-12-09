@@ -135,7 +135,7 @@ namespace KuCoinApi.NetCore.Data
         /// <returns>ChartValue object</returns>
         public async Task<ChartValue> GetCandlesticks(string symbol, Interval size, int limit)
         {
-            var kuPair = _helper.CreateDashedPair(symbol);
+            var kuPair = TradingPairValidator(symbol);
             var to = _dtHelper.UTCEndOfMinuteToUnixTime();// _dtHelper.UTCtoUnixTime();
             var from = _helper.GetFromUnixTime(to, size, (limit + 2));
             var kuSize = _helper.IntervalToKuCoinStringInterval(size);
@@ -270,7 +270,7 @@ namespace KuCoinApi.NetCore.Data
         {
             var endpoint = "/v1/order/detail";
             var url = baseUrl + endpoint;
-            var kuPair = _helper.CreateDashedPair(symbol);
+            var kuPair = TradingPairValidator(symbol);
 
             var queryString = new List<string>
             {
@@ -305,7 +305,7 @@ namespace KuCoinApi.NetCore.Data
         public async Task<OrderListDetail[]> GetOrders(string symbol, int limit = 20, int page = 1)
         {
             var endpoint = "/v1/deal-orders";
-            var kuPair = _helper.CreateDashedPair(symbol);
+            var kuPair = TradingPairValidator(symbol);
 
             var queryString = new List<string>
             {
@@ -527,7 +527,7 @@ namespace KuCoinApi.NetCore.Data
                 queryString.Add($"since={fromTS}");
             if (!string.IsNullOrEmpty(symbol))
             {
-                var kuPair = _helper.CreateDashedPair(symbol);
+                var kuPair = TradingPairValidator(symbol);
                 queryString.Add($"symbol={kuPair}");
             }
             queryString.Add($"type={side.ToString()}");
@@ -556,7 +556,7 @@ namespace KuCoinApi.NetCore.Data
         public async Task<OpenOrderResponse> GetOpenOrders(string symbol)
         {
             var endpoint = "/v1/order/active";
-            var kuPair = _helper.CreateDashedPair(symbol);
+            var kuPair = TradingPairValidator(symbol);
 
             var queryString = new List<string>
             {
@@ -587,7 +587,7 @@ namespace KuCoinApi.NetCore.Data
         /// <returns>OrderBook object</returns>
         public async Task<OrderBookResponse> GetOrderBook(string symbol, int limit = 100)
         {
-            var kuPair = _helper.CreateDashedPair(symbol);
+            var kuPair = TradingPairValidator(symbol);
             var endpoint = $"/v1/open/orders?symbol={kuPair}&limit={limit}";
             var url = baseUrl + endpoint;
             
@@ -610,7 +610,7 @@ namespace KuCoinApi.NetCore.Data
         /// <returns>KuCoinResponse object</returns>
         public async Task<ApiResponse<Dictionary<string, string>>> PostTrade(TradeParams tradeParams)
         {
-            var kuPair = _helper.CreateDashedPair(tradeParams.symbol);
+            var kuPair = TradingPairValidator(tradeParams.symbol);
             var endpoint = $"/v1/order";
             var sigEndpoint = $"/v1/{kuPair}/order";
             var queryString = new List<string>
@@ -647,7 +647,9 @@ namespace KuCoinApi.NetCore.Data
         public async Task<DeleteResponse> DeleteTrade(string symbol, string orderOid, string tradeType)
         {
             var endpoint = "/v1/cancel-order";
-            var kuPair = _helper.CreateDashedPair(symbol);
+            if(symbol.IndexOf("-")<0)
+            { }
+            var kuPair = TradingPairValidator(symbol);
 
             var queryString = new List<string>
             {
@@ -700,7 +702,7 @@ namespace KuCoinApi.NetCore.Data
         /// <returns>KuCoinTick object</returns>
         public async Task<Tick> GetTick(string symbol)
         {
-            var kuPair = _helper.CreateDashedPair(symbol);
+            var kuPair = TradingPairValidator(symbol);
             var endpoint = $"/v1/open/tick?symbol={kuPair}";
             var url = baseUrl + endpoint;
 
@@ -1057,6 +1059,22 @@ namespace KuCoinApi.NetCore.Data
             {
                 throw new Exception(ex.Message);
             }
+        }
+
+        /// <summary>
+        /// Validate a trading pair
+        /// </summary>
+        /// <param name="pair">Pair to validate</param>
+        /// <returns>Validated trading pair</returns>
+        private string TradingPairValidator(string pair)
+        {
+            if (pair.IndexOf("-") < 0)
+            {
+                var markets = this.GetMarkets().Result;
+                pair = _helper.CreateDashedPair(pair, markets);
+            }
+
+            return pair;
         }
 
         /// <summary>
