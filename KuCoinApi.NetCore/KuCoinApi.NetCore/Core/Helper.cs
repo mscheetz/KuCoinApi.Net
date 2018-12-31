@@ -127,6 +127,24 @@ namespace KuCoinApi.NetCore.Core
         }
 
         /// <summary>
+        /// Convert a list of strings to a string
+        /// </summary>
+        /// <param name="myList">List of strings</param>
+        /// <returns>String of list values</returns>
+        public string ListToString(List<string> myList)
+        {
+            var qsValues = string.Empty;
+
+            for (int i = 0; i < myList.Count; i++)
+            {
+                qsValues += qsValues != string.Empty ? "&" : "";
+                qsValues += myList[i];
+            }
+
+            return qsValues;
+        }
+
+        /// <summary>
         /// Convert an object to a string of property names and values
         /// </summary>
         /// <typeparam name="T">Object type</typeparam>
