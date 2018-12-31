@@ -123,9 +123,19 @@ namespace KuCoinApi.NetCore
         /// </summary>
         /// <param name="pair">string of pair</param>
         /// <returns>KuCoinOpenOrders object</returns>
-        public OpenOrderResponse GetOpenOrders(string pair)
+        public OpenOrderResponse<OpenOrder> GetOpenOrders(string pair)
         {
             return _repository.GetOpenOrders(pair).Result;
+        }
+
+        /// <summary>
+        /// Get all open orders
+        /// </summary>
+        /// <param name="pair">string of pair</param>
+        /// <returns>KuCoinOpenOrders object</returns>
+        public OpenOrderResponse<OpenOrderDetail> GetOpenOrdersDetail(string pair)
+        {
+            return _repository.GetOpenOrdersDetails(pair).Result;
         }
 
         /// <summary>
@@ -459,9 +469,19 @@ namespace KuCoinApi.NetCore
         /// </summary>
         /// <param name="pair">string of pair</param>
         /// <returns>KuCoinOpenOrders object</returns>
-        public async Task<OpenOrderResponse> GetOpenOrdersAsync(string pair)
+        public async Task<OpenOrderResponse<OpenOrder>> GetOpenOrdersAsync(string pair)
         {
             return await _repository.GetOpenOrders(pair);
+        }
+
+        /// <summary>
+        /// Get all open orders
+        /// </summary>
+        /// <param name="pair">string of pair</param>
+        /// <returns>KuCoinOpenOrders object</returns>
+        public async Task<OpenOrderResponse<OpenOrderDetail>> GetOpenOrdersDetailAsync(string pair)
+        {
+            return await _repository.GetOpenOrdersDetails(pair);
         }
 
         /// <summary>

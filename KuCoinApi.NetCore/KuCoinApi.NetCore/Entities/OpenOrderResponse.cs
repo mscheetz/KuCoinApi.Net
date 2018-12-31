@@ -5,11 +5,11 @@ using System.Text;
 
 namespace KuCoinApi.NetCore.Entities
 {
-    public class OpenOrderResponse
+    public class OpenOrderResponse<T>
     {
         [JsonProperty(PropertyName = "SELL")]
-        public OpenOrderDetail[] openSells { get; set; }
+        public T[] openSells { get; set; }
         [JsonProperty(PropertyName = "BUY")]
-        public OpenOrderDetail[] openBuys { get; set; }
+        public T[] openBuys { get; set; }
     }
 }

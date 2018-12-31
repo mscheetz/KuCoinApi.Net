@@ -68,7 +68,22 @@ namespace KuCoinApi.NetCore.Data.Interface
         /// </summary>
         /// <param name="symbol">string of symbol</param>
         /// <returns>KuCoinOpenOrders object</returns>
-        Task<OpenOrderResponse> GetOpenOrders(string symbol);
+        Task<OpenOrderResponse<OpenOrder>> GetOpenOrders(string symbol);
+
+        /// <summary>
+        /// Get all open orders with details
+        /// </summary>
+        /// <param name="symbol">string of symbol</param>
+        /// <returns>KuCoinOpenOrdersResponse object</returns>
+        Task<OpenOrderResponse<OpenOrderDetail>> GetOpenOrdersDetails(string symbol);
+
+        /// <summary>
+        /// Get all open orders with details
+        /// </summary>
+        /// <param name="symbol">string of symbol</param>
+        /// <param name="type">Type of trade</param>
+        /// <returns>KuCoinOpenOrdersResponse object</returns>
+        Task<OpenOrderResponse<OpenOrderDetail>> GetOpenOrdersDetails(string symbol, Side type);
 
         /// <summary>
         /// Get Order Book for a pair

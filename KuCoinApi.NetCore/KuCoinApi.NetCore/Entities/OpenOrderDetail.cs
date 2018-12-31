@@ -3,20 +3,18 @@ using Newtonsoft.Json;
 
 namespace KuCoinApi.NetCore.Entities
 {
-    [JsonConverter(typeof(Converter.ObjectToArrayConverter<OpenOrderDetail>))]
     public class OpenOrderDetail
     {
-        [JsonProperty(Order = 1)]
-        public long timestamp { get; set; }
-        [JsonProperty(Order = 2)]
+        public string oid { get; set; }
         public string type { get; set; }
-        [JsonProperty(Order = 3)]
+        public string userOid { get; set; }
+        public string coinType { get; set; }
+        public string coinTypePair { get; set; }
+        public string direction { get; set; }
         public decimal price { get; set; }
-        [JsonProperty(Order = 4)]
-        public decimal quantity { get; set; }
-        [JsonProperty(Order = 5)]
-        public decimal filledQuantity { get; set; }
-        [JsonProperty(Order = 6)]
-        public string orderId { get; set; }
+        public decimal dealAmount { get; set; }
+        public decimal pendingAmount { get; set; }
+        public long createdAt { get; set; }
+        public long updatedAt { get; set; }
     }
 }

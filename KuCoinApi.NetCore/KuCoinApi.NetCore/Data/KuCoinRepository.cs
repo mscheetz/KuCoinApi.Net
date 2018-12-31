@@ -335,7 +335,7 @@ namespace KuCoinApi.NetCore.Data
         /// </summary>
         /// <param name="symbol">string of symbol</param>
         /// <returns>KuCoinOpenOrders object</returns>
-        public async Task<OpenOrderResponse> GetOpenOrders(string symbol)
+        public async Task<OpenOrderResponse<OpenOrder>> GetOpenOrders(string symbol)
         {
             var endpoint = "/v1/order/active";
             var kuPair = _helper.CreateDashedPair(symbol);
@@ -347,13 +347,71 @@ namespace KuCoinApi.NetCore.Data
 
             var headers = GetRequestHeaders(endpoint, queryString.ToArray());
 
-            var url = baseUrl + endpoint + $"?{queryString[0]}";
+            var url = baseUrl + endpoint + $"?{_helper.ListToString(queryString)}";
 
             try
             {
-                var response = await _restRepo.GetApiStream<ApiResponse<OpenOrderResponse>>(url, headers);
+                var response = await _restRepo.GetApiStream<ApiResponse<OpenOrderResponse<OpenOrder>>>(url, headers);
             
                 return response.data;            
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Get all open orders with details
+        /// </summary>
+        /// <param name="symbol">string of symbol</param>
+        /// <returns>KuCoinOpenOrdersResponse object</returns>
+        public async Task<OpenOrderResponse<OpenOrderDetail>> GetOpenOrdersDetails(string symbol)
+        {
+            return await OnGetOpenOrdersDetails(symbol, null);
+        }
+
+        /// <summary>
+        /// Get all open orders with details
+        /// </summary>
+        /// <param name="symbol">string of symbol</param>
+        /// <param name="type">Type of trade</param>
+        /// <returns>KuCoinOpenOrdersResponse object</returns>
+        public async Task<OpenOrderResponse<OpenOrderDetail>> GetOpenOrdersDetails(string symbol, Side type)
+        {
+            return await OnGetOpenOrdersDetails(symbol, type.ToString());
+        }
+
+        /// <summary>
+        /// Get all open orders with details
+        /// </summary>
+        /// <param name="symbol">string of symbol</param>
+        /// <param name="type">Type of trade</param>
+        /// <returns>KuCoinOpenOrdersResponse object</returns>
+        private async Task<OpenOrderResponse<OpenOrderDetail>> OnGetOpenOrdersDetails(string symbol, string type)
+        {
+            var endpoint = "/v1/order/active-map";
+            var kuPair = _helper.CreateDashedPair(symbol);
+
+            var queryString = new List<string>
+            {
+                $"symbol={kuPair}"
+            };
+
+            if(!string.IsNullOrEmpty(type))
+            {
+                queryString.Add($"type={type}");
+            }
+
+            var headers = GetRequestHeaders(endpoint, queryString.ToArray());
+
+            var url = baseUrl + endpoint + $"?{_helper.ListToString(queryString)}";
+
+            try
+            {
+                var response = await _restRepo.GetApiStream<ApiResponse<OpenOrderResponse<OpenOrderDetail>>>(url, headers);
+
+                return response.data;
             }
             catch (Exception ex)
             {

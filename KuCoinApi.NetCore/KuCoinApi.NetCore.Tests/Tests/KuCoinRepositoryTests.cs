@@ -126,9 +126,30 @@ namespace KuCoinApi.NetCore.Tests
         [Fact]
         public void GetOpenOrdersTest()
         {
-            var symbol = "DCC-BTC";
+            var symbol = "QKC-BTC";
 
-            var orders= _repo.GetOpenOrders(symbol).Result;
+            var orders = _repo.GetOpenOrders(symbol).Result;
+
+            Assert.True(orders != null);
+        }
+
+        [Fact]
+        public void GetOpenOrdersDetailTest()
+        {
+            var symbol = "QKC-BTC";
+
+            var orders = _repo.GetOpenOrdersDetails(symbol).Result;
+
+            Assert.True(orders != null);
+        }
+
+        [Fact]
+        public void GetOpenOrdersDetailTestII()
+        {
+            var symbol = "QKC-BTC";
+            var side = Side.SELL;
+
+            var orders = _repo.GetOpenOrdersDetails(symbol, side).Result;
 
             Assert.True(orders != null);
         }
