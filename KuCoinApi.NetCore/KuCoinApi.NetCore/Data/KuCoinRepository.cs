@@ -582,6 +582,15 @@ namespace KuCoinApi.NetCore.Data
         /// <summary>
         /// Get all open orders with details
         /// </summary>
+        /// <returns>KuCoinOpenOrdersResponse object</returns>
+        public async Task<OpenOrderResponse<OpenOrderDetail>> GetOpenOrdersDetails()
+        {
+            return await OnGetOpenOrdersDetails(null, null);
+        }
+
+        /// <summary>
+        /// Get all open orders with details
+        /// </summary>
         /// <param name="symbol">string of symbol</param>
         /// <returns>KuCoinOpenOrdersResponse object</returns>
         public async Task<OpenOrderResponse<OpenOrderDetail>> GetOpenOrdersDetails(string symbol)
@@ -609,7 +618,7 @@ namespace KuCoinApi.NetCore.Data
         private async Task<OpenOrderResponse<OpenOrderDetail>> OnGetOpenOrdersDetails(string symbol, string type)
         {
             var endpoint = "/v1/order/active-map";
-            var kuPair = TradingPairValidator(symbol);
+            var kuPair = !string.IsNullOrEmpty(symbol) ? TradingPairValidator(symbol) : string.Empty;
 
             var queryString = new List<string>
             {
@@ -1126,6 +1135,10 @@ namespace KuCoinApi.NetCore.Data
         /// <returns>Validated trading pair</returns>
         private string TradingPairValidator(string pair)
         {
+            if(string.IsNullOrEmpty(pair))
+            {
+                throw new Exception("Trading pair required.");
+            }
             if (pair.IndexOf("-") < 0)
             {
                 var markets = this.GetMarkets().Result;

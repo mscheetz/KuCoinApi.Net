@@ -154,6 +154,12 @@ namespace KuCoinApi.NetCore.Data.Interface
         /// <summary>
         /// Get all open orders with details
         /// </summary>
+        /// <returns>KuCoinOpenOrdersResponse object</returns>
+        Task<OpenOrderResponse<OpenOrderDetail>> GetOpenOrdersDetails();
+
+        /// <summary>
+        /// Get all open orders with details
+        /// </summary>
         /// <param name="symbol">string of symbol</param>
         /// <returns>KuCoinOpenOrdersResponse object</returns>
         Task<OpenOrderResponse<OpenOrderDetail>> GetOpenOrdersDetails(string symbol);
