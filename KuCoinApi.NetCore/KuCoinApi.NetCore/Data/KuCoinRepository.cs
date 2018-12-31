@@ -609,7 +609,7 @@ namespace KuCoinApi.NetCore.Data
         private async Task<OpenOrderResponse<OpenOrderDetail>> OnGetOpenOrdersDetails(string symbol, string type)
         {
             var endpoint = "/v1/order/active-map";
-            var kuPair = _helper.CreateDashedPair(symbol);
+            var kuPair = TradingPairValidator(symbol);
 
             var queryString = new List<string>
             {
