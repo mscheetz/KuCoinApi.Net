@@ -5,7 +5,9 @@ VisualStudioVersion = 15.0.27703.2018
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KuCoinApi.NetCore", "KuCoinApi.NetCore\KuCoinApi.NetCore.csproj", "{89BCDA90-E031-4EA6-BC52-676B31024778}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KuCoinApi.NetCore.Tests", "KuCoinApi.NetCore.Tests\KuCoinApi.NetCore.Tests.csproj", "{AF632930-5F1B-4D05-AA8E-D8C7674DD401}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KuCoinApi.NetCore.Tests", "KuCoinApi.NetCore.Tests\KuCoinApi.NetCore.Tests.csproj", "{AF632930-5F1B-4D05-AA8E-D8C7674DD401}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{7F31DDED-FB35-4195-A781-0B12000B2265}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -24,6 +26,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{AF632930-5F1B-4D05-AA8E-D8C7674DD401} = {7F31DDED-FB35-4195-A781-0B12000B2265}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {64606084-5283-4CAC-819D-82A472EB6F42}

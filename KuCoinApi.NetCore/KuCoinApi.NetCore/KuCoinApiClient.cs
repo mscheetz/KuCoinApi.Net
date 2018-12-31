@@ -129,13 +129,110 @@ namespace KuCoinApi.NetCore
         }
 
         /// <summary>
-        /// Get all open orders
+        /// Get all user order information
         /// </summary>
-        /// <param name="pair">string of pair</param>
-        /// <returns>KuCoinOpenOrders object</returns>
-        public OpenOrderResponse<OpenOrderDetail> GetOpenOrdersDetail(string pair)
+        /// <returns>OpenOrderResponse object</returns>
+        public OrderListDetail[] GetDealtOrders()
         {
-            return _repository.GetOpenOrdersDetails(pair).Result;
+            return _repository.GetDealtOrders().Result;
+        }
+
+        /// <summary>
+        /// Get all user order information
+        /// </summary>
+        /// <param name="side">Trade side</param>
+        /// <returns>OpenOrderResponse object</returns>
+        public OrderListDetail[] GetDealtOrders(Side side)
+        {
+            return _repository.GetDealtOrders(side).Result;
+        }
+
+        /// <summary>
+        /// Get all user order information
+        /// </summary>
+        /// <param name="symbol">string of symbol</param>
+        /// <returns>OpenOrderResponse object</returns>
+        public OrderListDetail[] GetDealtOrders(string symbol)
+        {
+            return _repository.GetDealtOrders(symbol).Result;
+        }
+
+        /// <summary>
+        /// Get all user order information
+        /// </summary>
+        /// <param name="from">From date</param>
+        /// <param name="to">To date</param>
+        /// <returns>OpenOrderResponse object</returns>
+        public OrderListDetail[] GetDealtOrders(DateTime? from, DateTime? to)
+        {
+            return _repository.GetDealtOrders(from, to).Result;
+        }
+
+        /// <summary>
+        /// Get all user order information
+        /// </summary>
+        /// <param name="symbol">string of symbol</param>
+        /// <param name="side">Trade side</param>
+        /// <param name="from">From date</param>
+        /// <param name="to">To date</param>
+        /// <returns>OpenOrderResponse object</returns>
+        public OrderListDetail[] GetDealtOrders(string symbol = "", Side? side = null, DateTime? from = null, DateTime? to = null)
+        {
+            return _repository.GetDealtOrders(symbol, side, from, to).Result;
+        }
+
+        /// <summary>
+        /// Get all user order information
+        /// </summary>
+        /// <param name="side">Trade side</param>
+        /// <param name="limit">Orders to return, max 100</param>
+        /// <param name="page">Page number</param>
+        /// <returns>OpenOrderResponse object</returns>
+        public OrderListDetail[] GetDealtOrders(Side side, int page, int limit)
+        {
+            return _repository.GetDealtOrders(side, page, limit).Result;
+        }
+
+        /// <summary>
+        /// Get all user order information
+        /// </summary>
+        /// <param name="side">Trade side</param>
+        /// <param name="limit">Orders to return, max 100</param>
+        /// <param name="page">Page number</param>
+        /// <param name="from">From date</param>
+        /// <param name="to">To date</param>
+        /// <returns>OpenOrderResponse object</returns>
+        public OrderListDetail[] GetDealtOrders(Side side, int page, int limit, DateTime? from, DateTime? to)
+        {
+            return _repository.GetDealtOrders(side, page, limit, from, to).Result;
+        }
+
+        /// <summary>
+        /// Get all user order information
+        /// </summary>
+        /// <param name="symbol">string of symbol</param>
+        /// <param name="side">Trade side</param>
+        /// <param name="limit">Orders to return, max 20</param>
+        /// <param name="page">Page number</param>
+        /// <returns>OpenOrderResponse object</returns>
+        public OrderListDetail[] GetDealtOrders(string symbol, Side side, int page, int limit)
+        {
+            return _repository.GetDealtOrders(symbol, side, page, limit).Result;
+        }
+
+        /// <summary>
+        /// Get all user order information
+        /// </summary>
+        /// <param name="symbol">string of symbol</param>
+        /// <param name="side">Trade side</param>
+        /// <param name="limit">Orders to return, max 20</param>
+        /// <param name="page">Page number</param>
+        /// <param name="from">From date</param>
+        /// <param name="to">To date</param>
+        /// <returns>OpenOrderResponse object</returns>
+        public OrderListDetail[] GetDealtOrders(string symbol, Side side, int page, int limit, DateTime? from, DateTime? to)
+        {
+            return _repository.GetDealtOrders(symbol, side, page, limit, from, to).Result;
         }
 
         /// <summary>
@@ -462,6 +559,113 @@ namespace KuCoinApi.NetCore
         public async Task<OrderListDetail[]> GetOrdersAsync(string pair, int limit = 20, int page = 1)
         {
             return await _repository.GetOrders(pair, limit, page);
+        }
+
+        /// <summary>
+        /// Get all user order information
+        /// </summary>
+        /// <returns>OpenOrderResponse object</returns>
+        public async Task<OrderListDetail[]> GetDealtOrdersAsync()
+        {
+            return await _repository.GetDealtOrders();
+        }
+
+        /// <summary>
+        /// Get all user order information
+        /// </summary>
+        /// <param name="side">Trade side</param>
+        /// <returns>OpenOrderResponse object</returns>
+        public async Task<OrderListDetail[]> GetDealtOrdersAsync(Side side)
+        {
+            return await _repository.GetDealtOrders(side);
+        }
+
+        /// <summary>
+        /// Get all user order information
+        /// </summary>
+        /// <param name="symbol">string of symbol</param>
+        /// <returns>OpenOrderResponse object</returns>
+        public async Task<OrderListDetail[]> GetDealtOrdersAsync(string symbol)
+        {
+            return await _repository.GetDealtOrders(symbol);
+        }
+
+        /// <summary>
+        /// Get all user order information
+        /// </summary>
+        /// <param name="from">From date</param>
+        /// <param name="to">To date</param>
+        /// <returns>OpenOrderResponse object</returns>
+        public async Task<OrderListDetail[]> GetDealtOrdersAsync(DateTime? from, DateTime? to)
+        {
+            return await _repository.GetDealtOrders(from, to);
+        }
+
+        /// <summary>
+        /// Get all user order information
+        /// </summary>
+        /// <param name="symbol">string of symbol</param>
+        /// <param name="side">Trade side</param>
+        /// <param name="from">From date</param>
+        /// <param name="to">To date</param>
+        /// <returns>OpenOrderResponse object</returns>
+        public async Task<OrderListDetail[]> GetDealtOrdersAsync(string symbol = "", Side? side = null, DateTime? from = null, DateTime? to = null)
+        {
+            return await _repository.GetDealtOrders(symbol, side, from, to);
+        }
+
+        /// <summary>
+        /// Get all user order information
+        /// </summary>
+        /// <param name="side">Trade side</param>
+        /// <param name="limit">Orders to return, max 100</param>
+        /// <param name="page">Page number</param>
+        /// <returns>OpenOrderResponse object</returns>
+        public async Task<OrderListDetail[]> GetDealtOrdersAsync(Side side, int page, int limit)
+        {
+            return await _repository.GetDealtOrders(side, page, limit);
+        }
+
+        /// <summary>
+        /// Get all user order information
+        /// </summary>
+        /// <param name="side">Trade side</param>
+        /// <param name="limit">Orders to return, max 100</param>
+        /// <param name="page">Page number</param>
+        /// <param name="from">From date</param>
+        /// <param name="to">To date</param>
+        /// <returns>OpenOrderResponse object</returns>
+        public async Task<OrderListDetail[]> GetDealtOrdersAsync(Side side, int page, int limit, DateTime? from, DateTime? to)
+        {
+            return await _repository.GetDealtOrders(side, page, limit, from, to);
+        }
+
+        /// <summary>
+        /// Get all user order information
+        /// </summary>
+        /// <param name="symbol">string of symbol</param>
+        /// <param name="side">Trade side</param>
+        /// <param name="limit">Orders to return, max 20</param>
+        /// <param name="page">Page number</param>
+        /// <returns>OpenOrderResponse object</returns>
+        public async Task<OrderListDetail[]> GetDealtOrdersAsync(string symbol, Side side, int page, int limit)
+        {
+            return await _repository.GetDealtOrders(symbol, side, page, limit);
+        }
+
+        /// <summary>
+        /// Get all user order information
+        /// </summary>
+        /// <param name="symbol">string of symbol</param>
+        /// <param name="side">Trade side</param>
+        /// <param name="limit">Orders to return, max 20</param>
+        /// <param name="page">Page number</param>
+        /// <param name="from">From date</param>
+        /// <param name="to">To date</param>
+        /// <returns>OpenOrderResponse object</returns>
+        public async Task<OrderListDetail[]> GetDealtOrdersAsync(string symbol, Side side, int page, int limit, DateTime? from, DateTime? to)
+        {
+            return await _repository.GetDealtOrders(symbol, side, page, limit, from, to);
         }
 
         /// <summary>

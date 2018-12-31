@@ -124,6 +124,61 @@ namespace KuCoinApi.NetCore.Tests
         }
 
         [Fact]
+        public void GetAllDealOrdersNoSymbolTest()
+        {
+            var orders = _repo.GetDealtOrders().Result;
+
+            Assert.True(orders != null);
+        }
+
+        [Fact]
+        public void GetAllDealOrdersSymbolTest()
+        {
+            var pair = "OCN-BTC";
+            var orders = _repo.GetDealtOrders(pair).Result;
+
+            Assert.True(orders != null);
+        }
+
+        [Fact]
+        public void GetDealOrdersNoSymbol1Test()
+        {
+            var orders = _repo.GetDealtOrders(Side.BUY, 1, 100).Result;
+
+            Assert.True(orders != null);
+        }
+
+        [Fact]
+        public void GetDealOrdersNoSymbol2Test()
+        {
+            var from = DateTime.UtcNow.AddMonths(-1);
+            var to = DateTime.UtcNow.AddMonths(-1).AddDays(15);
+            var orders = _repo.GetDealtOrders(Side.BUY, 1, 100, from, to).Result;
+
+            Assert.True(orders != null);
+        }
+
+        [Fact]
+        public void GetDealOrdersSymbol1Test()
+        {
+            var symbol = "DCC-BCT";
+            var orders = _repo.GetDealtOrders(symbol, Side.BUY, 1, 100).Result;
+
+            Assert.True(orders != null);
+        }
+
+        [Fact]
+        public void GetDealOrdersSymbol2Test()
+        {
+            var symbol = "DCC-BCT";
+            var from = DateTime.UtcNow.AddMonths(-4);
+            var to = DateTime.UtcNow.AddMonths(-4).AddDays(15);
+            var orders = _repo.GetDealtOrders(symbol, Side.BUY, 1, 100, from, to).Result;
+
+            Assert.True(orders != null);
+        }
+
+        [Fact]
         public void GetOpenOrdersTest()
         {
             var symbol = "QKC-BTC";

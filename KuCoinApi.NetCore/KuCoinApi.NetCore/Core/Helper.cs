@@ -81,12 +81,20 @@ namespace KuCoinApi.NetCore.Core
         /// Creates dashed pair (ie BTC-ETH)
         /// </summary>
         /// <param name="pair">String of pair</param>
+        /// <param name="markets">Array of available markets</param>
         /// <returns>String of pair</returns>
-        public string CreateDashedPair(string pair)
+        public string CreateDashedPair(string pair, string[] markets)
         {
             if (pair.IndexOf("-") < 0)
             {
-                pair = pair.Substring(0, 3) + "-" + pair.Substring(3);
+                for(var i = 0;i<markets.Length;i++)
+                {
+                    var marketLen = markets[i].Length;
+                    if(pair.Substring(pair.Length - marketLen).Equals(markets[i]))
+                    {
+                        pair = pair.Replace(markets[i], $"-{markets[i]}");
+                    }
+                }
             }
 
             return pair;
@@ -280,6 +288,18 @@ namespace KuCoinApi.NetCore.Core
             var totalSeconds = seconds * stickNumber;
 
             return ending - totalSeconds;
+        }
+
+        /// <summary>
+        /// Cultural nutral decimal to string
+        /// </summary>
+        /// <param name="value">Decimal value</param>
+        /// <returns>String of decimal value</returns>
+        public string DecimalToString(decimal value)
+        {
+            var decimalString = value.ToString();
+
+            return decimalString.Replace(",", ".");
         }
     }
 }

@@ -10,7 +10,7 @@
     <Copyright>2018 Matt Scheetz</Copyright>
     <PackageReleaseNotes>Added open order detail response</PackageReleaseNotes>
     <IsPackable>true</IsPackable>
-    <Version>1.5.4</Version>
+    <Version>1.5.6</Version>
     <PackageLicenseUrl>https://github.com/mscheetz/KuCoinApi.NetCore/blob/master/LICENSE</PackageLicenseUrl>
     <IsPackable>true</IsPackable>
   </PropertyGroup>
