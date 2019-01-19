@@ -1129,6 +1129,36 @@ namespace KuCoinApi.NetCore.Data
         }
 
         /// <summary>
+        /// Get WSS token
+        /// </summary>
+        /// <returns>String of token</returns>
+        public async Task<string> GetWSSToken()
+        {
+            var endpoint = "/v1/bullet/usercenter/loginUser";
+            var baseUrl = "https://kitchen.kucoin.com";
+
+            var queryString = new List<string>();
+
+            queryString.Add("protocol=websocket");
+            queryString.Add("encrypt=true");
+
+            var headers = GetRequestHeaders(endpoint, queryString.ToArray());
+
+            var url = baseUrl + endpoint + "?" + _helper.ListToString(queryString);
+
+            try
+            {
+                var response = await _restRepo.GetApiStream<ApiResponse<WSSInfo>>(url, headers);
+
+                return response.data.BulletToken;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        /// <summary>
         /// Validate a trading pair
         /// </summary>
         /// <param name="pair">Pair to validate</param>

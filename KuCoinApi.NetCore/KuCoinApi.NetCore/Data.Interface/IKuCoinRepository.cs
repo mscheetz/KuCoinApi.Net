@@ -325,5 +325,11 @@ namespace KuCoinApi.NetCore.Data.Interface
         /// <param name="page">Page to return (default = 1)</param>
         /// <returns>Collection of withdrawals</returns>
         Task<DealOrder<DepositWithdrawTransaction[]>> GetWithdrawals(string symbol, DWStatus status, int page = 1);
+
+        /// <summary>
+        /// Get WSS token
+        /// </summary>
+        /// <returns>String of token</returns>
+        Task<string> GetWSSToken();
     }
 }
