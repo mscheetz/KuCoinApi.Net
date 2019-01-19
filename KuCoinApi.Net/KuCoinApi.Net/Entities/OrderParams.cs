@@ -16,8 +16,6 @@ namespace KuCoinApi.Net.Entities
 
         public string Remark { get; set; }
 
-        public StopType? Stop { get; set; }
-
         public SelfTradeProtect? SelfTradeProtect { get; set; }
 
         public decimal Size { get; set; }

@@ -4,7 +4,11 @@ using System.Text;
 
 namespace KuCoinApi.Net.Entities
 {
-    public class StopLimitOrderParams : OrderParams
+    public class StopLimitOrderParams : LimitOrderParams
     {
+
+        public StopType? Stop { get; set; }
+
+        public decimal StopPrice { get; set; }
     }
 }

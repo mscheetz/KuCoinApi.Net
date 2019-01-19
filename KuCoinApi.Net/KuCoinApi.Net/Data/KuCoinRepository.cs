@@ -1,16 +1,16 @@
-﻿using KuCoinApi.Net.Entities;
+﻿using DateTimeHelpers;
+using FileRepository;
 using KuCoinApi.Net.Core;
 using KuCoinApi.Net.Data.Interface;
+using KuCoinApi.Net.Entities;
+using Newtonsoft.Json;
+using RESTApiAccess;
+using RESTApiAccess.Interface;
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using System.Linq;
-using RESTApiAccess.Interface;
-using RESTApiAccess;
-using DateTimeHelpers;
-using FileRepository;
 using System.Net.Http;
-using Newtonsoft.Json;
+using System.Threading.Tasks;
 
 namespace KuCoinApi.Net.Data
 {
@@ -281,8 +281,10 @@ namespace KuCoinApi.Net.Data
         /// <param name="accountId">id of account</param>
         /// <param name="startAt">Start time</param>
         /// <param name="endAt">End time</param>
+        /// <param name="page">Page number</param>
+        /// <param name="pageSize">Page size</param>
         /// <returns>Paged response of account history</returns>
-        public async Task<PagedResponse<List<AccountAction>>> GetAccountHistory(string accountId, DateTime startAt, DateTime endAt)
+        public async Task<PagedResponse<List<AccountAction>>> GetAccountHistory(string accountId, DateTime startAt, DateTime endAt, int page = 0, int pageSize = 0)
         {
             if(startAt >= endAt)
             {
@@ -291,7 +293,7 @@ namespace KuCoinApi.Net.Data
             var startNonce = _dtHelper.LocalToUnixTime(startAt);
             var endNonce = _dtHelper.LocalToUnixTime(endAt);
 
-            return await GetAccountHistory(accountId, startNonce, endNonce);
+            return await GetAccountHistory(accountId, startNonce, endNonce, page, pageSize);
         }
 
         /// <summary>
@@ -300,14 +302,30 @@ namespace KuCoinApi.Net.Data
         /// <param name="accountId">id of account</param>
         /// <param name="startAt">Unix start time</param>
         /// <param name="endAt">Unix end time</param>
+        /// <param name="page">Page number</param>
+        /// <param name="pageSize">Page size</param>
         /// <returns>Paged response of account history</returns>
-        public async Task<PagedResponse<List<AccountAction>>> GetAccountHistory(string accountId, long startAt, long endAt)
+        public async Task<PagedResponse<List<AccountAction>>> GetAccountHistory(string accountId, long startAt, long endAt, int page = 0, int pageSize = 0)
         {
+            var endpoint = $"/api/v1/accounts/{accountId}/ledgers";
+
             if (startAt >= endAt)
             {
                 throw new Exception("Start date cannot be >= End date.");
             }
-            var endpoint = $"/api/v1/accounts/{accountId}/ledgers?startAt={startAt}&endAt={endAt}";
+            var parms = new Dictionary<string, object>();
+            if (startAt > 0)
+                parms.Add("startAt", startAt);
+            if (endAt > 0)
+                parms.Add("endAt", endAt);
+            if (page > 1)
+                parms.Add("currentPage", page);
+            if (pageSize != 50 && pageSize > 0)
+                parms.Add("pageSize", pageSize);
+
+            var queryString = parms.Count > 0 ? $"?{_helper.ObjectToString(parms)}" : string.Empty;
+
+            endpoint += queryString;
 
             var headers = GetRequestHeaders(endpoint);
 
@@ -329,10 +347,22 @@ namespace KuCoinApi.Net.Data
         /// Get holds on an account
         /// </summary>
         /// <param name="accountId">id of account</param>
+        /// <param name="page">Page number</param>
+        /// <param name="pageSize">Page size</param>
         /// <returns>Paged response of account holds</returns>
-        public async Task<PagedResponse<List<AccountHold>>> GetHolds(string accountId)
+        public async Task<PagedResponse<List<AccountHold>>> GetHolds(string accountId, int page = 0, int pageSize = 0)
         {
             var endpoint = $"/api/v1/accounts/{accountId}/holds";
+
+            var parms = new Dictionary<string, object>();
+            if (page > 1)
+                parms.Add("currentPage", page);
+            if (pageSize > 0)
+                parms.Add("pageSize", pageSize);
+
+            var queryString = parms.Count > 0 ? $"&{_helper.ObjectToString(parms)}" : string.Empty;
+
+            endpoint += queryString;
 
             var headers = GetRequestHeaders(endpoint);
 
@@ -399,22 +429,100 @@ namespace KuCoinApi.Net.Data
         }
 
         /// <summary>
-        /// Transfer funds between accounts
+        /// Place a limit order
         /// </summary>
-        /// <param name="clientOid">Request Id</param>
-        /// <param name="fromId">Account Id Payer</param>
-        /// <param name="toId">Account Id Receiver</param>
-        /// <param name="amount">Amount to transfer</param>
-        /// <returns>Id of funds transfer order</returns>
-        public async Task<string> PlaceOrder(string clientOid, string fromId, string toId, decimal amount)
+        /// <param name="parms">Limit Order Parameters</param>
+        /// <returns>String of order id</returns>
+        public async Task<string> PlaceLimitOrder(LimitOrderParams parms)
         {
-            var endpoint = "/api/v1/accounts/inner-transfer";
-
             var body = new SortedDictionary<string, object>();
-            body.Add("clientOid", clientOid);
-            body.Add("payAccountId", fromId);
-            body.Add("recAccountId", toId);
-            body.Add("amount", amount);
+            if (parms.CancelAfter > 0)
+                body.Add("cancelAfter", parms.CancelAfter);
+            if (string.IsNullOrEmpty(parms.ClientOid))
+                parms.ClientOid = Guid.NewGuid().ToString();
+            body.Add("clientOid", parms.ClientOid);
+            body.Add("symbol", parms.Pair);
+            if(parms.PostOnly)
+                body.Add("postOnly", parms.PostOnly);
+            body.Add("price", parms.Price);
+            if(!string.IsNullOrEmpty(parms.Remark))
+                body.Add("remark", parms.Remark);
+            if(parms.SelfTradeProtect != null)
+                body.Add("stp", parms.SelfTradeProtect.ToString());
+            body.Add("side", parms.Side.ToString());
+            body.Add("size", parms.Size);
+            if(parms.TimeInForce != null)
+                body.Add("timeInForce", parms.TimeInForce);
+            body.Add("type", parms.Type.ToString());
+
+            return await OnPlaceOrder(body);
+        }
+
+        /// <summary>
+        /// Place a market order
+        /// </summary>
+        /// <param name="parms">Market Order Parameters</param>
+        /// <returns>String of order id</returns>
+        public async Task<string> PlaceMarketOrder(MarketOrderParams parms)
+        {
+            var body = new SortedDictionary<string, object>();
+            if (string.IsNullOrEmpty(parms.ClientOid))
+                parms.ClientOid = Guid.NewGuid().ToString();
+            if (parms.Funds > 0)
+                body.Add("funds", parms.Funds);
+            body.Add("clientOid", parms.ClientOid);
+            body.Add("symbol", parms.Pair);
+            if (!string.IsNullOrEmpty(parms.Remark))
+                body.Add("remark", parms.Remark);
+            if (parms.SelfTradeProtect != null)
+                body.Add("stp", parms.SelfTradeProtect.ToString());
+            body.Add("side", parms.Side.ToString());
+            body.Add("size", parms.Size);
+            body.Add("type", parms.Type.ToString());
+
+            return await OnPlaceOrder(body);
+        }
+
+        /// <summary>
+        /// Place a stop order
+        /// </summary>
+        /// <param name="parms">Stop Limit Order Parameters</param>
+        /// <returns>String of order id</returns>
+        public async Task<string> PlaceStopOrder(StopLimitOrderParams parms)
+        {
+            var body = new SortedDictionary<string, object>();
+            if (parms.CancelAfter > 0)
+                body.Add("cancelAfter", parms.CancelAfter);
+            if (string.IsNullOrEmpty(parms.ClientOid))
+                parms.ClientOid = Guid.NewGuid().ToString();
+            body.Add("clientOid", parms.ClientOid);
+            body.Add("symbol", parms.Pair);
+            if (parms.PostOnly)
+                body.Add("postOnly", parms.PostOnly);
+            body.Add("price", parms.Price);
+            if (!string.IsNullOrEmpty(parms.Remark))
+                body.Add("remark", parms.Remark);
+            if (parms.SelfTradeProtect != null)
+                body.Add("stp", parms.SelfTradeProtect.ToString());
+            body.Add("side", parms.Side.ToString());
+            body.Add("size", parms.Size);
+            body.Add("stop", parms.Stop);
+            body.Add("stopPrice", parms.StopPrice);
+            if (parms.TimeInForce != null)
+                body.Add("timeInForce", parms.TimeInForce);
+            body.Add("type", parms.Type.ToString());
+
+            return await OnPlaceOrder(body);
+        }
+
+        /// <summary>
+        /// Place an order
+        /// </summary>
+        /// <param name="body">Body of order message</param>
+        /// <returns>String of order id</returns>
+        private async Task<string> OnPlaceOrder(SortedDictionary<string, object> body)
+        {
+            var endpoint = "/api/v1/orders";
 
             var url = baseUrl + endpoint;
 
@@ -422,15 +530,320 @@ namespace KuCoinApi.Net.Data
 
             try
             {
-                var response = await _restRepo.PostApi<ApiResponse<string>, SortedDictionary<string, object>>(url, body, headers);
+                var response = await _restRepo.PostApi<string, SortedDictionary<string, object>>(url, body, headers);
 
-                return response.data;
+                return response;
             }
             catch (Exception ex)
             {
                 throw new Exception(ex.Message);
             }
         }
+
+        /// <summary>
+        /// Cancel an order
+        /// </summary>
+        /// <param name="orderId">Id of order to cancel</param>
+        /// <returns>Id of order canceled</returns>
+        public async Task<string> CancelOrder(string orderId)
+        {
+            var endpoint = $"/api/v1/orders/{orderId}";
+
+            var url = baseUrl + endpoint;
+
+            var headers = GetRequestHeaders(HttpMethod.Delete, endpoint);
+
+            try
+            {
+                var response = await _restRepo.DeleteApi<string>(url, headers);
+
+                return response;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Cancel all open orders
+        /// </summary>
+        /// <returns>Collection of canceled order Ids</returns>
+        public async Task<List<string>> CancelAllOrders()
+        {
+            var endpoint = $"/api/v1/orders";
+
+            var url = baseUrl + endpoint;
+
+            var headers = GetRequestHeaders(HttpMethod.Delete, endpoint);
+
+            try
+            {
+                var response = await _restRepo.DeleteApi<Dictionary<string, List<string>>>(url, headers);
+
+                return response["cancelledOrderIds"];
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Get all orders
+        /// </summary>
+        /// <param name="page">page number</param>
+        /// <param name="pageSize">page size</param>
+        /// <returns>Paged list of Orders</returns>
+        public async Task<PagedResponse<List<Order>>> GetOrders(int page = 0, int pageSize = 0)
+        {
+            return await OnGetOrders(page: page, pageSize: pageSize);
+        }
+
+        /// <summary>
+        /// Get all orders
+        /// </summary>
+        /// <param name="pair">Trading pair</param>
+        /// <param name="page">page number</param>
+        /// <param name="pageSize">page size</param>
+        /// <returns>Paged list of Orders</returns>
+        public async Task<PagedResponse<List<Order>>> GetOrders(string pair, int page = 0, int pageSize = 0)
+        {
+            return await OnGetOrders(pair: pair, page: page, pageSize: pageSize);
+        }
+
+        /// <summary>
+        /// Get all orders
+        /// </summary>
+        /// <param name="pair">Trading pair</param>
+        /// <param name="side">Trade side</param>
+        /// <param name="page">page number</param>
+        /// <param name="pageSize">page size</param>
+        /// <returns>Paged list of Orders</returns>
+        public async Task<PagedResponse<List<Order>>> GetOrders(string pair, Side side, int page = 0, int pageSize = 0)
+        {
+            return await OnGetOrders(pair: pair, side: side, page: page, pageSize: pageSize);
+        }
+
+        /// <summary>
+        /// Get all orders
+        /// </summary>
+        /// <param name="pair">Trading pair</param>
+        /// <param name="status">Order status</param>
+        /// <param name="page">page number</param>
+        /// <param name="pageSize">page size</param>
+        /// <returns>Paged list of Orders</returns>
+        public async Task<PagedResponse<List<Order>>> GetOrders(string pair, OrderStatus status, int page = 0, int pageSize = 0)
+        {
+            return await OnGetOrders(pair: pair, status: status, page: page, pageSize: pageSize);
+        }
+
+        /// <summary>
+        /// Get all orders
+        /// </summary>
+        /// <param name="pair">Trading pair</param>
+        /// <param name="status">Order status</param>
+        /// <param name="side">Trade side</param>
+        /// <param name="page">page number</param>
+        /// <param name="pageSize">page size</param>
+        /// <returns>Paged list of Orders</returns>
+        public async Task<PagedResponse<List<Order>>> GetOrders(string pair, Side side, OrderStatus status, int page = 0, int pageSize = 0)
+        {
+            return await OnGetOrders(pair: pair, side: side, status: status, page: page, pageSize: pageSize);
+        }
+
+        /// <summary>
+        /// Get all orders
+        /// </summary>
+        /// <param name="pair">Trading pair</param>
+        /// <param name="status">Order status</param>
+        /// <param name="side">Trade side</param>
+        /// <param name="type">Order Type</param>
+        /// <param name="startDate">Start Date</param>
+        /// <param name="endDate">End Date</param>
+        /// <param name="page">page number</param>
+        /// <param name="pageSize">page size</param>
+        /// <returns>Paged list of Orders</returns>
+        public async Task<PagedResponse<List<Order>>> GetOrders(string pair, OrderStatus? status, Side? side, OrderType? type, DateTime? startDate, DateTime? endDate, int page = 0, int pageSize = 0)
+        {
+            var startAt = startDate != null ? _dtHelper.LocalToUnixTime((DateTime)startDate) : 0;
+            var endAt = endDate != null ? _dtHelper.LocalToUnixTime((DateTime)endDate) : 0;
+
+            return await OnGetOrders(status, pair, side, type, startAt, endAt, page, pageSize);
+        }
+
+        /// <summary>
+        /// Get all orders
+        /// </summary>
+        /// <param name="pair">Trading pair</param>
+        /// <param name="status">Order status</param>
+        /// <param name="side">Trade side</param>
+        /// <param name="type">Order Type</param>
+        /// <param name="startAt">Start Date (Unix time)</param>
+        /// <param name="endAt">End Date (Unix time)</param>
+        /// <param name="page">page number</param>
+        /// <param name="pageSize">page size</param>
+        /// <returns>Paged list of Orders</returns>
+        public async Task<PagedResponse<List<Order>>> GetOrders(string pair, OrderStatus? status, Side? side, OrderType? type, long startAt, long endAt, int page = 0, int pageSize = 0)
+        {
+            return await OnGetOrders(status, pair, side, type, startAt, endAt, page, pageSize);
+        }
+
+        /// <summary>
+        /// Get all open orders
+        /// </summary>
+        /// <param name="page">page number</param>
+        /// <param name="pageSize">page size</param>
+        /// <returns>Paged list of Orders</returns>
+        public async Task<PagedResponse<List<Order>>> GetOpenOrders(int page = 0, int pageSize = 0)
+        {
+            return await OnGetOrders(status: OrderStatus.ACTIVE, page: page, pageSize: pageSize);
+        }
+
+        /// <summary>
+        /// Get all open orders
+        /// </summary>
+        /// <param name="pair">Trading pair</param>
+        /// <param name="page">page number</param>
+        /// <param name="pageSize">page size</param>
+        /// <returns>Paged list of Orders</returns>
+        public async Task<PagedResponse<List<Order>>> GetOpenOrders(string pair, int page = 0, int pageSize = 0)
+        {
+            return await OnGetOrders(status: OrderStatus.ACTIVE, pair: pair, page: page, pageSize: pageSize);
+        }
+
+        /// <summary>
+        /// Get all open orders
+        /// </summary>
+        /// <param name="pair">Trading pair</param>
+        /// <param name="side">Trade side</param>
+        /// <param name="page">page number</param>
+        /// <param name="pageSize">page size</param>
+        /// <returns>Paged list of Orders</returns>
+        public async Task<PagedResponse<List<Order>>> GetOpenOrders(string pair, Side side, int page = 0, int pageSize = 0)
+        {
+            return await OnGetOrders(OrderStatus.ACTIVE, pair: pair, side: side, page: 0, pageSize: 0);
+        }
+
+        /// <summary>
+        /// Get all open orders
+        /// </summary>
+        /// <param name="pair">Trading pair</param>
+        /// <param name="side">Trade side</param>
+        /// <param name="type">Order Type</param>
+        /// <param name="startDate">Start Date (Unix time)</param>
+        /// <param name="endDate">End Date (Unix time)</param>
+        /// <param name="page">page number</param>
+        /// <param name="pageSize">page size</param>
+        /// <returns>Paged list of Orders</returns>
+        public async Task<PagedResponse<List<Order>>> GetOpenOrders(string pair, Side? side, OrderType? type, DateTime? startDate, DateTime? endDate, int page = 0, int pageSize = 0)
+        {
+            var startAt = startDate != null ? _dtHelper.LocalToUnixTime((DateTime)startDate) : 0;
+            var endAt = endDate != null ? _dtHelper.LocalToUnixTime((DateTime)endDate) : 0;
+
+            return await OnGetOrders(OrderStatus.ACTIVE, pair, side, type, startAt, endAt, page, pageSize);
+        }
+
+        /// <summary>
+        /// Get all open orders
+        /// </summary>
+        /// <param name="pair">Trading pair</param>
+        /// <param name="side">Trade side</param>
+        /// <param name="type">Order Type</param>
+        /// <param name="startAt">Start Date (Unix time)</param>
+        /// <param name="endAt">End Date (Unix time)</param>
+        /// <param name="page">page number</param>
+        /// <param name="pageSize">page size</param>
+        /// <returns>Paged list of Orders</returns>
+        public async Task<PagedResponse<List<Order>>> GetOpenOrders(string pair, Side? side, OrderType? type, long startAt, long endAt, int page = 0, int pageSize = 0)
+        {
+            return await OnGetOrders(OrderStatus.ACTIVE, pair, side, type, startAt, endAt, page, pageSize);
+        }
+
+        /// <summary>
+        /// Get all orders
+        /// </summary>
+        /// <param name="pair">Trading pair</param>
+        /// <param name="status">Order status</param>
+        /// <param name="side">Trade side</param>
+        /// <param name="type">Order Type</param>
+        /// <param name="startAt">Start Date (Unix time)</param>
+        /// <param name="endAt">End Date (Unix time)</param>
+        /// <param name="page">page number</param>
+        /// <param name="pageSize">page size</param>
+        /// <returns>Paged list of Orders</returns>
+        private async Task<PagedResponse<List<Order>>> OnGetOrders(OrderStatus? status = null, string pair = null, Side? side = null, OrderType? type = null, long startAt = 0, long endAt = 0, int page = 1, int pageSize = 50)
+        {
+            if (startAt >= endAt)
+            {
+                throw new Exception("Start time cannot be on or after End time");
+            }
+
+            var endpoint = $"/api/v1/orders";
+
+            var parms = new Dictionary<string, object>();
+            if (status != null)
+                parms.Add("status", status.ToString());
+            if (!string.IsNullOrEmpty(pair))
+                parms.Add("symbol", pair);
+            if (side != null)
+                parms.Add("side", side.ToString().ToLower());
+            if (type != null)
+                parms.Add("type", type.ToString().ToLower());
+            if (startAt > 0)
+                parms.Add("startAt", startAt);
+            if (endAt > 0)
+                parms.Add("endAt", endAt);
+            if (page > 1)
+                parms.Add("currentPage", page);
+            if (pageSize != 50)
+                parms.Add("pageSize", pageSize);
+
+            var queryString = parms.Count > 0 ? $"?{_helper.ObjectToString(parms)}" : string.Empty;
+
+            endpoint += queryString;
+
+            var url = baseUrl + endpoint;
+
+            var headers = GetRequestHeaders(HttpMethod.Get, endpoint);
+
+            try
+            {
+                var response = await _restRepo.GetApiStream<PagedResponse<List<Order>>>(url, headers);
+
+                return response;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Get an order
+        /// </summary>
+        /// <param name="orderId">Order id</param>
+        /// <returns>An Order</returns>
+        public async Task<Order> GetOrder(string orderId)
+        {
+            var endpoint = $"/api/v1/orders/{orderId}";
+
+            var url = baseUrl + endpoint;
+
+            var headers = GetRequestHeaders(HttpMethod.Get, endpoint);
+
+            try
+            {
+                var response = await _restRepo.GetApiStream<Order>(url, headers);
+
+                return response;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
         #endregion Secure Endpoints
 
         /// <summary>
@@ -1353,6 +1766,27 @@ namespace KuCoinApi.Net.Data
         }
 
         /// <summary>
+        /// Get Request headers
+        /// </summary>
+        /// <param name="httpMethod">Http Method</param>
+        /// <param name="endpoint">Endpoint to access</param>
+        /// <param name="body">Body data to be passed</param>
+        /// <returns>Dictionary of request headers</returns>
+        private Dictionary<string, string> GetRequestHeaders(HttpMethod httpMethod, string endpoint, SortedDictionary<string, object> body = null)
+        {
+            var nonce = GetTimestamp().ToString();
+            var headers = new Dictionary<string, string>();
+
+            headers.Add("KC-API-KEY", _apiInfo.ApiKey);
+            headers.Add("KC-API-SIGN", GetSignature(httpMethod, endpoint, nonce, body));
+            headers.Add("KC-API-TIMESTAMP", nonce);
+            headers.Add("KC-API-PASSPHRASE", _apiInfo.ApiPassword);
+            headers.Add("User-Agent", "Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1)");
+
+            return headers;
+        }
+
+        /// <summary>
         /// Get GET headers
         /// </summary>
         /// <param name="endpoint">Endpoint to access</param>
@@ -1370,6 +1804,7 @@ namespace KuCoinApi.Net.Data
 
             return headers;
         }
+
         /// <summary>
         /// Get POST headers
         /// </summary>

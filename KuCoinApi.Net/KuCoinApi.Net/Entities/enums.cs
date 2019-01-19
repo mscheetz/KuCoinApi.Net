@@ -105,7 +105,8 @@ namespace KuCoinApi.Net.Entities
     {
         LIMIT,
         MARKET,
-        STOP
+        LIMIT_STOP,
+        MARKET_STOP
     }
 
     public enum StopType
@@ -120,5 +121,11 @@ namespace KuCoinApi.Net.Entities
         CO,
         CB,
         DC
+    }
+
+    public enum OrderStatus
+    {
+        DONE,
+        ACTIVE
     }
 }
