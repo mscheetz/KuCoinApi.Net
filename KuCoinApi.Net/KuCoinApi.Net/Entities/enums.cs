@@ -128,4 +128,11 @@ namespace KuCoinApi.Net.Entities
         DONE,
         ACTIVE
     }
+
+    public enum DepositStatus
+    {
+        PROCESSING,
+        SUCCESS,
+        FAILURE
+    }
 }

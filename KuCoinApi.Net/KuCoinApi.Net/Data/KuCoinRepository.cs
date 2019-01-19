@@ -1026,6 +1026,82 @@ namespace KuCoinApi.Net.Data
             }
         }
 
+        /// <summary>
+        /// Get deposit history
+        /// </summary>
+        /// <param name="symbol">Symbol of currency</param>
+        /// <param name="page">Page number</param>
+        /// <param name="pageSize">Page size</param>
+        /// <returns></returns>
+        public async Task<PagedResponse<Deposit>> GetDepositHistory(string symbol, int page = 0, int pageSize = 0)
+        {
+            return await GetDepositHistory(symbol: symbol, page: page, pageSize: pageSize);
+        }
+
+
+        /// <summary>
+        /// Get deposit history
+        /// </summary>
+        /// <param name="symbol">Symbol of currency</param>
+        /// <param name="startAt">Start date</param>
+        /// <param name="endAt">End date</param>
+        /// <param name="status">Deposit status</param>
+        /// <param name="page">Page number</param>
+        /// <param name="pageSize">Page size</param>
+        /// <returns></returns>
+        public async Task<PagedResponse<Deposit>> GetDepositHistory(string symbol, DepositStatus status, int page = 0, int pageSize = 0)
+        {
+            return await GetDepositHistory(symbol: symbol, status: status, page: page, pageSize: pageSize);
+        }
+
+        /// <summary>
+        /// Get deposit history
+        /// </summary>
+        /// <param name="symbol">Symbol of currency</param>
+        /// <param name="startAt">Start date</param>
+        /// <param name="endAt">End date</param>
+        /// <param name="status">Deposit status</param>
+        /// <param name="page">Page number</param>
+        /// <param name="pageSize">Page size</param>
+        /// <returns></returns>
+        public async Task<PagedResponse<Deposit>> GetDepositHistory(string symbol = null, long startAt = 0, long endAt = 0, DepositStatus? status = null, int page = 0, int pageSize = 0)
+        {
+            var endpoint = $"/api/v1/deposits";
+
+            var parms = new Dictionary<string, object>();
+            if (!string.IsNullOrEmpty(symbol))
+                parms.Add("currency", symbol);
+            if (startAt > 0)
+                parms.Add("startAt", startAt);
+            if (endAt > 0)
+                parms.Add("endAt", endAt);
+            if (status != null)
+                parms.Add("status", status.ToString());
+            if (page > 1)
+                parms.Add("currentPage", page);
+            if (pageSize != 50)
+                parms.Add("pageSize", pageSize);
+
+            var queryString = parms.Count > 0 ? $"?{_helper.ObjectToString(parms)}" : string.Empty;
+
+            endpoint += queryString;
+
+            var url = baseUrl + endpoint;
+
+            var headers = GetRequestHeaders(HttpMethod.Get, endpoint);
+
+            try
+            {
+                var response = await _restRepo.GetApiStream<PagedResponse<Deposit>>(url, headers);
+
+                return response;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
         #endregion Secure Endpoints
 
         /// <summary>
