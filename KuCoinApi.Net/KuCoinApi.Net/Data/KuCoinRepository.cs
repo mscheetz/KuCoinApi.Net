@@ -844,6 +844,188 @@ namespace KuCoinApi.Net.Data
             }
         }
 
+        /// <summary>
+        /// Get Fills
+        /// </summary>
+        /// <returns>Page collection of Fills</returns>
+        public async Task<PagedResponse<List<Fill>>> GetFills(int page = 0, int pageSize = 0)
+        {
+            return await OnGetFills(page: page, pageSize: pageSize);
+        }
+
+        /// <summary>
+        /// Get Fills
+        /// </summary>
+        /// <param name="orderId">Order id</param>
+        /// <param name="page">Page number</param>
+        /// <param name="pageSize">Page size</param>
+        /// <returns>Page collection of Fills</returns>
+        public async Task<PagedResponse<List<Fill>>> GetFillsForOrder(string orderId, int page = 0, int pageSize = 0)
+        {
+            return await OnGetFills(orderId: orderId, page: page, pageSize: pageSize);
+        }
+
+        /// <summary>
+        /// Get Fills
+        /// </summary>
+        /// <param name="pair">Trading pair</param>
+        /// <param name="page">Page number</param>
+        /// <param name="pageSize">Page size</param>
+        /// <returns>Page collection of Fills</returns>
+        public async Task<PagedResponse<List<Fill>>> GetFillsForPair(string pair, int page = 0, int pageSize = 0)
+        {
+            return await OnGetFills(pair: pair, page: page, pageSize: pageSize);
+        }
+
+        /// <summary>
+        /// Get Fills
+        /// </summary>
+        /// <param name="orderId">Order id</param>
+        /// <param name="pair">Trading pair</param>
+        /// <param name="side">Trade side</param>
+        /// <param name="type">Order type</param>
+        /// <param name="startDate">Start date</param>
+        /// <param name="endDate">End date</param>
+        /// <param name="page">Page number</param>
+        /// <param name="pageSize">Page size</param>
+        /// <returns>Page collection of Fills</returns>
+        public async Task<PagedResponse<List<Fill>>> GetFills(string orderId, string pair, Side? side, OrderType? type, DateTime? startDate, DateTime? endDate, int page = 0, int pageSize = 0)
+        {
+            var startAt = startDate != null ? _dtHelper.LocalToUnixTime((DateTime)startDate) : 0;
+            var endAt = endDate != null ? _dtHelper.LocalToUnixTime((DateTime)endDate) : 0;
+
+            return await OnGetFills(orderId, pair, side, type, startAt, endAt, page, pageSize);
+        }
+
+        /// <summary>
+        /// Get Fills
+        /// </summary>
+        /// <param name="orderId">Order id</param>
+        /// <param name="pair">Trading pair</param>
+        /// <param name="side">Trade side</param>
+        /// <param name="type">Order type</param>
+        /// <param name="startAt">Start date</param>
+        /// <param name="endAt">End date</param>
+        /// <param name="page">Page number</param>
+        /// <param name="pageSize">Page size</param>
+        /// <returns>Page collection of Fills</returns>
+        public async Task<PagedResponse<List<Fill>>> GetFills(string orderId, string pair, Side? side, OrderType? type, long startAt, long endAt, int page = 0, int pageSize = 0)
+        {
+            return await OnGetFills(orderId, pair, side, type, startAt, endAt, page, pageSize);
+        }
+
+        /// <summary>
+        /// Get Fills
+        /// </summary>
+        /// <param name="orderId">Order id</param>
+        /// <param name="pair">Trading pair</param>
+        /// <param name="side">Trade side</param>
+        /// <param name="type">Order type</param>
+        /// <param name="startAt">Start date</param>
+        /// <param name="endAt">End date</param>
+        /// <param name="page">Page number</param>
+        /// <param name="pageSize">Page size</param>
+        /// <returns>Page collection of Fills</returns>
+        private async Task<PagedResponse<List<Fill>>> OnGetFills(string orderId = null, string pair = null, Side? side = null, OrderType? type = null, long startAt = 0, long endAt = 0, int page = 0, int pageSize = 0)
+        {
+            if (startAt >= endAt)
+            {
+                throw new Exception("Start time cannot be on or after End time");
+            }
+
+            var endpoint = $"/api/v1/orders";
+
+            var parms = new Dictionary<string, object>();
+            if (!string.IsNullOrEmpty(orderId))
+                parms.Add("orderId", orderId);
+            if (!string.IsNullOrEmpty(pair))
+                parms.Add("symbol", pair);
+            if (side != null)
+                parms.Add("side", side.ToString().ToLower());
+            if (type != null)
+                parms.Add("type", type.ToString().ToLower());
+            if (startAt > 0)
+                parms.Add("startAt", startAt);
+            if (endAt > 0)
+                parms.Add("endAt", endAt);
+            if (page > 1)
+                parms.Add("currentPage", page);
+            if (pageSize != 50)
+                parms.Add("pageSize", pageSize);
+
+            var queryString = parms.Count > 0 ? $"?{_helper.ObjectToString(parms)}" : string.Empty;
+
+            endpoint += queryString;
+
+            var url = baseUrl + endpoint;
+
+            var headers = GetRequestHeaders(HttpMethod.Get, endpoint);
+
+            try
+            {
+                var response = await _restRepo.GetApiStream<PagedResponse<List<Fill>>>(url, headers);
+
+                return response;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Create Deposit address for a currency
+        /// </summary>
+        /// <param name="symbol">Symbol of currency</param>
+        /// <returns>New Deposit Address</returns>
+        public async Task<DepositAddress> CreateDepositAddress(string symbol)
+        {
+            var endpoint = $"/api/v1/deposit-addresses";
+
+            var body = new SortedDictionary<string, object>();
+            body.Add("currency", symbol);
+
+            var url = baseUrl + endpoint;
+
+            var headers = GetRequestHeaders(HttpMethod.Post, endpoint, body);
+
+            try
+            {
+                var response = await _restRepo.PostApi<DepositAddress, SortedDictionary<string, object>>(url, body, headers);
+
+                return response;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Get Deposit address for a currency
+        /// </summary>
+        /// <param name="symbol">Symbol of currency</param>
+        /// <returns>Deposit Address</returns>
+        public async Task<DepositAddress> GetDepositAddress(string symbol)
+        {
+            var endpoint = $"/api/v1/deposit-addresses?currency={symbol}";
+            
+            var url = baseUrl + endpoint;
+
+            var headers = GetRequestHeaders(HttpMethod.Get, endpoint);
+
+            try
+            {
+                var response = await _restRepo.GetApiStream<DepositAddress>(url, headers);
+
+                return response;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
         #endregion Secure Endpoints
 
         /// <summary>
