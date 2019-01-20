@@ -8,36 +8,32 @@ namespace KuCoinApi.Net.Entities
     public enum Interval
     {
         None,
-        [Description("1m")]
+        [Description("1min")]
         OneM,
-        [Description("3m")]
+        [Description("3min")]
         ThreeM,
-        [Description("5m")]
+        [Description("5min")]
         FiveM,
-        [Description("15m")]
+        [Description("15min")]
         FifteenM,
-        [Description("30m")]
+        [Description("30min")]
         ThirtyM,
-        [Description("1h")]
+        [Description("1hour")]
         OneH,
-        [Description("2h")]
+        [Description("2hour")]
         TwoH,
-        [Description("4h")]
+        [Description("4hour")]
         FourH,
-        [Description("6h")]
+        [Description("6hour")]
         SixH,
-        [Description("8h")]
+        [Description("8hour")]
         EightH,
-        [Description("12h")]
+        [Description("12hour")]
         TwelveH,
-        [Description("1d")]
+        [Description("1day")]
         OneD,
-        [Description("3d")]
-        ThredD,
-        [Description("1w")]
-        OneW,
-        [Description("1M")]
-        OneMo
+        [Description("1week")]
+        OneW
     }
 
     public enum TradeType
@@ -132,6 +128,14 @@ namespace KuCoinApi.Net.Entities
     public enum DepositStatus
     {
         PROCESSING,
+        SUCCESS,
+        FAILURE
+    }
+
+    public enum WithdrawalStatus
+    {
+        PROCESSING,
+        WALLET_PROCESSING,
         SUCCESS,
         FAILURE
     }

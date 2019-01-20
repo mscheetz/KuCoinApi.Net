@@ -1,20 +1,31 @@
-﻿using DateTimeHelpers;
-using FileRepository;
-using KuCoinApi.Net.Core;
-using KuCoinApi.Net.Data.Interface;
-using KuCoinApi.Net.Entities;
-using Newtonsoft.Json;
-using RESTApiAccess;
-using RESTApiAccess.Interface;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Threading.Tasks;
+﻿// -----------------------------------------------------------------------------
+// <copyright file="KuCoinRepository" company="Matt Scheetz">
+//     Copyright (c) Matt Scheetz All Rights Reserved
+// </copyright>
+// <author name="Matt Scheetz" date="1/19/2019 9:48:42 PM" />
+// -----------------------------------------------------------------------------
 
 namespace KuCoinApi.Net.Data
 {
-    public class KuCoinRepository : IKuCoinRepository
+    #region Usings
+
+    using DateTimeHelpers;
+    using FileRepository;
+    using KuCoinApi.Net.Core;
+    using KuCoinApi.Net.Data.Interface;
+    using KuCoinApi.Net.Entities;
+    using Newtonsoft.Json;
+    using RESTApiAccess;
+    using RESTApiAccess.Interface;
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Net.Http;
+    using System.Threading.Tasks;
+
+    #endregion Usings
+
+    public class KuCoinRepository : RepositoryBase, IKuCoinRepository
     {
         private Security security;
         private IRESTRepository _restRepo;
@@ -49,7 +60,7 @@ namespace KuCoinApi.Net.Data
         /// <param name="configPath">String of path to configuration file</param>
         public KuCoinRepository(string configPath)
         {
-            IFileRepository _fileRepo = new FileRepository.FileRepository();
+            IFileRepository _fileRepo = new FileRepository();
 
             if (_fileRepo.FileExists(configPath))
             {
@@ -114,7 +125,7 @@ namespace KuCoinApi.Net.Data
             }
             else
             {
-                return GetKuCoinTime().Result;
+                return GetServerTime().Result;
             }
         }
 
@@ -128,7 +139,7 @@ namespace KuCoinApi.Net.Data
             if (!ready)
                 return false;
 
-            return string.IsNullOrEmpty(_apiInfo.ApiSecret) ? false : true;
+            return string.IsNullOrEmpty(_apiInfo.ApiSecret) || string.IsNullOrEmpty(_apiInfo.ApiPassword) ? false : true;
         }
 
         #region Secure Endpoints
@@ -205,20 +216,7 @@ namespace KuCoinApi.Net.Data
 
             endpoint = endpoint + $"?{_helper.ObjectToString(parms)}";
 
-            var headers = GetRequestHeaders(endpoint);
-
-            var url = baseUrl + endpoint;
-
-            try
-            {
-                var response = await _restRepo.GetApiStream<ApiResponse<List<Balance>>>(url, headers);
-
-                return response.data;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
+            return await Get<List<Balance>>(endpoint, true);
         }
                
         /// <summary>
@@ -229,20 +227,8 @@ namespace KuCoinApi.Net.Data
         public async Task<Balance> GetBalance(string accountId)
         {
             var endpoint = $"/v1/accounts/{accountId}";
-            var url = baseUrl + endpoint;
 
-            var headers = GetRequestHeaders(endpoint, null);
-
-            try
-            {
-                var response = await _restRepo.GetApiStream<ApiResponse<Balance>>(url, headers);
-
-                return response.data;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
+            return await Get<Balance>(endpoint, true);
         }
 
         /// <summary>
@@ -259,20 +245,7 @@ namespace KuCoinApi.Net.Data
             body.Add("currency", symbol);
             body.Add("type", type.ToString().ToLower());
 
-            var url = baseUrl + endpoint;
-
-            var headers = PostRequestHeaders(endpoint, body);
-
-            try
-            {
-                var response = await _restRepo.PostApi<ApiResponse<string>, SortedDictionary<string, object>>(url, body, headers);
-
-                return response.data;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
+            return await Post<string>(endpoint, body);
         }
         
         /// <summary>
@@ -327,20 +300,7 @@ namespace KuCoinApi.Net.Data
 
             endpoint += queryString;
 
-            var headers = GetRequestHeaders(endpoint);
-
-            var url = baseUrl + endpoint;
-
-            try
-            {
-                var response = await _restRepo.GetApiStream<PagedResponse<List<AccountAction>>>(url, headers);
-
-                return response;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
+            return await Get<PagedResponse<List<AccountAction>>>(endpoint, true);
         }
 
         /// <summary>
@@ -364,20 +324,7 @@ namespace KuCoinApi.Net.Data
 
             endpoint += queryString;
 
-            var headers = GetRequestHeaders(endpoint);
-
-            var url = baseUrl + endpoint;
-
-            try
-            {
-                var response = await _restRepo.GetApiStream<PagedResponse<List<AccountHold>>>(url, headers);
-
-                return response;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
+            return await Get<PagedResponse<List<AccountHold>>>(endpoint, true);
         }
 
         /// <summary>
@@ -412,20 +359,7 @@ namespace KuCoinApi.Net.Data
             body.Add("recAccountId", toId);
             body.Add("amount", amount);
 
-            var url = baseUrl + endpoint;
-
-            var headers = PostRequestHeaders(endpoint, body);
-
-            try
-            {
-                var response = await _restRepo.PostApi<ApiResponse<string>, SortedDictionary<string, object>>(url, body, headers);
-
-                return response.data;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
+            return await Post<string>(endpoint, body);
         }
 
         /// <summary>
@@ -524,20 +458,7 @@ namespace KuCoinApi.Net.Data
         {
             var endpoint = "/api/v1/orders";
 
-            var url = baseUrl + endpoint;
-
-            var headers = PostRequestHeaders(endpoint, body);
-
-            try
-            {
-                var response = await _restRepo.PostApi<string, SortedDictionary<string, object>>(url, body, headers);
-
-                return response;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
+            return await Post<string>(endpoint, body);
         }
 
         /// <summary>
@@ -549,20 +470,7 @@ namespace KuCoinApi.Net.Data
         {
             var endpoint = $"/api/v1/orders/{orderId}";
 
-            var url = baseUrl + endpoint;
-
-            var headers = GetRequestHeaders(HttpMethod.Delete, endpoint);
-
-            try
-            {
-                var response = await _restRepo.DeleteApi<string>(url, headers);
-
-                return response;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
+            return await Delete<string>(endpoint);
         }
 
         /// <summary>
@@ -573,20 +481,7 @@ namespace KuCoinApi.Net.Data
         {
             var endpoint = $"/api/v1/orders";
 
-            var url = baseUrl + endpoint;
-
-            var headers = GetRequestHeaders(HttpMethod.Delete, endpoint);
-
-            try
-            {
-                var response = await _restRepo.DeleteApi<Dictionary<string, List<string>>>(url, headers);
-
-                return response["cancelledOrderIds"];
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
+            return await Delete<List<string>>(endpoint);
         }
 
         /// <summary>
@@ -803,20 +698,7 @@ namespace KuCoinApi.Net.Data
 
             endpoint += queryString;
 
-            var url = baseUrl + endpoint;
-
-            var headers = GetRequestHeaders(HttpMethod.Get, endpoint);
-
-            try
-            {
-                var response = await _restRepo.GetApiStream<PagedResponse<List<Order>>>(url, headers);
-
-                return response;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
+            return await Get<PagedResponse<List<Order>>>(endpoint, true);
         }
 
         /// <summary>
@@ -828,20 +710,7 @@ namespace KuCoinApi.Net.Data
         {
             var endpoint = $"/api/v1/orders/{orderId}";
 
-            var url = baseUrl + endpoint;
-
-            var headers = GetRequestHeaders(HttpMethod.Get, endpoint);
-
-            try
-            {
-                var response = await _restRepo.GetApiStream<Order>(url, headers);
-
-                return response;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
+            return await Get<Order>(endpoint, true);
         }
 
         /// <summary>
@@ -957,20 +826,7 @@ namespace KuCoinApi.Net.Data
 
             endpoint += queryString;
 
-            var url = baseUrl + endpoint;
-
-            var headers = GetRequestHeaders(HttpMethod.Get, endpoint);
-
-            try
-            {
-                var response = await _restRepo.GetApiStream<PagedResponse<List<Fill>>>(url, headers);
-
-                return response;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
+            return await Get<PagedResponse<List<Fill>>>(endpoint, true);
         }
 
         /// <summary>
@@ -985,20 +841,7 @@ namespace KuCoinApi.Net.Data
             var body = new SortedDictionary<string, object>();
             body.Add("currency", symbol);
 
-            var url = baseUrl + endpoint;
-
-            var headers = GetRequestHeaders(HttpMethod.Post, endpoint, body);
-
-            try
-            {
-                var response = await _restRepo.PostApi<DepositAddress, SortedDictionary<string, object>>(url, body, headers);
-
-                return response;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
+            return await Post<DepositAddress>(endpoint, body);
         }
 
         /// <summary>
@@ -1009,21 +852,8 @@ namespace KuCoinApi.Net.Data
         public async Task<DepositAddress> GetDepositAddress(string symbol)
         {
             var endpoint = $"/api/v1/deposit-addresses?currency={symbol}";
-            
-            var url = baseUrl + endpoint;
 
-            var headers = GetRequestHeaders(HttpMethod.Get, endpoint);
-
-            try
-            {
-                var response = await _restRepo.GetApiStream<DepositAddress>(url, headers);
-
-                return response;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
+            return await Get<DepositAddress>(endpoint, true);
         }
 
         /// <summary>
@@ -1032,24 +862,21 @@ namespace KuCoinApi.Net.Data
         /// <param name="symbol">Symbol of currency</param>
         /// <param name="page">Page number</param>
         /// <param name="pageSize">Page size</param>
-        /// <returns></returns>
-        public async Task<PagedResponse<Deposit>> GetDepositHistory(string symbol, int page = 0, int pageSize = 0)
+        /// <returns>Paged collection of Deposits</returns>
+        public async Task<PagedResponse<List<Deposit>>> GetDepositHistory(string symbol, int page = 0, int pageSize = 0)
         {
             return await GetDepositHistory(symbol: symbol, page: page, pageSize: pageSize);
         }
 
-
         /// <summary>
         /// Get deposit history
         /// </summary>
         /// <param name="symbol">Symbol of currency</param>
-        /// <param name="startAt">Start date</param>
-        /// <param name="endAt">End date</param>
         /// <param name="status">Deposit status</param>
         /// <param name="page">Page number</param>
         /// <param name="pageSize">Page size</param>
-        /// <returns></returns>
-        public async Task<PagedResponse<Deposit>> GetDepositHistory(string symbol, DepositStatus status, int page = 0, int pageSize = 0)
+        /// <returns>Paged collection of Deposits</returns>
+        public async Task<PagedResponse<List<Deposit>>> GetDepositHistory(string symbol, DepositStatus status, int page = 0, int pageSize = 0)
         {
             return await GetDepositHistory(symbol: symbol, status: status, page: page, pageSize: pageSize);
         }
@@ -1058,13 +885,31 @@ namespace KuCoinApi.Net.Data
         /// Get deposit history
         /// </summary>
         /// <param name="symbol">Symbol of currency</param>
+        /// <param name="startDate">Start date</param>
+        /// <param name="endDate">End date</param>
+        /// <param name="status">Deposit status</param>
+        /// <param name="page">Page number</param>
+        /// <param name="pageSize">Page size</param>
+        /// <returns>Paged collection of Deposits</returns>
+        public async Task<PagedResponse<List<Deposit>>> GetDepositHistory(string symbol = null, DateTime? startDate = null, DateTime? endDate = null, DepositStatus? status = null, int page = 0, int pageSize = 0)
+        {
+            var startAt = startDate != null ? _dtHelper.LocalToUnixTime((DateTime)startDate) : 0;
+            var endAt = endDate != null ? _dtHelper.LocalToUnixTime((DateTime)endDate) : 0;
+
+            return await GetDepositHistory(symbol, startAt, endAt, status, page, pageSize);
+        }
+
+        /// <summary>
+        /// Get deposit history
+        /// </summary>
+        /// <param name="symbol">Symbol of currency</param>
         /// <param name="startAt">Start date</param>
         /// <param name="endAt">End date</param>
         /// <param name="status">Deposit status</param>
         /// <param name="page">Page number</param>
         /// <param name="pageSize">Page size</param>
-        /// <returns></returns>
-        public async Task<PagedResponse<Deposit>> GetDepositHistory(string symbol = null, long startAt = 0, long endAt = 0, DepositStatus? status = null, int page = 0, int pageSize = 0)
+        /// <returns>Paged collection of Deposits</returns>
+        public async Task<PagedResponse<List<Deposit>>> GetDepositHistory(string symbol = null, long startAt = 0, long endAt = 0, DepositStatus? status = null, int page = 0, int pageSize = 0)
         {
             var endpoint = $"/api/v1/deposits";
 
@@ -1086,941 +931,408 @@ namespace KuCoinApi.Net.Data
 
             endpoint += queryString;
 
+            return await Get<PagedResponse<List<Deposit>>>(endpoint, true);
+        }
+
+        /// <summary>
+        /// Get withdrawal history
+        /// </summary>
+        /// <param name="symbol">Symbol of currency</param>
+        /// <param name="page">Page number</param>
+        /// <param name="pageSize">Page size</param>
+        /// <returns>Paged collection of withdrawals</returns>
+        public async Task<PagedResponse<List<Withdrawal>>> GetWithdrawalHistory(string symbol, int page = 0, int pageSize = 0)
+        {
+            return await GetWithdrawalHistory(symbol: symbol, page: page, pageSize: pageSize);
+        }
+
+        /// <summary>
+        /// Get withdrawal history
+        /// </summary>
+        /// <param name="symbol">Symbol of currency</param>
+        /// <param name="status">Withdrawal status</param>
+        /// <param name="page">Page number</param>
+        /// <param name="pageSize">Page size</param>
+        /// <returns>Paged collection of withdrawals</returns>
+        public async Task<PagedResponse<List<Withdrawal>>> GetWithdrawalHistory(string symbol, DepositStatus status, int page = 0, int pageSize = 0)
+        {
+            return await GetWithdrawalHistory(symbol: symbol, status: status, page: page, pageSize: pageSize);
+        }
+
+        /// <summary>
+        /// Get withdrawal history
+        /// </summary>
+        /// <param name="symbol">Symbol of currency</param>
+        /// <param name="startDate">Start date</param>
+        /// <param name="endDate">End date</param>
+        /// <param name="status">Withdrawal status</param>
+        /// <param name="page">Page number</param>
+        /// <param name="pageSize">Page size</param>
+        /// <returns>Paged collection of withdrawals</returns>
+        public async Task<PagedResponse<List<Withdrawal>>> GetWithdrawalHistory(string symbol = null, DateTime? startDate = null, DateTime? endDate = null, WithdrawalStatus? status = null, int page = 0, int pageSize = 0)
+        {
+            var startAt = startDate != null ? _dtHelper.LocalToUnixTime((DateTime)startDate) : 0;
+            var endAt = endDate != null ? _dtHelper.LocalToUnixTime((DateTime)endDate) : 0;
+
+            return await GetWithdrawalHistory(symbol, startAt, endAt, status, page, pageSize);
+        }
+
+        /// <summary>
+        /// Get withdrawal history
+        /// </summary>
+        /// <param name="symbol">Symbol of currency</param>
+        /// <param name="startAt">Start date</param>
+        /// <param name="endAt">End date</param>
+        /// <param name="status">Withdrawal status</param>
+        /// <param name="page">Page number</param>
+        /// <param name="pageSize">Page size</param>
+        /// <returns>Paged collection of withdrawals</returns>
+        public async Task<PagedResponse<List<Withdrawal>>> GetWithdrawalHistory(string symbol = null, long startAt = 0, long endAt = 0, WithdrawalStatus? status = null, int page = 0, int pageSize = 0)
+        {
+            var endpoint = $"/api/v1/withdrawals";
+
+            var parms = new Dictionary<string, object>();
+            if (!string.IsNullOrEmpty(symbol))
+                parms.Add("currency", symbol);
+            if (startAt > 0)
+                parms.Add("startAt", startAt);
+            if (endAt > 0)
+                parms.Add("endAt", endAt);
+            if (status != null)
+                parms.Add("status", status.ToString());
+            if (page > 1)
+                parms.Add("currentPage", page);
+            if (pageSize != 50)
+                parms.Add("pageSize", pageSize);
+
+            var queryString = parms.Count > 0 ? $"?{_helper.ObjectToString(parms)}" : string.Empty;
+
+            endpoint += queryString;
+
+            return await Get<PagedResponse<List<Withdrawal>>>(endpoint, true);
+        }
+
+        /// <summary>
+        /// Get withdrawal details
+        /// </summary>
+        /// <param name="symbol">Symbol of currency</param>
+        /// <returns>WithdrawalQuota details</returns>
+        public async Task<WithdrawalQuota> GetWithdrawalQuota(string symbol)
+        {
+            var endpoint = $"/api/v1/withdrawals/quota?currency={symbol}";
+
+            return await Get<WithdrawalQuota>(endpoint, true);
+        }
+
+        /// <summary>
+        /// Get withdrawal details
+        /// </summary>
+        /// <param name="symbol">Symbol of currency</param>
+        /// <param name="address">Address to send to</param>
+        /// <param name="memo">Address memo</param>
+        /// <param name="amount">Quantity to send</param>
+        /// <param name="inner">Internal withdrawal?</param>
+        /// <param name="remark">Remarks of transaction</param>
+        /// <returns>WithdrawalQuota details</returns>
+        public async Task<string> Withdrawal(string symbol, string address, string memo, decimal amount, bool inner, string remark)
+        {
+            var endpoint = $"/api/v1/withdrawals";
+
             var url = baseUrl + endpoint;
 
-            var headers = GetRequestHeaders(HttpMethod.Get, endpoint);
+            var body = new SortedDictionary<string, object>();
+            body.Add("currency", symbol);
+            body.Add("address", address);
+            body.Add("memo", memo);
+            body.Add("amount", amount);
+            body.Add("isInner", inner);
+            body.Add("remark", remark);
 
-            try
-            {
-                var response = await _restRepo.GetApiStream<PagedResponse<Deposit>>(url, headers);
+            return await Post<string>(endpoint, body);
+        }
 
-                return response;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
+        /// <summary>
+        /// Cancel a withdrawal
+        /// </summary>
+        /// <param name="withdrawalId">Withdrawal Id to cancel</param>
+        /// <returns>Withdrawal Id</returns>
+        public async Task<string> CancelWithdrawal(string withdrawalId)
+        {
+            var endpoint = $"/api/v1/withdrawals/{withdrawalId}";
+
+            return await Delete<string>(endpoint);
         }
 
         #endregion Secure Endpoints
 
+        #region Public Endpoints
+
+        /// <summary>
+        /// Get current markets on the exchange
+        /// </summary>
+        /// <param name="trading">Currently trading</param>
+        /// <returns>Collection of trading pairs</returns>
+        public async Task<List<string>> GetMarkets(bool trading = true)
+        {
+            var details = await GetTradingPairDetails();
+
+            return details.Select(d => d.Pair).ToList();
+        }
+
+        /// <summary>
+        /// Get available trading pairs
+        /// </summary>
+        /// <returns>Collection of Trading Pair Details</returns>
+        public async Task<List<TradingPairDetail>> GetTradingPairDetails()
+        {
+            var endpoint = "/apio/v1/symbols";
+
+            return await Get<List<TradingPairDetail>>(endpoint, false);
+        }
+
+        /// <summary>
+        /// Get Ticker for a trading pair
+        /// </summary>
+        /// <param name="pair">Trading pair</param>
+        /// <returns>Ticker of pair</returns>
+        public async Task<Ticker> GetTicker(string pair)
+        {
+            var endpoint = $"/api/v1/market/orderbook/level1?symbol={pair}";
+
+            return await Get<Ticker>(endpoint, false);
+        }
+
+        /// <summary>
+        /// Get order book for a pair, 100 depth bid & ask
+        /// Fastest order book available in REST
+        /// </summary>
+        /// <param name="pair">Trading pair</param>
+        /// <returns>OrderBook data</returns>
+        public async Task<OrderBookL2> GetPartOrderBook(string pair)
+        {
+            var endpoint = $"/api/v1/market/orderbook/level2_100?symbol={pair}";
+
+            return await Get<OrderBookL2>(endpoint, false);
+        }
+
+        /// <summary>
+        /// Get order book for a pair, full depth
+        /// </summary>
+        /// <param name="pair">Trading pair</param>
+        /// <returns>OrderBook data</returns>
+        public async Task<OrderBookL2> GetFullOrderBook(string pair)
+        {
+            var endpoint = $"/api/v1/market/orderbook/level2?symbol={pair}";
+
+            return await Get<OrderBookL2>(endpoint, false);
+        }
+
+        /// <summary>
+        /// Returns entire order book
+        /// </summary>
+        /// <param name="pair">Trading pair</param>
+        /// <returns>Detailed OrderBook data</returns>
+        public async Task<OrderBookL3> GetEntireOrderBook(string pair)
+        {
+            var endpoint = $"/api/v1/market/orderbook/level3?symbol={pair}";
+
+            return await Get<OrderBookL3>(endpoint, false);
+        }
+
+        /// <summary>
+        /// Get latest trades
+        /// </summary>
+        /// <param name="pair">Trading pair</param>
+        /// <returns>Collection of TradeHistory</returns>
+        public async Task<List<TradeHistory>> GetTradeHistory(string pair)
+        {
+            var endpoint = $"/api/v1/market/histories?symbol={pair}";
+
+            return await Get<List<TradeHistory>>(endpoint, false);
+        }
+
         /// <summary>
         /// Get candlesticks
         /// </summary>
-        /// <param name="symbol">String of symbol</param>
-        /// <param name="size">stick size</param>
-        /// <param name="limit">number of sticks</param>
-        /// <returns>ChartValue object</returns>
-        public async Task<ChartValue> GetCandlesticks(string symbol, Interval size, int limit)
+        /// <param name="pair">Trading pair</param>
+        /// <param name="interval">Candlestick interval</param>
+        /// <param name="stickCount">Number of sticks to return</param>
+        /// <returns>Collection of candlesticks</returns>
+        public async Task<List<Candlestick>> GetCandlestick(string pair, Interval interval, int stickCount)
         {
-            var kuPair = TradingPairValidator(symbol);
-            var to = _dtHelper.UTCEndOfMinuteToUnixTime();// _dtHelper.UTCtoUnixTime();
-            var from = _helper.GetFromUnixTime(to, size, (limit + 2));
-            var kuSize = _helper.IntervalToKuCoinStringInterval(size);
-            var endpoint = $"/v1/open/chart/history?symbol={kuPair}&resolution={kuSize}&from={from}&to={to}";
-            var url = baseUrl + endpoint;
+            var endAt = _dtHelper.UTCEndOfMinuteToUnixTime();
+            var startAt = _helper.GetFromUnixTime(endAt, interval, (stickCount + 2));
 
-            try
-            {
-                var response = await _restRepo.GetApiStream<ChartValue>(url);
-
-                return response;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
+            return await GetCandlestick(pair, startAt, endAt, interval);
         }
 
         /// <summary>
-        /// Get order information
+        /// Get candlesticks
         /// </summary>
-        /// <param name="symbol">string of symbol</param>
-        /// <param name="tradeType">Trade type</param>
-        /// <param name="orderId">long of orderId</param>
-        /// <param name="page">Page number, default 1</param>
-        /// <param name="limit">Number of fills to return, default 20</param>
-        /// <returns>OrderResponse object</returns>
-        public async Task<OrderListDetail> GetOrder(string symbol, TradeType tradeType, long orderId, int page = 1, int limit = 20)
+        /// <param name="pair">Trading pair</param>
+        /// <param name="endAt">Ending date</param>
+        /// <param name="interval">Candlestick interval</param>
+        /// <param name="stickCount">Number of sticks to return</param>
+        /// <returns>Collection of candlesticks</returns>
+        public async Task<List<Candlestick>> GetCandlestick(string pair, long endAt, Interval interval, int stickCount)
         {
-            var endpoint = "/v1/order/detail";
-            var url = baseUrl + endpoint;
-            var kuPair = TradingPairValidator(symbol);
+            var startAt = _helper.GetFromUnixTime(endAt, interval, (stickCount + 2));
 
-            var queryString = new List<string>
-            {
-                $"symbol={kuPair}",
-                $"type={tradeType.ToString()}",
-                $"limit={limit}",
-                $"page={page}",
-                $"orderOid={orderId}"
-            };
-
-            var headers = GetRequestHeaders(endpoint, queryString.ToArray());
-
-            try
-            {
-                var response = await _restRepo.GetApiStream<ApiResponse<DealOrder<OrderListDetail>>>(url, headers);
-
-                return response.data.datas;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
+            return await GetCandlestick(pair, startAt, endAt, interval);
         }
 
         /// <summary>
-        /// Get all current user order information
+        /// Get candlesticks
         /// </summary>
-        /// <param name="symbol">string of symbol</param>
-        /// <param name="limit">Int of orders count to return, default 20</param>
-        /// <param name="page">Int of page number</param>
-        /// <returns>OpenOrderResponse object</returns>
-        public async Task<OrderListDetail[]> GetOrders(string symbol, int limit = 20, int page = 1)
+        /// <param name="pair">Trading pair</param>
+        /// <param name="endDate">Ending date</param>
+        /// <param name="interval">Candlestick interval</param>
+        /// <param name="stickCount">Number of sticks to return</param>
+        /// <returns>Collection of candlesticks</returns>
+        public async Task<List<Candlestick>> GetCandlestick(string pair, DateTime endDate, Interval interval, int stickCount)
         {
-            var endpoint = "/v1/deal-orders";
-            var kuPair = TradingPairValidator(symbol);
+            var endAt = _dtHelper.LocalToUnixTime(endDate);
+            var startAt = _helper.GetFromUnixTime(endAt, interval, (stickCount + 2));
 
-            var queryString = new List<string>
-            {
-                $"limit={limit}",
-                $"page={page}",
-                $"symbol={kuPair}"
-            };
-
-            var headers = GetRequestHeaders(endpoint, queryString.ToArray());
-
-            var url = baseUrl + endpoint + $"?{queryString[0]}&{queryString[1]}&{queryString[2]}";
-
-            try
-            {
-                var response = await _restRepo.GetApiStream<ApiResponse<DealOrder<OrderListDetail[]>>>(url, headers);
-
-                return response.data.datas;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
+            return await GetCandlestick(pair, startAt, endAt, interval);
         }
 
         /// <summary>
-        /// Get all user order information
+        /// Get candlesticks
         /// </summary>
-        /// <returns>OpenOrderResponse object</returns>
-        public async Task<OrderListDetail[]> GetDealtOrders()
+        /// <param name="pair">Trading pair</param>
+        /// <param name="startDate">Starting date</param>
+        /// <param name="endDate">Ending date</param>
+        /// <param name="interval">Candlestick interval</param>
+        /// <returns>Collection of candlesticks</returns>
+        public async Task<List<Candlestick>> GetCandlestick(string pair, DateTime startDate, DateTime endDate, Interval interval)
         {
-            var orders = await OnGetAllDealtOrders(string.Empty, null, null, null);
-
-            return orders;
-        }
-
-        /// <summary>
-        /// Get all user order information
-        /// </summary>
-        /// <param name="side">Trade side</param>
-        /// <returns>OpenOrderResponse object</returns>
-        public async Task<OrderListDetail[]> GetDealtOrders(Side side)
-        {
-            var orders = await OnGetAllDealtOrders(string.Empty, side, null, null);
-
-            return orders;
-        }
-
-        /// <summary>
-        /// Get all user order information
-        /// </summary>
-        /// <param name="symbol">string of symbol</param>
-        /// <returns>OpenOrderResponse object</returns>
-        public async Task<OrderListDetail[]> GetDealtOrders(string symbol)
-        {
-            var orders = await OnGetAllDealtOrders(symbol, null, null, null);
-
-            return orders;
-        }
-
-        /// <summary>
-        /// Get all user order information
-        /// </summary>
-        /// <param name="from">From date</param>
-        /// <param name="to">To date</param>
-        /// <returns>OpenOrderResponse object</returns>
-        public async Task<OrderListDetail[]> GetDealtOrders(DateTime? from, DateTime? to)
-        {
-            var orders = await OnGetAllDealtOrders(string.Empty, null, from, to);
-
-            return orders;
-        }
-
-        /// <summary>
-        /// Get all user order information
-        /// </summary>
-        /// <param name="symbol">string of symbol</param>
-        /// <param name="side">Trade side</param>
-        /// <param name="from">From date</param>
-        /// <param name="to">To date</param>
-        /// <returns>OpenOrderResponse object</returns>
-        public async Task<OrderListDetail[]> GetDealtOrders(string symbol = "", Side? side = null, DateTime? from = null, DateTime? to = null)
-        {
-            var orders = await OnGetAllDealtOrders(symbol, side, from, to);
-
-            return orders;
-        }
-
-        /// <summary>
-        /// Get all user order information
-        /// </summary>
-        /// <param name="side">Trade side</param>
-        /// <param name="limit">Orders to return, max 100</param>
-        /// <param name="page">Page number</param>
-        /// <returns>OpenOrderResponse object</returns>
-        public async Task<OrderListDetail[]> GetDealtOrders(Side side, int page, int limit)
-        {
-            limit = limit > 100 ? 100 : limit;
-            var response = await OnGetDealtOrders(string.Empty, side, limit, page, null, null);
-
-            return response.datas;
-        }
-
-        /// <summary>
-        /// Get all user order information
-        /// </summary>
-        /// <param name="side">Trade side</param>
-        /// <param name="limit">Orders to return, max 100</param>
-        /// <param name="page">Page number</param>
-        /// <param name="from">From date</param>
-        /// <param name="to">To date</param>
-        /// <returns>OpenOrderResponse object</returns>
-        public async Task<OrderListDetail[]> GetDealtOrders(Side side, int page, int limit, DateTime? from, DateTime? to)
-        {
-            limit = limit > 100 ? 100 : limit;
-            var response = await OnGetDealtOrders(string.Empty, side, limit, page, from, to);
-
-            return response.datas;
-        }
-
-        /// <summary>
-        /// Get all user order information
-        /// </summary>
-        /// <param name="symbol">string of symbol</param>
-        /// <param name="side">Trade side</param>
-        /// <param name="limit">Orders to return, max 20</param>
-        /// <param name="page">Page number</param>
-        /// <returns>OpenOrderResponse object</returns>
-        public async Task<OrderListDetail[]> GetDealtOrders(string symbol, Side side, int page, int limit)
-        {
-            limit = limit > 20 ? 20 : limit;
-            var response = await OnGetDealtOrders(symbol, side, limit, page, null, null);
-
-            return response.datas;
-        }
-
-        /// <summary>
-        /// Get all user order information
-        /// </summary>
-        /// <param name="symbol">string of symbol</param>
-        /// <param name="side">Trade side</param>
-        /// <param name="limit">Orders to return, max 20</param>
-        /// <param name="page">Page number</param>
-        /// <param name="from">From date</param>
-        /// <param name="to">To date</param>
-        /// <returns>OpenOrderResponse object</returns>
-        public async Task<OrderListDetail[]> GetDealtOrders(string symbol, Side side, int page, int limit, DateTime? from, DateTime? to)
-        {
-            limit = limit > 20 ? 20 : limit;
-            var response = await OnGetDealtOrders(symbol, side, limit, page, from, to);
-
-            return response.datas;
-        }
-
-        /// <summary>
-        /// Get all user order information
-        /// </summary>
-        /// <param name="symbol">string of symbol</param>
-        /// <param name="side">Trade side</param>
-        /// <param name="from">From date</param>
-        /// <param name="to">To date</param>
-        /// <returns>OpenOrderResponse object</returns>
-        private async Task<OrderListDetail[]> OnGetAllDealtOrders(string symbol, Side? side, DateTime? from, DateTime? to)
-        {
-            var limit = string.IsNullOrEmpty(symbol) ? 100 : 20;
-            var orderList = new List<OrderListDetail>();
-
-            var currentPage = 0;
-            var maxPage = 1;
-            if(side == null || side == Side.BUY)
-            {
-                while (currentPage < maxPage)
-                {
-                    currentPage++;
-                    var response = await OnGetDealtOrders(symbol, Side.BUY, limit, currentPage, from, to);
-
-                    orderList.AddRange(response.datas);
-                    maxPage = response.pageNos;
-                }
-            }
-            if (side == null || side == Side.SELL)
-            {
-                while (currentPage < maxPage)
-                {
-                    currentPage++;
-                    var response = await OnGetDealtOrders(symbol, Side.SELL, limit, currentPage, from, to);
-                    
-                    orderList.AddRange(response.datas);
-                    maxPage = response.pageNos;
-                }
-            }
-
-            return orderList.OrderByDescending(o => o.createdAt).ToArray();
-        }
-
-        /// <summary>
-        /// Get all user order information
-        /// </summary>
-        /// <param name="symbol">string of symbol</param>
-        /// <param name="side">Trade side</param>
-        /// <param name="limit">Int of orders count to return</param>
-        /// <param name="page">Page number</param>
-        /// <param name="from">From date</param>
-        /// <param name="to">To date</param>
-        /// <returns>OpenOrderResponse object</returns>
-        private async Task<DealOrder<OrderListDetail[]>> OnGetDealtOrders(string symbol, Side side, int limit, int page, DateTime? from, DateTime? to)
-        {
-            var endpoint = "/v1/order/dealt";
-
-            var fromTS = from != null ? _dtHelper.LocalToUnixTime((DateTime)from) : 0;
-            var toTS = to != null ? _dtHelper.LocalToUnixTime((DateTime)to) : 0;
-            var queryString = new List<string>();
-
-            if (to != null)
-                queryString.Add($"before={toTS}");
-            queryString.Add($"limit={limit}");
-            if (page > 1)
-                queryString.Add($"page={page}");
-            if (from != null)
-                queryString.Add($"since={fromTS}");
-            if (!string.IsNullOrEmpty(symbol))
-            {
-                var kuPair = TradingPairValidator(symbol);
-                queryString.Add($"symbol={kuPair}");
-            }
-            queryString.Add($"type={side.ToString()}");
-
-            var headers = GetRequestHeaders(endpoint, queryString.ToArray());
-
-            var url = baseUrl + endpoint + $"?{_helper.ArrayToString(queryString.ToArray())}";
-
-            try
-            {
-                var response = await _restRepo.GetApiStream<ApiResponse<DealOrder<OrderListDetail[]>>>(url, headers);
-
-                return response.data;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-        }
-
-        /// <summary>
-        /// Get all open orders
-        /// </summary>
-        /// <param name="symbol">string of symbol</param>
-        /// <returns>KuCoinOpenOrders object</returns>
-        public async Task<OpenOrderResponse<OpenOrder>> GetOpenOrders(string symbol)
-        {
-            var endpoint = "/v1/order/active";
-            var kuPair = TradingPairValidator(symbol);
-
-            var queryString = new List<string>
-            {
-                $"symbol={kuPair}"
-            };
-
-            var headers = GetRequestHeaders(endpoint, queryString.ToArray());
-
-            var url = baseUrl + endpoint + $"?{_helper.ListToString(queryString)}";
-
-            try
-            {
-                var response = await _restRepo.GetApiStream<ApiResponse<OpenOrderResponse<OpenOrder>>>(url, headers);
+            var startAt = _dtHelper.LocalToUnixTime(startDate);
+            var endAt = _dtHelper.LocalToUnixTime(endDate);
             
-                return response.data;            
-            }
-            catch (Exception ex)
+            return await GetCandlestick(pair, startAt, endAt, interval);
+        }
+
+        /// <summary>
+        /// Get candlesticks
+        /// </summary>
+        /// <param name="pair">Trading pair</param>
+        /// <param name="startAt">Starting date</param>
+        /// <param name="endAt">Ending date</param>
+        /// <param name="interval">Candlestick interval</param>
+        /// <returns>Collection of candlesticks</returns>
+        public async Task<List<Candlestick>> GetCandlestick(string pair, long startAt, long endAt, Interval interval)
+        {
+            if(startAt >= endAt)
             {
-                throw new Exception(ex.Message);
+                throw new Exception("Start time cannot be >= end time.");
+            }
+
+            var type = _helper.GetEnumDescription(interval);
+
+            var endpoint = $"/api/v1/market/candles?symbol={pair}&startAt={startAt}&endAt={endAt}&type={type}";
+
+            return await Get<List<Candlestick>>(endpoint, false);
+        }
+
+        /// <summary>
+        /// Get 24 hour stats for a trading pair
+        /// </summary>
+        /// <param name="pair">Trading pair</param>
+        /// <returns>TradingPairStats object</returns>
+        public async Task<TradingPairStats> Get24HrStats(string pair)
+        {
+            var endpoint = $"/api/v1/market/stats?currency={pair}";
+
+            return await Get<TradingPairStats>(endpoint, false);
+        }
+
+        /// <summary>
+        /// Get known currencies
+        /// </summary>
+        /// <returns>Collection of Currency objects</returns>
+        public async Task<List<Currency>> GetCurrencies()
+        {
+            var endpoint = "/api/v1/currencies";
+
+            return await Get<List<Currency>>(endpoint, false);
+        }
+
+        /// <summary>
+        /// Get currency detail
+        /// </summary>
+        /// <param name="symbol">Currency symbol</param>
+        /// <returns>CurrencyDetail objects</returns>
+        public async Task<CurrencyDetail> GetCurrency(string symbol)
+        {
+            var endpoint = $"/api/v1/currencies/{symbol}";
+
+            return await Get<CurrencyDetail>(endpoint, false);
+        }
+
+        /// <summary>
+        /// Get server time from KuCoin
+        /// </summary>
+        /// <returns>Unix server time</returns>
+        public async Task<long> GetServerTime()
+        {
+            var endpoint = "/api/v1/timestamp";
+
+            var response = await Get<Dictionary<string, object>>(endpoint, false);
+
+            return (long)response["data"];
+        }
+
+        #endregion Public Endpoints
+
+        #region Helpers
+
+        /// <summary>
+        /// Delete request pre-processor
+        /// </summary>
+        /// <typeparam name="T">Type to return</typeparam>
+        /// <param name="endpoint">Endpoint string</param>
+        /// <returns>Async task of response</returns>
+        public async Task<T> Delete<T>(string endpoint)
+        {
+            var timestamp = GetTimestamp();
+
+            return await base.DeleteRequest<T>(endpoint, timestamp);
+        }
+
+        /// <summary>
+        /// Get request pre-processor
+        /// </summary>
+        /// <typeparam name="T">Type to return</typeparam>
+        /// <param name="endpoint">Endpoint string</param>
+        /// <param name="secure">Secure call?</param>
+        /// <returns>Async task of response</returns>
+        public async Task<T> Get<T>(string endpoint, bool secure)
+        {
+            var timestamp = GetTimestamp();
+
+            if (secure)
+            {
+                return await base.GetRequest<T>(endpoint, timestamp);
+            }
+            else
+            {
+                return await base.GetRequest<T>(endpoint);
             }
         }
 
         /// <summary>
-        /// Get all open orders with details
+        /// Post request pre-processor
         /// </summary>
-        /// <returns>KuCoinOpenOrdersResponse object</returns>
-        public async Task<OpenOrderResponse<OpenOrderDetail>> GetOpenOrdersDetails()
+        /// <typeparam name="T"></typeparam>
+        /// <param name="endpoint">Endpoint string</param>
+        /// <param name="body">Request body data</param>
+        /// <returns>Async task of response</returns>
+        public async Task<T> Post<T>(string endpoint, SortedDictionary<string, object> body)
         {
-            return await OnGetOpenOrdersDetails(null, null);
-        }
+            var timestamp = GetTimestamp();
 
-        /// <summary>
-        /// Get all open orders with details
-        /// </summary>
-        /// <param name="symbol">string of symbol</param>
-        /// <returns>KuCoinOpenOrdersResponse object</returns>
-        public async Task<OpenOrderResponse<OpenOrderDetail>> GetOpenOrdersDetails(string symbol)
-        {
-            return await OnGetOpenOrdersDetails(symbol, null);
-        }
-
-        /// <summary>
-        /// Get all open orders with details
-        /// </summary>
-        /// <param name="symbol">string of symbol</param>
-        /// <param name="type">Type of trade</param>
-        /// <returns>KuCoinOpenOrdersResponse object</returns>
-        public async Task<OpenOrderResponse<OpenOrderDetail>> GetOpenOrdersDetails(string symbol, Side type)
-        {
-            return await OnGetOpenOrdersDetails(symbol, type.ToString());
-        }
-
-        /// <summary>
-        /// Get all open orders with details
-        /// </summary>
-        /// <param name="symbol">string of symbol</param>
-        /// <param name="type">Type of trade</param>
-        /// <returns>KuCoinOpenOrdersResponse object</returns>
-        private async Task<OpenOrderResponse<OpenOrderDetail>> OnGetOpenOrdersDetails(string symbol, string type)
-        {
-            var endpoint = "/v1/order/active-map";
-            var kuPair = !string.IsNullOrEmpty(symbol) ? TradingPairValidator(symbol) : string.Empty;
-
-            var queryString = new List<string>
-            {
-                $"symbol={kuPair}"
-            };
-
-            if(!string.IsNullOrEmpty(type))
-            {
-                queryString.Add($"type={type}");
-            }
-
-            var headers = GetRequestHeaders(endpoint, queryString.ToArray());
-
-            var url = baseUrl + endpoint + $"?{_helper.ListToString(queryString)}";
-
-            try
-            {
-                var response = await _restRepo.GetApiStream<ApiResponse<OpenOrderResponse<OpenOrderDetail>>>(url, headers);
-
-                return response.data;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-        }
-
-        /// <summary>
-        /// Get Order Book for a pair
-        /// </summary>
-        /// <param name="symbol">string of trading pair</param>
-        /// <param name="limit">number of orders to return per side, default 100</param>
-        /// <returns>OrderBook object</returns>
-        public async Task<OrderBookResponse> GetOrderBook(string symbol, int limit = 100)
-        {
-            var kuPair = TradingPairValidator(symbol);
-            var endpoint = $"/v1/open/orders?symbol={kuPair}&limit={limit}";
-            var url = baseUrl + endpoint;
-            
-            try
-            {
-                var response = await _restRepo.GetApiStream<ApiResponse<OrderBookResponse>>(url);
-
-                return response.data;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-        }
-
-        /// <summary>
-        /// Post/Place a trade
-        /// </summary>
-        /// <param name="tradeParams">Trade to place</param>
-        /// <returns>KuCoinResponse object</returns>
-        public async Task<ApiResponse<Dictionary<string, string>>> PostTrade(TradeParams tradeParams)
-        {
-            var kuPair = TradingPairValidator(tradeParams.symbol);
-            var endpoint = $"/v1/order";
-            var sigEndpoint = $"/v1/{kuPair}/order";
-            var queryString = new List<string>
-            {
-                $"amount={_helper.DecimalToString(tradeParams.quantity)}",
-                $"price={_helper.DecimalToString(tradeParams.price)}",
-                $"symbol={kuPair}",
-                $"type={tradeParams.side}"
-            };
-
-            var headers = GetRequestHeaders(endpoint, queryString.ToArray());
-
-            var url = baseUrl + endpoint + $"?{_helper.ArrayToString(queryString.ToArray())}";
-
-            try
-            {
-                var response = await _restRepo.PostApi<ApiResponse<Dictionary<string, string>>, List<string>>(url, queryString, headers);
-
-                return response;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-        }
-
-        /// <summary>
-        /// Delete/Cancel a trade
-        /// </summary>
-        /// <param name="symbol">Trading symbol</param>
-        /// <param name="orderOid">Order id to cancel</param>
-        /// <param name="tradeType">Trade type to cancel</param>
-        /// <returns>TradeResponse object</returns>
-        public async Task<DeleteResponse> DeleteTrade(string symbol, string orderOid, string tradeType)
-        {
-            var endpoint = "/v1/cancel-order";
-            if(symbol.IndexOf("-")<0)
-            { }
-            var kuPair = TradingPairValidator(symbol);
-
-            var queryString = new List<string>
-            {
-                $"symbol={kuPair}",
-                $"orderOid={orderOid}",
-                $"type={tradeType}"
-            };
-
-            var headers = GetRequestHeaders(endpoint, queryString.ToArray());
-
-            var url = baseUrl + endpoint + $"?{_helper.ArrayToString(queryString.ToArray())}";
-
-            try
-            {
-                var response = await _restRepo.PostApi<DeleteResponse>(url, headers);
-
-                return response;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-        }
-
-        /// <summary>
-        /// Get Ticker for all pairs
-        /// </summary>
-        /// <returns>Array of KuCoinTick objects</returns>
-        public async Task<Tick[]> GetTicks()
-        {
-            var endpoint = "/v1/open/tick";
-            var url = baseUrl + endpoint;
-
-            try
-            {
-                var response = await _restRepo.GetApiStream<ApiResponse<Tick[]>>(url);
-
-                return response.data;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-        }
-
-        /// <summary>
-        /// Get Tick for a symbol
-        /// </summary>
-        /// <param name="symbol">Trading symbol</param>
-        /// <returns>KuCoinTick object</returns>
-        public async Task<Tick> GetTick(string symbol)
-        {
-            var kuPair = TradingPairValidator(symbol);
-            var endpoint = $"/v1/open/tick?symbol={kuPair}";
-            var url = baseUrl + endpoint;
-
-            try
-            {
-                var response = await _restRepo.GetApiStream<ApiResponse<Tick>>(url);
-
-                return response.data;
-            }
-            catch(Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-        }
-
-        /// <summary>
-        /// Get Markets trading on exchange
-        /// </summary>
-        /// <returns>Array of symbol strings</returns>
-        public async Task<string[]> GetMarkets()
-        {
-            var endpoint = $"/v1/open/markets";
-            var url = baseUrl + endpoint;
-
-            try
-            {
-                var response = await _restRepo.GetApiStream<ApiResponse<string[]>>(url);
-
-                return response.data;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-        }
-
-        /// <summary>
-        /// Get details for all coins
-        /// </summary>
-        /// <returns>Array of Tick objects</returns>
-        public async Task<Tick[]> GetTradingSymbolTick()
-        {
-            var endpoint = $"/v1/market/open/symbols";
-            var url = baseUrl + endpoint;
-
-            try
-            {
-                var response = await _restRepo.GetApiStream<ApiResponse<Tick[]>>(url);
-
-                return response.data;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-        }
-
-        /// <summary>
-        /// Get all trading pairs
-        /// </summary>
-        /// <returns>Array of trading pair strings</returns>
-        public async Task<string[]> GetTradingPairs()
-        {
-            var endpoint = $"/v1/market/open/symbols";
-            var url = baseUrl + endpoint;
-
-            try
-            {
-                var response = await _restRepo.GetApiStream<ApiResponse<Tick[]>>(url);
-
-                var pairs = new List<string>();
-                for(var i = 0; i < response.data.Length; i++)
-                {
-                    var pair = string.Empty;
-                    pair = response.data[i].coinType + "-" + response.data[i].coinTypePair;
-                    pairs.Add(pair);
-                }
-
-                return pairs.OrderBy(p => p).ToArray();
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-        }
-
-        /// <summary>
-        /// Get details for a coin
-        /// </summary>
-        /// <returns>CoinInfo object</returns>
-        public async Task<CoinInfo> GetCoin(string coin)
-        {
-            var endpoint = $"/v1/market/open/coin-info?coin={coin}";
-            var url = baseUrl + endpoint;
-
-            try
-            {
-                var response = await _restRepo.GetApiStream<ApiResponse<CoinInfo>>(url);
-
-                return response.data;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-        }
-
-        /// <summary>
-        /// Get details for all coins
-        /// </summary>
-        /// <returns>Array of CoinInfo objects</returns>
-        public async Task<CoinInfo[]> GetCoins()
-        {
-            var endpoint = $"/v1/market/open/coins";
-            var url = baseUrl + endpoint;
-
-            try
-            {
-                var response = await _restRepo.GetApiStream<ApiResponse<CoinInfo[]>>(url);
-
-                return response.data;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-        }
-
-        /// <summary>
-        /// Get open sells
-        /// </summary>
-        /// <param name="market">Market to check: BTC, ETH, KCS, etc (default = "")</param>
-        /// <returns>Array of Trending objects</returns>
-        public async Task<Trending[]> GetTrendings(string market = "")
-        {
-            var endpoint = $"/v1/market/open/coins-trending";
-            if (!string.IsNullOrEmpty(market))
-            {
-                endpoint += $"?market={market}";
-            }
-            var url = baseUrl + endpoint;
-
-            try
-            {
-                var response = await _restRepo.GetApiStream<ApiResponse<Trending[]>>(url);
-
-                return response.data;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-        }
-
-        /// <summary>
-        /// Get KuCoinTime
-        /// </summary>
-        /// <returns>long of timestamp</returns>
-        public async Task<long> GetKuCoinTime()
-        {
-            var endpoint = "/v1/time";
-            var url = baseUrl + endpoint;
-
-            var response = await _restRepo.GetApi<Dictionary<string, object>>(url);
-
-            return Convert.ToInt64(response["timestamp"]);
-        }
-
-        /// <summary>
-        /// Get deposit address
-        /// </summary>
-        /// <param name="symbol">String of symbol</param>
-        /// <returns>String of address</returns>
-        public async Task<string> GetDepositAddress(string symbol)
-        {
-            var endpoint = $"/v1/account/{symbol}/wallet/address";
-
-            var headers = GetRequestHeaders(endpoint);
-
-            var url = baseUrl + endpoint;
-
-            try
-            {
-                var response = await _restRepo.GetApi<ApiResponse<Dictionary<string, object>>>(url, headers);
-
-                return response.data["address"].ToString();
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-        }
-
-        /// <summary>
-        /// Withdraw funds from exchange
-        /// </summary>
-        /// <param name="symbol">String of symbol</param>
-        /// <param name="amount">Amount to send</param>
-        /// <param name="address">Address to send funds</param>
-        /// <returns>Boolean of withdraw attempt</returns>
-        public async Task<bool> WithdrawFunds(string symbol, decimal amount, string address)
-        {
-            return await OnWithdrawFunds(symbol, amount, address, string.Empty);
-        }
-
-        /// <summary>
-        /// Withdraw funds from exchange
-        /// </summary>
-        /// <param name="symbol">String of symbol</param>
-        /// <param name="amount">Amount to send</param>
-        /// <param name="address">Address to send funds</param>
-        /// <param name="memo">Address memo</param>
-        /// <returns>Boolean of withdraw attempt</returns>
-        public async Task<bool> WithdrawFunds(string symbol, decimal amount, string address, string memo)
-        {
-            return await OnWithdrawFunds(symbol, amount, address, memo);
-        }
-
-        /// <summary>
-        /// Withdraw funds from exchange
-        /// </summary>
-        /// <param name="symbol">String of symbol</param>
-        /// <param name="amount">Amount to send</param>
-        /// <param name="address">Address to send funds</param>
-        /// <param name="memo">Address memo</param>
-        /// <returns>Boolean of withdraw attempt</returns>
-        private async Task<bool> OnWithdrawFunds(string symbol, decimal amount, string address, string memo)
-        {
-            var endpoint = $"/v1/account/{symbol}/withdraw/apply";
-
-            address = !string.IsNullOrEmpty(memo) ? $"{address}@{memo}" : address;
-
-            var queryString = new List<string>
-            {
-                $"address={address}",
-                $"amount={_helper.DecimalToString(amount)}",
-                $"coin={symbol}"
-            };
-
-            var headers = GetRequestHeaders(endpoint, queryString.ToArray());
-
-            var url = baseUrl + endpoint + "?" + _helper.ArrayToString(queryString.ToArray());
-
-            try
-            {
-                var response = await _restRepo.PostApi<ApiResponse<string>>(url, headers);
-
-                return response.success;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-        }
-
-        /// <summary>
-        /// List account deposits
-        /// </summary>
-        /// <param name="symbol">String of symbol</param>
-        /// <returns>Collection of deposits</returns>
-        public async Task<DealOrder<DepositWithdrawTransaction[]>> GetDeposits(string symbol)
-        {
-            return await OnGetDepositsAndWithdrawals(symbol, DWType.DEPOSIT, DWStatus.NONE, 1);
-        }
-
-        /// <summary>
-        /// List account withdrawals
-        /// </summary>
-        /// <param name="symbol">String of symbol</param>
-        /// <returns>Collection of withdrawals</returns>
-        public async Task<DealOrder<DepositWithdrawTransaction[]>> GetWithdrawals(string symbol)
-        {
-            return await OnGetDepositsAndWithdrawals(symbol, DWType.WITHDRAW, DWStatus.NONE, 1);
-        }
-
-        /// <summary>
-        /// List account deposits
-        /// </summary>
-        /// <param name="symbol">String of symbol</param>
-        /// <param name="status">Status of deposit</param>
-        /// <returns>Collection of deposits</returns>
-        public async Task<DealOrder<DepositWithdrawTransaction[]>> GetDeposits(string symbol, DWStatus status)
-        {
-            return await OnGetDepositsAndWithdrawals(symbol, DWType.DEPOSIT, status, 1);
-        }
-
-        /// <summary>
-        /// List account withdrawals
-        /// </summary>
-        /// <param name="symbol">String of symbol</param>
-        /// <param name="status">Status of withdrawals</param>
-        /// <returns>Collection of withdrawals</returns>
-        public async Task<DealOrder<DepositWithdrawTransaction[]>> GetWithdrawals(string symbol, DWStatus status)
-        {
-            return await OnGetDepositsAndWithdrawals(symbol, DWType.WITHDRAW, status, 1);
-        }
-
-        /// <summary>
-        /// List account deposits
-        /// </summary>
-        /// <param name="symbol">String of symbol</param>
-        /// <param name="status">Status of deposit</param>
-        /// <param name="page">Page to return (default = 1)</param>
-        /// <returns>Collection of deposits</returns>
-        public async Task<DealOrder<DepositWithdrawTransaction[]>> GetDeposits(string symbol, DWStatus status, int page = 1)
-        {
-            return await OnGetDepositsAndWithdrawals(symbol, DWType.DEPOSIT, status, page);
-        }
-
-        /// <summary>
-        /// List account withdrawals
-        /// </summary>
-        /// <param name="symbol">String of symbol</param>
-        /// <param name="status">Status of withdrawals</param>
-        /// <param name="page">Page to return (default = 1)</param>
-        /// <returns>Collection of withdrawals</returns>
-        public async Task<DealOrder<DepositWithdrawTransaction[]>> GetWithdrawals(string symbol, DWStatus status, int page = 1)
-        {
-            return await OnGetDepositsAndWithdrawals(symbol, DWType.WITHDRAW, status, page);
-        }
-
-        /// <summary>
-        /// Withdraw funds from exchange
-        /// </summary>
-        /// <param name="symbol">String of symbol</param>
-        /// <param name="type">Type to return</param>
-        /// <param name="status">Status of action</param>
-        /// <param name="page">Page to return (default = 1)</param>
-        /// <returns>Boolean of withdraw attempt</returns>
-        private async Task<DealOrder<DepositWithdrawTransaction[]>> OnGetDepositsAndWithdrawals(string symbol, DWType type, DWStatus status, int page = 1)
-        {
-            var endpoint = $"/v1/account/{symbol}/wallet/records";
-
-            var queryString = new List<string>();
-
-            queryString.Add($"page={page}");
-            if (status != DWStatus.NONE)
-            {
-                queryString.Add($"status={status.ToString()}");
-            }
-            queryString.Add($"type={type.ToString()}");
-
-            var headers = GetRequestHeaders(endpoint, queryString.ToArray());
-
-            var url = baseUrl + endpoint + "?" + _helper.ArrayToString(queryString.ToArray());
-
-            try
-            {
-                var response = await _restRepo.GetApiStream<ApiResponse<DealOrder<DepositWithdrawTransaction[]>>>(url, headers);
-
-                return response.data;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-        }
-
-        /// <summary>
-        /// Validate a trading pair
-        /// </summary>
-        /// <param name="pair">Pair to validate</param>
-        /// <returns>Validated trading pair</returns>
-        private string TradingPairValidator(string pair)
-        {
-            if(string.IsNullOrEmpty(pair))
-            {
-                throw new Exception("Trading pair required.");
-            }
-            if (pair.IndexOf("-") < 0)
-            {
-                var markets = this.GetMarkets().Result;
-                pair = _helper.CreateDashedPair(pair, markets);
-            }
-
-            return pair;
+            return await base.PostRequest<T>(endpoint, timestamp, body);
         }
 
         /// <summary>
@@ -2182,5 +1494,7 @@ namespace KuCoinApi.Net.Data
 
             return signature;
         }
+
+        #endregion Helpers
     }
 }

@@ -1,10 +1,21 @@
-﻿using KuCoinApi.Net.Entities;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿// -----------------------------------------------------------------------------
+// <copyright file="IKuCoinRepository" company="Matt Scheetz">
+//     Copyright (c) Matt Scheetz All Rights Reserved
+// </copyright>
+// <author name="Matt Scheetz" date="1/19/2019 8:40:42 PM" />
+// -----------------------------------------------------------------------------
 
 namespace KuCoinApi.Net.Data.Interface
 {
+    #region Usings
+
+    using KuCoinApi.Net.Entities;
+    using System;
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
+
+    #endregion Usings
+
     public interface IKuCoinRepository
     {
         /// <summary>
@@ -13,317 +24,584 @@ namespace KuCoinApi.Net.Data.Interface
         /// <returns>Boolean of validation</returns>
         bool ValidateExchangeConfigured();
         
-        /// <summary>
-        /// Get candlesticks
-        /// </summary>
-        /// <param name="symbol">String of symbol</param>
-        /// <param name="size">stick size</param>
-        /// <param name="limit">number of sticks</param>
-        /// <returns>ChartValue object</returns>
-        Task<ChartValue> GetCandlesticks(string symbol, Interval size, int limit);
+        #region Secure Endpoints
 
         /// <summary>
         /// Get all account balances
         /// </summary>
         /// <param name="hideZeroBalance">Hide zero balance coins</param>
-        /// <returns>Balance array</returns>
-        Task<Balance[]> GetBalances(bool hideZeroBalance = false);
+        /// <returns>Balance collection</returns>
+        Task<List<Balance>> GetBalances(bool hideZeroBalance = false);
 
         /// <summary>
         /// Get account balance
         /// </summary>
-        /// <param name="limit">Number of balances per page</param>
-        /// <param name="pageNo">Page to return</param>
-        /// <returns>Balance array</returns>
-        Task<Balance[]> GetBalances(int limit, int pageNo);
+        /// <returns>Balance collection</returns>
+        Task<List<Balance>> GetBalances();
 
         /// <summary>
-        /// Get account balance of a coin
+        /// Get account balance
         /// </summary>
         /// <param name="symbol">Symbol of currency</param>
+        /// <returns>Balance collection</returns>
+        Task<List<Balance>> GetBalances(string symbol);
+
+        /// <summary>
+        /// Get account balance
+        /// </summary>
+        /// <param name="type">Account type</param>
+        /// <returns>Balance collection</returns>
+        Task<List<Balance>> GetBalances(AccountType type);
+
+        /// <summary>
+        /// Get account balance
+        /// </summary>
+        /// <param name="symbol">Symbol of currency</param>
+        /// <param name="type">Account type</param>
+        /// <returns>Balance collection</returns>
+        Task<List<Balance>> GetBalances(string symbol, AccountType type);
+
+        /// <summary>
+        /// Get account balance of an account
+        /// </summary>
+        /// <param name="accountId">Account Id</param>
         /// <returns>Balance object</returns>
-        Task<Balance> GetBalance(string symbol);
+        Task<Balance> GetBalance(string accountId);
 
         /// <summary>
-        /// Get order information
+        /// Create an account
         /// </summary>
-        /// <param name="symbol">string of symbol</param>
-        /// <param name="tradeType">Trade type</param>
-        /// <param name="orderId">long of orderId</param>
-        /// <param name="page">Page number, default 1</param>
-        /// <param name="limit">Number of fills to return, default 20</param>
-        /// <returns>OrderResponse object</returns>
-        Task<OrderListDetail> GetOrder(string symbol, TradeType tradeType, long orderId, int page = 1, int limit = 20);
+        /// <param name="symbol">Symbol of currency</param>
+        /// <param name="type">Type of account</param>
+        /// <returns>Id of new account</returns>
+        Task<string> CreateAccount(string symbol, AccountType type);
 
         /// <summary>
-        /// Get all current user order information
+        /// Get account history
         /// </summary>
-        /// <param name="symbol">string of symbol</param>
-        /// <param name="limit">Int of orders count to return, default 20</param>
-        /// <param name="page">Int of page number</param>
-        /// <returns>OpenOrderResponse object</returns>
-        Task<OrderListDetail[]> GetOrders(string symbol, int limit = 20, int page = 1);
-
-        /// <summary>
-        /// Get all user order information
-        /// </summary>
-        /// <returns>OpenOrderResponse object</returns>
-        Task<OrderListDetail[]> GetDealtOrders();
-
-        /// <summary>
-        /// Get all user order information
-        /// </summary>
-        /// <param name="side">Trade side</param>
-        /// <returns>OpenOrderResponse object</returns>
-        Task<OrderListDetail[]> GetDealtOrders(Side side);
-
-        /// <summary>
-        /// Get all user order information
-        /// </summary>
-        /// <param name="symbol">string of symbol</param>
-        /// <returns>OpenOrderResponse object</returns>
-        Task<OrderListDetail[]> GetDealtOrders(string symbol);
-
-        /// <summary>
-        /// Get all user order information
-        /// </summary>
-        /// <param name="from">From date</param>
-        /// <param name="to">To date</param>
-        /// <returns>OpenOrderResponse object</returns>
-        Task<OrderListDetail[]> GetDealtOrders(DateTime? from, DateTime? to);
-
-        /// <summary>
-        /// Get all user order information
-        /// </summary>
-        /// <param name="symbol">string of symbol</param>
-        /// <param name="side">Trade side</param>
-        /// <param name="from">From date</param>
-        /// <param name="to">To date</param>
-        /// <returns>OpenOrderResponse object</returns>
-        Task<OrderListDetail[]> GetDealtOrders(string symbol = "", Side? side = null, DateTime? from = null, DateTime? to = null);
-
-        /// <summary>
-        /// Get all user order information
-        /// </summary>
-        /// <param name="side">Trade side</param>
-        /// <param name="limit">Orders to return, max 100</param>
+        /// <param name="accountId">id of account</param>
+        /// <param name="startAt">Start time</param>
+        /// <param name="endAt">End time</param>
         /// <param name="page">Page number</param>
-        /// <returns>OpenOrderResponse object</returns>
-        Task<OrderListDetail[]> GetDealtOrders(Side side, int page, int limit);
+        /// <param name="pageSize">Page size</param>
+        /// <returns>Paged response of account history</returns>
+        Task<PagedResponse<List<AccountAction>>> GetAccountHistory(string accountId, DateTime startAt, DateTime endAt, int page = 0, int pageSize = 0);
 
         /// <summary>
-        /// Get all user order information
+        /// Get account history
         /// </summary>
-        /// <param name="side">Trade side</param>
-        /// <param name="limit">Orders to return, max 100</param>
+        /// <param name="accountId">id of account</param>
+        /// <param name="startAt">Unix start time</param>
+        /// <param name="endAt">Unix end time</param>
         /// <param name="page">Page number</param>
-        /// <param name="from">From date</param>
-        /// <param name="to">To date</param>
-        /// <returns>OpenOrderResponse object</returns>
-        Task<OrderListDetail[]> GetDealtOrders(Side side, int page, int limit, DateTime? from, DateTime? to);
+        /// <param name="pageSize">Page size</param>
+        /// <returns>Paged response of account history</returns>
+        Task<PagedResponse<List<AccountAction>>> GetAccountHistory(string accountId, long startAt, long endAt, int page = 0, int pageSize = 0);
 
         /// <summary>
-        /// Get all user order information
+        /// Get holds on an account
         /// </summary>
-        /// <param name="symbol">string of symbol</param>
-        /// <param name="side">Trade side</param>
-        /// <param name="limit">Orders to return, max 20</param>
+        /// <param name="accountId">id of account</param>
         /// <param name="page">Page number</param>
-        /// <returns>OpenOrderResponse object</returns>
-        Task<OrderListDetail[]> GetDealtOrders(string symbol, Side side, int page, int limit);
+        /// <param name="pageSize">Page size</param>
+        /// <returns>Paged response of account holds</returns>
+        Task<PagedResponse<List<AccountHold>>> GetHolds(string accountId, int page = 0, int pageSize = 0);
 
         /// <summary>
-        /// Get all user order information
+        /// Transfer funds between accounts
         /// </summary>
-        /// <param name="symbol">string of symbol</param>
+        /// <param name="fromId">Account Id Payer</param>
+        /// <param name="toId">Account Id Receiver</param>
+        /// <param name="amount">Amount to transfer</param>
+        /// <returns>Id of funds transfer order</returns>
+        Task<string> InnerTransfer(string fromId, string toId, decimal amount);
+
+        /// <summary>
+        /// Transfer funds between accounts
+        /// </summary>
+        /// <param name="clientOid">Request Id</param>
+        /// <param name="fromId">Account Id Payer</param>
+        /// <param name="toId">Account Id Receiver</param>
+        /// <param name="amount">Amount to transfer</param>
+        /// <returns>Id of funds transfer order</returns>
+        Task<string> InnerTransfer(string clientOid, string fromId, string toId, decimal amount);
+
+        /// <summary>
+        /// Place a limit order
+        /// </summary>
+        /// <param name="parms">Limit Order Parameters</param>
+        /// <returns>String of order id</returns>
+        Task<string> PlaceLimitOrder(LimitOrderParams parms);
+
+        /// <summary>
+        /// Place a market order
+        /// </summary>
+        /// <param name="parms">Market Order Parameters</param>
+        /// <returns>String of order id</returns>
+        Task<string> PlaceMarketOrder(MarketOrderParams parms);
+
+        /// <summary>
+        /// Place a stop order
+        /// </summary>
+        /// <param name="parms">Stop Limit Order Parameters</param>
+        /// <returns>String of order id</returns>
+        Task<string> PlaceStopOrder(StopLimitOrderParams parms);
+
+        /// <summary>
+        /// Cancel an order
+        /// </summary>
+        /// <param name="orderId">Id of order to cancel</param>
+        /// <returns>Id of order canceled</returns>
+        Task<string> CancelOrder(string orderId);
+
+        /// <summary>
+        /// Cancel all open orders
+        /// </summary>
+        /// <returns>Collection of canceled order Ids</returns>
+        Task<List<string>> CancelAllOrders();
+
+        /// <summary>
+        /// Get all orders
+        /// </summary>
+        /// <param name="page">page number</param>
+        /// <param name="pageSize">page size</param>
+        /// <returns>Paged list of Orders</returns>
+        Task<PagedResponse<List<Order>>> GetOrders(int page = 0, int pageSize = 0);
+
+        /// <summary>
+        /// Get all orders
+        /// </summary>
+        /// <param name="pair">Trading pair</param>
+        /// <param name="page">page number</param>
+        /// <param name="pageSize">page size</param>
+        /// <returns>Paged list of Orders</returns>
+        Task<PagedResponse<List<Order>>> GetOrders(string pair, int page = 0, int pageSize = 0);
+
+        /// <summary>
+        /// Get all orders
+        /// </summary>
+        /// <param name="pair">Trading pair</param>
         /// <param name="side">Trade side</param>
-        /// <param name="limit">Orders to return, max 20</param>
-        /// <param name="page">Page number</param>
-        /// <param name="from">From date</param>
-        /// <param name="to">To date</param>
-        /// <returns>OpenOrderResponse object</returns>
-        Task<OrderListDetail[]> GetDealtOrders(string symbol, Side side, int page, int limit, DateTime? from, DateTime? to);
+        /// <param name="page">page number</param>
+        /// <param name="pageSize">page size</param>
+        /// <returns>Paged list of Orders</returns>
+        Task<PagedResponse<List<Order>>> GetOrders(string pair, Side side, int page = 0, int pageSize = 0);
+
+        /// <summary>
+        /// Get all orders
+        /// </summary>
+        /// <param name="pair">Trading pair</param>
+        /// <param name="status">Order status</param>
+        /// <param name="page">page number</param>
+        /// <param name="pageSize">page size</param>
+        /// <returns>Paged list of Orders</returns>
+        Task<PagedResponse<List<Order>>> GetOrders(string pair, OrderStatus status, int page = 0, int pageSize = 0);
+
+        /// <summary>
+        /// Get all orders
+        /// </summary>
+        /// <param name="pair">Trading pair</param>
+        /// <param name="status">Order status</param>
+        /// <param name="side">Trade side</param>
+        /// <param name="page">page number</param>
+        /// <param name="pageSize">page size</param>
+        /// <returns>Paged list of Orders</returns>
+        Task<PagedResponse<List<Order>>> GetOrders(string pair, Side side, OrderStatus status, int page = 0, int pageSize = 0);
+
+        /// <summary>
+        /// Get all orders
+        /// </summary>
+        /// <param name="pair">Trading pair</param>
+        /// <param name="status">Order status</param>
+        /// <param name="side">Trade side</param>
+        /// <param name="type">Order Type</param>
+        /// <param name="startDate">Start Date</param>
+        /// <param name="endDate">End Date</param>
+        /// <param name="page">page number</param>
+        /// <param name="pageSize">page size</param>
+        /// <returns>Paged list of Orders</returns>
+        Task<PagedResponse<List<Order>>> GetOrders(string pair, OrderStatus? status, Side? side, OrderType? type, DateTime? startDate, DateTime? endDate, int page = 0, int pageSize = 0);
+
+        /// <summary>
+        /// Get all orders
+        /// </summary>
+        /// <param name="pair">Trading pair</param>
+        /// <param name="status">Order status</param>
+        /// <param name="side">Trade side</param>
+        /// <param name="type">Order Type</param>
+        /// <param name="startAt">Start Date (Unix time)</param>
+        /// <param name="endAt">End Date (Unix time)</param>
+        /// <param name="page">page number</param>
+        /// <param name="pageSize">page size</param>
+        /// <returns>Paged list of Orders</returns>
+        Task<PagedResponse<List<Order>>> GetOrders(string pair, OrderStatus? status, Side? side, OrderType? type, long startAt, long endAt, int page = 0, int pageSize = 0);
 
         /// <summary>
         /// Get all open orders
         /// </summary>
-        /// <param name="symbol">string of symbol</param>
-        /// <returns>KuCoinOpenOrders object</returns>
-        Task<OpenOrderResponse<OpenOrder>> GetOpenOrders(string symbol);
+        /// <param name="page">page number</param>
+        /// <param name="pageSize">page size</param>
+        /// <returns>Paged list of Orders</returns>
+        Task<PagedResponse<List<Order>>> GetOpenOrders(int page = 0, int pageSize = 0);
 
         /// <summary>
-        /// Get all open orders with details
+        /// Get all open orders
         /// </summary>
-        /// <returns>KuCoinOpenOrdersResponse object</returns>
-        Task<OpenOrderResponse<OpenOrderDetail>> GetOpenOrdersDetails();
+        /// <param name="pair">Trading pair</param>
+        /// <param name="page">page number</param>
+        /// <param name="pageSize">page size</param>
+        /// <returns>Paged list of Orders</returns>
+        Task<PagedResponse<List<Order>>> GetOpenOrders(string pair, int page = 0, int pageSize = 0);
 
         /// <summary>
-        /// Get all open orders with details
+        /// Get all open orders
         /// </summary>
-        /// <param name="symbol">string of symbol</param>
-        /// <returns>KuCoinOpenOrdersResponse object</returns>
-        Task<OpenOrderResponse<OpenOrderDetail>> GetOpenOrdersDetails(string symbol);
+        /// <param name="pair">Trading pair</param>
+        /// <param name="side">Trade side</param>
+        /// <param name="page">page number</param>
+        /// <param name="pageSize">page size</param>
+        /// <returns>Paged list of Orders</returns>
+        Task<PagedResponse<List<Order>>> GetOpenOrders(string pair, Side side, int page = 0, int pageSize = 0);
 
         /// <summary>
-        /// Get all open orders with details
+        /// Get all open orders
         /// </summary>
-        /// <param name="symbol">string of symbol</param>
-        /// <param name="type">Type of trade</param>
-        /// <returns>KuCoinOpenOrdersResponse object</returns>
-        Task<OpenOrderResponse<OpenOrderDetail>> GetOpenOrdersDetails(string symbol, Side type);
+        /// <param name="pair">Trading pair</param>
+        /// <param name="side">Trade side</param>
+        /// <param name="type">Order Type</param>
+        /// <param name="startDate">Start Date (Unix time)</param>
+        /// <param name="endDate">End Date (Unix time)</param>
+        /// <param name="page">page number</param>
+        /// <param name="pageSize">page size</param>
+        /// <returns>Paged list of Orders</returns>
+        Task<PagedResponse<List<Order>>> GetOpenOrders(string pair, Side? side, OrderType? type, DateTime? startDate, DateTime? endDate, int page = 0, int pageSize = 0);
 
         /// <summary>
-        /// Get Order Book for a pair
+        /// Get all open orders
         /// </summary>
-        /// <param name="symbol">string of trading pair</param>
-        /// <param name="limit">number of orders to return per side, default 100</param>
-        /// <returns>OrderBook object</returns>
-        Task<OrderBookResponse> GetOrderBook(string symbol, int limit = 100);
+        /// <param name="pair">Trading pair</param>
+        /// <param name="side">Trade side</param>
+        /// <param name="type">Order Type</param>
+        /// <param name="startAt">Start Date (Unix time)</param>
+        /// <param name="endAt">End Date (Unix time)</param>
+        /// <param name="page">page number</param>
+        /// <param name="pageSize">page size</param>
+        /// <returns>Paged list of Orders</returns>
+        Task<PagedResponse<List<Order>>> GetOpenOrders(string pair, Side? side, OrderType? type, long startAt, long endAt, int page = 0, int pageSize = 0);
 
         /// <summary>
-        /// Post/Place a trade
+        /// Get an order
         /// </summary>
-        /// <param name="tradeParams">Trade to place</param>
-        /// <returns>KuCoinResponse object</returns>
-        Task<ApiResponse<Dictionary<string, string>>> PostTrade(TradeParams tradeParams);
+        /// <param name="orderId">Order id</param>
+        /// <returns>An Order</returns>
+        Task<Order> GetOrder(string orderId);
 
         /// <summary>
-        /// Delete/Cancel a trade
+        /// Get Fills
         /// </summary>
-        /// <param name="symbol">Trading symbol</param>
-        /// <param name="orderOid">Order id to cancel</param>
-        /// <param name="tradeType">Trade type to cancel</param>
-        /// <returns>TradeResponse object</returns>
-        Task<DeleteResponse> DeleteTrade(string symbol, string orderOid, string tradeType);
+        /// <returns>Page collection of Fills</returns>
+        Task<PagedResponse<List<Fill>>> GetFills(int page = 0, int pageSize = 0);
 
         /// <summary>
-        /// Get Ticker for all pairs
+        /// Get Fills
         /// </summary>
-        /// <returns>Array of KuCoinTick objects</returns>
-        Task<Tick[]> GetTicks();
+        /// <param name="orderId">Order id</param>
+        /// <param name="page">Page number</param>
+        /// <param name="pageSize">Page size</param>
+        /// <returns>Page collection of Fills</returns>
+        Task<PagedResponse<List<Fill>>> GetFillsForOrder(string orderId, int page = 0, int pageSize = 0);
 
         /// <summary>
-        /// Get Tick for a symbol
+        /// Get Fills
         /// </summary>
-        /// <param name="symbol">Trading symbol</param>
-        /// <returns>KuCoinTick object</returns>
-        Task<Tick> GetTick(string symbol);
+        /// <param name="pair">Trading pair</param>
+        /// <param name="page">Page number</param>
+        /// <param name="pageSize">Page size</param>
+        /// <returns>Page collection of Fills</returns>
+        Task<PagedResponse<List<Fill>>> GetFillsForPair(string pair, int page = 0, int pageSize = 0);
 
         /// <summary>
-        /// Get Markets trading on exchange
+        /// Get Fills
         /// </summary>
-        /// <returns>Array of symbol strings</returns>
-        Task<string[]> GetMarkets();
+        /// <param name="orderId">Order id</param>
+        /// <param name="pair">Trading pair</param>
+        /// <param name="side">Trade side</param>
+        /// <param name="type">Order type</param>
+        /// <param name="startDate">Start date</param>
+        /// <param name="endDate">End date</param>
+        /// <param name="page">Page number</param>
+        /// <param name="pageSize">Page size</param>
+        /// <returns>Page collection of Fills</returns>
+        Task<PagedResponse<List<Fill>>> GetFills(string orderId, string pair, Side? side, OrderType? type, DateTime? startDate, DateTime? endDate, int page = 0, int pageSize = 0);
 
         /// <summary>
-        /// Get details for all coins
+        /// Get Fills
         /// </summary>
-        /// <returns>Array of Tick objects</returns>
-        Task<Tick[]> GetTradingSymbolTick();
+        /// <param name="orderId">Order id</param>
+        /// <param name="pair">Trading pair</param>
+        /// <param name="side">Trade side</param>
+        /// <param name="type">Order type</param>
+        /// <param name="startAt">Start date</param>
+        /// <param name="endAt">End date</param>
+        /// <param name="page">Page number</param>
+        /// <param name="pageSize">Page size</param>
+        /// <returns>Page collection of Fills</returns>
+        Task<PagedResponse<List<Fill>>> GetFills(string orderId, string pair, Side? side, OrderType? type, long startAt, long endAt, int page = 0, int pageSize = 0);
 
         /// <summary>
-        /// Get all trading pairs
+        /// Create Deposit address for a currency
         /// </summary>
-        /// <returns>Array of trading pair strings</returns>
-        Task<string[]> GetTradingPairs();
+        /// <param name="symbol">Symbol of currency</param>
+        /// <returns>New Deposit Address</returns>
+        Task<DepositAddress> CreateDepositAddress(string symbol);
 
         /// <summary>
-        /// Get details for a coin
+        /// Get Deposit address for a currency
         /// </summary>
-        /// <returns>CoinInfo object</returns>
-        Task<CoinInfo> GetCoin(string coin);
+        /// <param name="symbol">Symbol of currency</param>
+        /// <returns>Deposit Address</returns>
+        Task<DepositAddress> GetDepositAddress(string symbol);
 
         /// <summary>
-        /// Get details for all coins
+        /// Get deposit history
         /// </summary>
-        /// <returns>Array of CoinInfo objects</returns>
-        Task<CoinInfo[]> GetCoins();
+        /// <param name="symbol">Symbol of currency</param>
+        /// <param name="page">Page number</param>
+        /// <param name="pageSize">Page size</param>
+        /// <returns>Paged collection of Deposits</returns>
+        Task<PagedResponse<List<Deposit>>> GetDepositHistory(string symbol, int page = 0, int pageSize = 0);
 
         /// <summary>
-        /// Get open sells
+        /// Get deposit history
         /// </summary>
-        /// <param name="market">Market to check: BTC, ETH, KCS, etc (default = "")</param>
-        /// <returns>Array of Trending objects</returns>
-        Task<Trending[]> GetTrendings(string market = "");
+        /// <param name="symbol">Symbol of currency</param>
+        /// <param name="status">Deposit status</param>
+        /// <param name="page">Page number</param>
+        /// <param name="pageSize">Page size</param>
+        /// <returns>Paged collection of Deposits</returns>
+        Task<PagedResponse<List<Deposit>>> GetDepositHistory(string symbol, DepositStatus status, int page = 0, int pageSize = 0);
 
         /// <summary>
-        /// Get KuCoinTime
+        /// Get deposit history
         /// </summary>
-        /// <returns>long of timestamp</returns>
-        Task<long> GetKuCoinTime();
+        /// <param name="symbol">Symbol of currency</param>
+        /// <param name="startDate">Start date</param>
+        /// <param name="endDate">End date</param>
+        /// <param name="status">Deposit status</param>
+        /// <param name="page">Page number</param>
+        /// <param name="pageSize">Page size</param>
+        /// <returns>Paged collection of Deposits</returns>
+        Task<PagedResponse<List<Deposit>>> GetDepositHistory(string symbol = null, DateTime? startDate = null, DateTime? endDate = null, DepositStatus? status = null, int page = 0, int pageSize = 0);
 
         /// <summary>
-        /// Get deposit address
+        /// Get deposit history
         /// </summary>
-        /// <param name="symbol">String of symbol</param>
-        /// <returns>String of address</returns>
-        Task<string> GetDepositAddress(string symbol);
+        /// <param name="symbol">Symbol of currency</param>
+        /// <param name="startAt">Start date</param>
+        /// <param name="endAt">End date</param>
+        /// <param name="status">Deposit status</param>
+        /// <param name="page">Page number</param>
+        /// <param name="pageSize">Page size</param>
+        /// <returns>Paged collection of Deposits</returns>
+        Task<PagedResponse<List<Deposit>>> GetDepositHistory(string symbol = null, long startAt = 0, long endAt = 0, DepositStatus? status = null, int page = 0, int pageSize = 0);
 
         /// <summary>
-        /// Withdraw funds from exchange
+        /// Get withdrawal history
         /// </summary>
-        /// <param name="symbol">String of symbol</param>
-        /// <param name="amount">Amount to send</param>
-        /// <param name="address">Address to send funds</param>
-        /// <returns>Boolean of withdraw attempt</returns>
-        Task<bool> WithdrawFunds(string symbol, decimal amount, string address);
+        /// <param name="symbol">Symbol of currency</param>
+        /// <param name="page">Page number</param>
+        /// <param name="pageSize">Page size</param>
+        /// <returns>Paged collection of withdrawals</returns>
+        Task<PagedResponse<List<Withdrawal>>> GetWithdrawalHistory(string symbol, int page = 0, int pageSize = 0);
 
         /// <summary>
-        /// Withdraw funds from exchange
+        /// Get withdrawal history
         /// </summary>
-        /// <param name="symbol">String of symbol</param>
-        /// <param name="amount">Amount to send</param>
-        /// <param name="address">Address to send funds</param>
+        /// <param name="symbol">Symbol of currency</param>
+        /// <param name="status">Withdrawal status</param>
+        /// <param name="page">Page number</param>
+        /// <param name="pageSize">Page size</param>
+        /// <returns>Paged collection of withdrawals</returns>
+        Task<PagedResponse<List<Withdrawal>>> GetWithdrawalHistory(string symbol, DepositStatus status, int page = 0, int pageSize = 0);
+
+        /// <summary>
+        /// Get withdrawal history
+        /// </summary>
+        /// <param name="symbol">Symbol of currency</param>
+        /// <param name="startDate">Start date</param>
+        /// <param name="endDate">End date</param>
+        /// <param name="status">Withdrawal status</param>
+        /// <param name="page">Page number</param>
+        /// <param name="pageSize">Page size</param>
+        /// <returns>Paged collection of withdrawals</returns>
+        Task<PagedResponse<List<Withdrawal>>> GetWithdrawalHistory(string symbol = null, DateTime? startDate = null, DateTime? endDate = null, WithdrawalStatus? status = null, int page = 0, int pageSize = 0);
+
+        /// <summary>
+        /// Get withdrawal history
+        /// </summary>
+        /// <param name="symbol">Symbol of currency</param>
+        /// <param name="startAt">Start date</param>
+        /// <param name="endAt">End date</param>
+        /// <param name="status">Withdrawal status</param>
+        /// <param name="page">Page number</param>
+        /// <param name="pageSize">Page size</param>
+        /// <returns>Paged collection of withdrawals</returns>
+        Task<PagedResponse<List<Withdrawal>>> GetWithdrawalHistory(string symbol = null, long startAt = 0, long endAt = 0, WithdrawalStatus? status = null, int page = 0, int pageSize = 0);
+
+        /// <summary>
+        /// Get withdrawal details
+        /// </summary>
+        /// <param name="symbol">Symbol of currency</param>
+        /// <returns>WithdrawalQuota details</returns>
+        Task<WithdrawalQuota> GetWithdrawalQuota(string symbol);
+
+        /// <summary>
+        /// Get withdrawal details
+        /// </summary>
+        /// <param name="symbol">Symbol of currency</param>
+        /// <param name="address">Address to send to</param>
         /// <param name="memo">Address memo</param>
-        /// <returns>Boolean of withdraw attempt</returns>
-        Task<bool> WithdrawFunds(string symbol, decimal amount, string address, string memo);
+        /// <param name="amount">Quantity to send</param>
+        /// <param name="inner">Internal withdrawal?</param>
+        /// <param name="remark">Remarks of transaction</param>
+        /// <returns>WithdrawalQuota details</returns>
+        Task<string> Withdrawal(string symbol, string address, string memo, decimal amount, bool inner, string remark);
 
         /// <summary>
-        /// List account deposits
+        /// Cancel a withdrawal
         /// </summary>
-        /// <param name="symbol">String of symbol</param>
-        /// <returns>Collection of deposits</returns>
-        Task<DealOrder<DepositWithdrawTransaction[]>> GetDeposits(string symbol);
+        /// <param name="withdrawalId">Withdrawal Id to cancel</param>
+        /// <returns>Withdrawal Id</returns>
+        Task<string> CancelWithdrawal(string withdrawalId);
+
+        #endregion Secure Endpoints
+
+        #region Public Endpoints
 
         /// <summary>
-        /// List account withdrawals
+        /// Get current markets on the exchange
         /// </summary>
-        /// <param name="symbol">String of symbol</param>
-        /// <returns>Collection of withdrawals</returns>
-        Task<DealOrder<DepositWithdrawTransaction[]>> GetWithdrawals(string symbol);
+        /// <param name="trading">Currently trading</param>
+        /// <returns>Collection of trading pairs</returns>
+        Task<List<string>> GetMarkets(bool trading = true);
 
         /// <summary>
-        /// List account deposits
+        /// Get available trading pairs
         /// </summary>
-        /// <param name="symbol">String of symbol</param>
-        /// <param name="status">Status of deposit</param>
-        /// <returns>Collection of deposits</returns>
-        Task<DealOrder<DepositWithdrawTransaction[]>> GetDeposits(string symbol, DWStatus status);
+        /// <returns>Collection of Trading Pair Details</returns>
+        Task<List<TradingPairDetail>> GetTradingPairDetails();
 
         /// <summary>
-        /// List account withdrawals
+        /// Get Ticker for a trading pair
         /// </summary>
-        /// <param name="symbol">String of symbol</param>
-        /// <param name="status">Status of withdrawals</param>
-        /// <returns>Collection of withdrawals</returns>
-        Task<DealOrder<DepositWithdrawTransaction[]>> GetWithdrawals(string symbol, DWStatus status);
+        /// <param name="pair">Trading pair</param>
+        /// <returns>Ticker of pair</returns>
+        Task<Ticker> GetTicker(string pair);
 
         /// <summary>
-        /// List account deposits
+        /// Get order book for a pair, 100 depth bid & ask
+        /// Fastest order book available in REST
         /// </summary>
-        /// <param name="symbol">String of symbol</param>
-        /// <param name="status">Status of deposit</param>
-        /// <param name="page">Page to return (default = 1)</param>
-        /// <returns>Collection of deposits</returns>
-        Task<DealOrder<DepositWithdrawTransaction[]>> GetDeposits(string symbol, DWStatus status, int page = 1);
+        /// <param name="pair">Trading pair</param>
+        /// <returns>OrderBook data</returns>
+        Task<OrderBookL2> GetPartOrderBook(string pair);
 
         /// <summary>
-        /// List account withdrawals
+        /// Get order book for a pair, full depth
         /// </summary>
-        /// <param name="symbol">String of symbol</param>
-        /// <param name="status">Status of withdrawals</param>
-        /// <param name="page">Page to return (default = 1)</param>
-        /// <returns>Collection of withdrawals</returns>
-        Task<DealOrder<DepositWithdrawTransaction[]>> GetWithdrawals(string symbol, DWStatus status, int page = 1);
+        /// <param name="pair">Trading pair</param>
+        /// <returns>OrderBook data</returns>
+        Task<OrderBookL2> GetFullOrderBook(string pair);
+
+        /// <summary>
+        /// Returns entire order book
+        /// </summary>
+        /// <param name="pair">Trading pair</param>
+        /// <returns>Detailed OrderBook data</returns>
+        Task<OrderBookL3> GetEntireOrderBook(string pair);
+
+        /// <summary>
+        /// Get latest trades
+        /// </summary>
+        /// <param name="pair">Trading pair</param>
+        /// <returns>Collection of TradeHistory</returns>
+        Task<List<TradeHistory>> GetTradeHistory(string pair);
+
+        /// <summary>
+        /// Get candlesticks
+        /// </summary>
+        /// <param name="pair">Trading pair</param>
+        /// <param name="interval">Candlestick interval</param>
+        /// <param name="stickCount">Number of sticks to return</param>
+        /// <returns>Collection of candlesticks</returns>
+        Task<List<Candlestick>> GetCandlestick(string pair, Interval interval, int stickCount);
+
+        /// <summary>
+        /// Get candlesticks
+        /// </summary>
+        /// <param name="pair">Trading pair</param>
+        /// <param name="endAt">Ending date</param>
+        /// <param name="interval">Candlestick interval</param>
+        /// <param name="stickCount">Number of sticks to return</param>
+        /// <returns>Collection of candlesticks</returns>
+        Task<List<Candlestick>> GetCandlestick(string pair, long endAt, Interval interval, int stickCount);
+
+        /// <summary>
+        /// Get candlesticks
+        /// </summary>
+        /// <param name="pair">Trading pair</param>
+        /// <param name="endDate">Ending date</param>
+        /// <param name="interval">Candlestick interval</param>
+        /// <param name="stickCount">Number of sticks to return</param>
+        /// <returns>Collection of candlesticks</returns>
+        Task<List<Candlestick>> GetCandlestick(string pair, DateTime endDate, Interval interval, int stickCount);
+
+        /// <summary>
+        /// Get candlesticks
+        /// </summary>
+        /// <param name="pair">Trading pair</param>
+        /// <param name="startDate">Starting date</param>
+        /// <param name="endDate">Ending date</param>
+        /// <param name="interval">Candlestick interval</param>
+        /// <returns>Collection of candlesticks</returns>
+        Task<List<Candlestick>> GetCandlestick(string pair, DateTime startDate, DateTime endDate, Interval interval);
+
+        /// <summary>
+        /// Get candlesticks
+        /// </summary>
+        /// <param name="pair">Trading pair</param>
+        /// <param name="startAt">Starting date</param>
+        /// <param name="endAt">Ending date</param>
+        /// <param name="interval">Candlestick interval</param>
+        /// <returns>Collection of candlesticks</returns>
+        Task<List<Candlestick>> GetCandlestick(string pair, long startAt, long endAt, Interval interval);
+
+        /// <summary>
+        /// Get 24 hour stats for a trading pair
+        /// </summary>
+        /// <param name="pair">Trading pair</param>
+        /// <returns>TradingPairStats object</returns>
+        Task<TradingPairStats> Get24HrStats(string pair);
+
+        /// <summary>
+        /// Get known currencies
+        /// </summary>
+        /// <returns>Collection of Currency objects</returns>
+        Task<List<Currency>> GetCurrencies();
+
+        /// <summary>
+        /// Get currency detail
+        /// </summary>
+        /// <param name="symbol">Currency symbol</param>
+        /// <returns>CurrencyDetail objects</returns>
+        Task<CurrencyDetail> GetCurrency(string symbol);
+
+        /// <summary>
+        /// Get server time from KuCoin
+        /// </summary>
+        /// <returns>Unix server time</returns>
+        Task<long> GetServerTime();
+
+        #endregion Public Endpoints
     }
 }

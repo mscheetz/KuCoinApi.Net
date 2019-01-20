@@ -1,6 +1,7 @@
 ﻿using KuCoinApi.Net.Entities;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 
@@ -184,7 +185,28 @@ namespace KuCoinApi.Net.Core
 
             return newValue;
         }
-        
+
+        /// <summary>
+        /// Get enum description from a value
+        /// </summary>
+        /// <param name="value">Enum value</param>
+        /// <returns>Discription text</returns>
+        public string GetEnumDescription(Enum value)
+        {
+            FieldInfo fi = value.GetType().GetField(value.ToString());
+
+            DescriptionAttribute[] attributes =
+                (DescriptionAttribute[])fi.GetCustomAttributes(
+                typeof(DescriptionAttribute),
+                false);
+
+            if (attributes != null &&
+                attributes.Length > 0)
+                return attributes[0].Description;
+            else
+                return value.ToString();
+        }
+
         /// <summary>
         /// Convert interval to kucoin interval
         /// </summary>
