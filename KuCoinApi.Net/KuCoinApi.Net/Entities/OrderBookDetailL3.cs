@@ -14,7 +14,7 @@ namespace KuCoinApi.Net.Entities
 
     #endregion Usings
 
-    [JsonConverter(typeof(Converter.ObjectToArrayConverter<OrderBook>))]
+    [JsonConverter(typeof(Converter.ObjectToArrayConverter<OrderBookDetailL3>))]
     public class OrderBookDetailL3
     {
         [JsonProperty(Order = 1)]

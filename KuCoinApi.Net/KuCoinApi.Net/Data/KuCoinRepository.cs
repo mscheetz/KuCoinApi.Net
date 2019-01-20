@@ -440,10 +440,10 @@ namespace KuCoinApi.Net.Data
                 body.Add("stp", parms.SelfTradeProtect.ToString());
             body.Add("side", parms.Side.ToString());
             body.Add("size", parms.Size);
-            body.Add("stop", parms.Stop);
+            body.Add("stop", parms.Stop.ToString());
             body.Add("stopPrice", parms.StopPrice);
             if (parms.TimeInForce != null)
-                body.Add("timeInForce", parms.TimeInForce);
+                body.Add("timeInForce", parms.TimeInForce.ToString());
             body.Add("type", parms.Type.ToString());
 
             return await OnPlaceOrder(body);

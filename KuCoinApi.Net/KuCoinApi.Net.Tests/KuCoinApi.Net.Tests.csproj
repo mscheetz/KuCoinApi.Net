@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\KuCoinApi.NetCore\KuCoinApi.NetCore.csproj" />
+    <ProjectReference Include="..\KuCoinApi.Net\KuCoinApi.Net.csproj" />
   </ItemGroup>
 
 </Project>

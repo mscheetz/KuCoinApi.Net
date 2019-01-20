@@ -1,10 +1,18 @@
-﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿// -----------------------------------------------------------------------------
+// <copyright file="AccountHold" company="Matt Scheetz">
+//     Copyright (c) Matt Scheetz All Rights Reserved
+// </copyright>
+// <author name="Matt Scheetz" date="1/19/2019 11:46:37 AM" />
+// -----------------------------------------------------------------------------
 
 namespace KuCoinApi.Net.Entities
 {
+    #region Usings
+
+    using Newtonsoft.Json;
+
+    #endregion Usings
+
     public class AccountHold
     {
         [JsonProperty(PropertyName = "currency")]

@@ -7,12 +7,9 @@
 
 namespace KuCoinApi.Net.Entities
 {
-    using Newtonsoft.Json;
     #region Usings
 
-    using System;
-    using System.Collections.Generic;
-    using System.Text;
+    using Newtonsoft.Json;
 
     #endregion Usings
 

@@ -14,7 +14,7 @@ namespace KuCoinApi.Net.Entities
 
     #endregion Usings
 
-    [JsonConverter(typeof(Converter.ObjectToArrayConverter<OrderBook>))]
+    [JsonConverter(typeof(Converter.ObjectToArrayConverter<Candlestick>))]
     public class Candlestick
     {
         #region Properties
