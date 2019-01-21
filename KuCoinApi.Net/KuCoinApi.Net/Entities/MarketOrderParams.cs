@@ -11,7 +11,12 @@ namespace KuCoinApi.Net.Entities
     #endregion Usings
 
     public class MarketOrderParams : OrderParams
-    {
+    {        
         public decimal Funds { get; set; }
+
+        public MarketOrderParams()
+        {
+            this.Type = OrderType.MARKET;
+        }
     }
 }

@@ -19,5 +19,10 @@ namespace KuCoinApi.Net.Entities
         public long CancelAfter { get; set; }
 
         public bool PostOnly { get; set; }
+
+        public LimitOrderParams()
+        {
+            this.Type = OrderType.LIMIT;
+        }
     }
 }
