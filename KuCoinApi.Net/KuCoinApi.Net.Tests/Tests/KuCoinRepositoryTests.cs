@@ -18,6 +18,7 @@ namespace KuCoinApi.Net.Tests
 
         public KuCoinRepositoryTests()
         {
+            var useSandbox = true;
             IFileRepository _fileRepo = new FileRepository.FileRepository();
             if (_fileRepo.FileExists(configPath))
             {
@@ -25,11 +26,11 @@ namespace KuCoinApi.Net.Tests
             }
             if (_exchangeApi != null || !string.IsNullOrEmpty(apiKey))
             {
-                _repo = new KuCoinRepository(_exchangeApi.apiKey, _exchangeApi.apiSecret);
+                _repo = new KuCoinRepository(_exchangeApi, useSandbox);
             }
             else
             {
-                _repo = new KuCoinRepository();
+                _repo = new KuCoinRepository(useSandbox);
             }
         }
 
@@ -37,343 +38,179 @@ namespace KuCoinApi.Net.Tests
         {
         }
 
+        #region Private Endpoints
+
         [Fact]
-        public void GetCandlesticksTest()
+        public void GetBalances_HideZeros_Test()
         {
-            var interval = Interval.FifteenM;
-            var symbol = "ETH-BTC";
+            var hideZeros = true;
+            var balances = _repo.GetBalances(hideZeros).Result;
 
-            var sticks= _repo.GetCandlesticks(symbol, interval, 10).Result;
-
-            Assert.True(sticks != null);
-            Assert.True(sticks.close.Length > 0);
-            Assert.True(sticks.open.Length > 0);
+            Assert.NotNull(balances);
         }
 
         [Fact]
-        public void GetAccountBalancesTest()
+        public void GetBalances_Test()
         {
-            var balances= _repo.GetBalances().Result;
+            var balances = _repo.GetBalances().Result;
 
-            Assert.True(balances != null);
+            Assert.NotNull(balances);
         }
 
         [Fact]
-        public void GetAccountBalancesNoZerosTest()
+        public void GetBalances_Symbol_Test()
         {
-            var balances = _repo.GetBalances(true).Result;
+            var symbol = "BTC";
+            var balances = _repo.GetBalances(symbol).Result;
 
-            Assert.True(balances != null);
+            Assert.NotNull(balances);
         }
 
         [Fact]
-        public void GetAccountBalancesLimitsTest()
+        public void GetBalances_Account_Test()
         {
-            var balances = _repo.GetBalances(5, 1).Result;
+            var type = AccountType.Main;
+            var balances = _repo.GetBalances(type).Result;
 
-            Assert.True(balances != null);
+            Assert.NotNull(balances);
         }
 
         [Fact]
-        public void GetAccountBalanceOneCoinTest()
+        public void GetBalances_Symbol_Account_Test()
+        {
+            var symbol = "BTC";
+            var type = AccountType.Main;
+            var balances = _repo.GetBalances(symbol, type).Result;
+
+            Assert.NotNull(balances);
+        }
+
+        [Fact]
+        public void GetBalance_Test()
+        {
+            var balances = _repo.GetBalances().Result;
+            var id = balances.Select(b => b.Id).FirstOrDefault();
+
+            var balance = _repo.GetBalance(id).Result;
+
+            Assert.NotNull(balance);
+        }
+
+        [Fact]
+        public void CreateAccount_Test()
         {
             var symbol = "KCS";
-            var balance = _repo.GetBalance(symbol).Result;
+            var type = AccountType.Trade;
 
-            Assert.True(balance != null);
+            var accountId = _repo.CreateAccount(symbol, type).Result;
+
+            Assert.NotNull(accountId);
         }
 
         [Fact]
-        public void GetOrderBookTest()
+        public void GetAccountHistory_Test()
         {
-            var symbol = "ETH-BTC";
+            var balances = _repo.GetBalances().Result;
+            var accountId = balances.Select(b => b.Id).FirstOrDefault();
+            var startDate = DateTime.UtcNow.AddDays(-100);
+            var endDate = DateTime.UtcNow;
 
-            var orderBook= _repo.GetOrderBook(symbol).Result;
+            var history = _repo.GetAccountHistory(accountId, startDate, endDate).Result;
 
-            Assert.True(orderBook != null);
-            Assert.True(orderBook.buys.Length > 0);
-            Assert.True(orderBook.sells.Length > 0);
+            Assert.NotNull(history);
         }
 
         [Fact]
-        public void GetTicksTest()
+        public void GetHolds_Test()
         {
-            var ticks= _repo.GetTicks().Result;
+            var balances = _repo.GetBalances().Result;
+            var accountId = balances.Select(b => b.Id).FirstOrDefault();
 
-            Assert.True(ticks != null);
+            var holds = _repo.GetHolds(accountId).Result;
+
+            // TODO: Check this one
+            Assert.NotNull(holds);
         }
 
         [Fact]
-        public void GetTickTest()
+        public void InnerTransfer_Test()
         {
-            var symbol = "ETH-BTC";
+            var symbol = "BTC";
+            var balances = _repo.GetBalances(symbol).Result;
+            var fromId = balances.Where(b => b.Type == "main").Select(b => b.Id).FirstOrDefault();
+            var amount = balances.Where(b => b.Type == "main").Select(b => b.Total).FirstOrDefault();
+            var toId = balances.Where(b => b.Type == "trade").Select(b => b.Id).FirstOrDefault();
 
-            var tick= _repo.GetTick(symbol).Result;
+            var orderId = _repo.InnerTransfer(fromId, toId, amount).Result;
 
-            Assert.True(tick != null);
+            Assert.NotNull(orderId);
         }
 
         [Fact]
-        public void GetOrdersTest()
+        public void PlaceLimitOrder_Test()
         {
-            var symbol = "DCC-BTC";
-
-            var orders= _repo.GetOrders(symbol).Result;
-
-            Assert.True(orders != null);
-        }
-
-        [Fact]
-        public void GetAllDealOrdersNoSymbolTest()
-        {
-            var orders = _repo.GetDealtOrders().Result;
-
-            Assert.True(orders != null);
-        }
-
-        [Fact]
-        public void GetAllDealOrdersSymbolTest()
-        {
-            var pair = "OCN-BTC";
-            var orders = _repo.GetDealtOrders(pair).Result;
-
-            Assert.True(orders != null);
-        }
-
-        [Fact]
-        public void GetDealOrdersNoSymbol1Test()
-        {
-            var orders = _repo.GetDealtOrders(Side.BUY, 1, 100).Result;
-
-            Assert.True(orders != null);
-        }
-
-        [Fact]
-        public void GetDealOrdersNoSymbol2Test()
-        {
-            var from = DateTime.UtcNow.AddMonths(-1);
-            var to = DateTime.UtcNow.AddMonths(-1).AddDays(15);
-            var orders = _repo.GetDealtOrders(Side.BUY, 1, 100, from, to).Result;
-
-            Assert.True(orders != null);
-        }
-
-        [Fact]
-        public void GetDealOrdersSymbol1Test()
-        {
-            var symbol = "DCC-BCT";
-            var orders = _repo.GetDealtOrders(symbol, Side.BUY, 1, 100).Result;
-
-            Assert.True(orders != null);
-        }
-
-        [Fact]
-        public void GetDealOrdersSymbol2Test()
-        {
-            var symbol = "DCC-BCT";
-            var from = DateTime.UtcNow.AddMonths(-4);
-            var to = DateTime.UtcNow.AddMonths(-4).AddDays(15);
-            var orders = _repo.GetDealtOrders(symbol, Side.BUY, 1, 100, from, to).Result;
-
-            Assert.True(orders != null);
-        }
-
-        [Fact]
-        public void GetOpenOrdersTestII()
-        {
-            var symbol = "QKC-BTC";
-
-            var orders = _repo.GetOpenOrders(symbol).Result;
-
-            Assert.True(orders != null);
-        }
-
-        [Fact]
-        public void GetOpenOrdersDetailTest()
-        {
-            var orders = _repo.GetOpenOrdersDetails().Result;
-
-            Assert.True(orders != null);
-        }
-
-        [Fact]
-        public void GetOpenOrdersDetailTestII()
-        {
-            var symbol = "QKC-BTC";
-
-            var orders = _repo.GetOpenOrdersDetails(symbol).Result;
-
-            Assert.True(orders != null);
-        }
-
-        [Fact]
-        public void GetOpenOrdersDetailTestIII()
-        {
-            var symbol = "QKC-BTC";
-            var side = Side.SELL;
-
-            var orders = _repo.GetOpenOrdersDetails(symbol, side).Result;
-
-            Assert.True(orders != null);
-        }
-
-        [Fact]
-        public void LimitOrderTest()
-        {
-            var symbol = "DRGN-BTC";
-            var tradeParams = new TradeParams
+            var orderParams = new LimitOrderParams
             {
-                price = 0.00400000M,
-                quantity = 100,
-                symbol = symbol,
-                side = "SELL"
+                ClientOid = Guid.NewGuid().ToString(),
+                Pair = "ETH-BTC",
+                Price = 0.00002M,
+                Side = Side.BUY,
+                Size = 2
             };
 
-            var orderDetail = _repo.PostTrade(tradeParams).Result;
+            var orderId = _repo.PlaceLimitOrder(orderParams).Result;
 
-            Assert.True(orderDetail != null);
+            Assert.NotNull(orderId);
         }
 
         [Fact]
-        public void PostTradeTest()
+        public void PlaceMarketOrder_Test()
         {
-            var symbol = "DCC-BTC";
-            var tradeParams = new TradeParams
+            var orderParams = new MarketOrderParams
             {
-                price = 0.00000400M,
-                quantity = 3000,
-                symbol = symbol,
-                side = "BUY"
+                ClientOid = Guid.NewGuid().ToString(),
+                Pair = "ETH-BTC",
+                Side = Side.BUY,
+                Size = 2
             };
 
-            var orderDetail= _repo.PostTrade(tradeParams).Result;
+            var orderId = _repo.PlaceMarketOrder(orderParams).Result;
 
-            Assert.True(orderDetail != null);
+            Assert.NotNull(orderId);
         }
 
         [Fact]
-        public void GetAndCancelOpenTradeTest()
+        public void PlaceStopOrder_Test()
         {
-            var symbol = "DCC-BTC";
-
-            var orders= _repo.GetOpenOrders(symbol).Result;
-
-            Assert.True(orders != null);
-
-            if (orders.openBuys.Length > 0)
+            var orderParams = new StopLimitOrderParams
             {
-                var orderId = orders.openBuys[0].orderId;
+            };
 
-                var cancelDetail= _repo.DeleteTrade(symbol, orderId, orders.openBuys[0].type).Result;
+            var orderId = _repo.PlaceStopOrder(orderParams).Result;
 
-                Assert.True(cancelDetail != null);
-            }
-
-            if(orders.openSells.Length > 0)
-            {
-                var orderId = orders.openSells[0].orderId;
-
-                var cancelDetail= _repo.DeleteTrade(symbol, orderId, orders.openSells[0].type).Result;
-
-                Assert.True(cancelDetail != null);
-            }
+            Assert.NotNull(orderId);
         }
 
+        #endregion Private Endpoints
+
+        #region Public Endpoints
+
         [Fact]
-        public void GetMarketsTest()
+        public void GetMarkets_Test()
         {
-            var markets= _repo.GetMarkets().Result;
+            var markets = _repo.GetMarkets().Result;
 
             Assert.NotNull(markets);
         }
 
         [Fact]
-        public void GetTradingSymbolTickTest()
+        public void GetTradingPairDetails_Test()
         {
-            var ticks= _repo.GetTradingSymbolTick().Result;
+            var markets = _repo.GetTradingPairDetails().Result;
 
-            Assert.NotNull(ticks);
+            Assert.NotNull(markets);
         }
 
-        [Fact]
-        public void GetTradingPairsTest()
-        {
-            var pairs= _repo.GetTradingPairs().Result;
-
-            Assert.NotNull(pairs);
-        }
-
-        [Fact]
-        public void GetCoinTest()
-        {
-            var symbol = "KCS";
-
-            var coin = _repo.GetCoin(symbol).Result;
-
-            Assert.NotNull(coin);
-        }
-
-        [Fact]
-        public void GetCoinsTest()
-        {
-            var coins = _repo.GetCoins().Result;
-
-            Assert.NotNull(coins);
-        }
-
-        [Fact]
-        public void GetTrendingsTest()
-        {
-            var market = "USDT";
-
-            var trendings = _repo.GetTrendings(market).Result;
-
-            Assert.NotNull(trendings);
-        }
-
-        [Fact]
-        public void GetDepositAddress()
-        {
-            var symbol = "NANO";
-
-            var address = _repo.GetDepositAddress(symbol).Result;
-
-            Assert.NotNull(address);
-        }
-
-        [Fact]
-        public void WithdrawFundsTest()
-        {
-            var symbol = "XLM";
-            var amount = 29.98M;
-            var address = "GAHK7EEG2WWHVKDNT4CEQFZGKF2LGDSW2IVM4S5DP42RBW3K6BTODB4A";
-            var memo = "1046303265";
-
-            var confirmation = _repo.WithdrawFunds(symbol, amount, address, memo).Result;
-
-            Assert.True(confirmation);
-        }
-
-        [Fact]
-        public void GetDepositsTest()
-        {
-            var symbol = "XLM";
-            var status = DWStatus.SUCCESS;
-
-            var deposits = _repo.GetDeposits(symbol, status).Result;
-
-            Assert.NotNull(deposits);
-        }
-
-        [Fact]
-        public void GetWithdrawalsTest()
-        {
-            var symbol = "XLM";
-            var status = DWStatus.SUCCESS;
-
-            var deposits = _repo.GetWithdrawals(symbol, status).Result;
-
-            Assert.NotNull(deposits);
-        }
+        #endregion Public Endpoints
     }
 }
