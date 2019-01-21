@@ -11,10 +11,11 @@ namespace KuCoinApi.Net.Data
 
     using DateTimeHelpers;
     using KuCoinApi.Net.Core;
+    using KuCoinApi.Net.Data.Interface;
     using KuCoinApi.Net.Entities;
     using Newtonsoft.Json;
-    using RESTApiAccess;
-    using RESTApiAccess.Interface;
+    //using RESTApiAccess;
+    //using RESTApiAccess.Interface;
     using System;
     using System.Collections.Generic;
     using System.Net.Http;
@@ -37,13 +38,31 @@ namespace KuCoinApi.Net.Data
 
         #endregion Properties
 
-        public RepositoryBase()
+        public RepositoryBase(bool sandbox = false)
+        {
+            LoadBase(sandbox);
+        }
+
+        public RepositoryBase(ApiInformation apiInformation, bool sandbox = false)
+        {
+            _apiInfo = apiInformation;
+            LoadBase(sandbox);
+        }
+
+        private void LoadBase(bool sandbox)
         {
             security = new Security();
             _restRepo = new RESTRepository();
-            baseUrl = "https://openapi-v2.kucoin.com";
             _dtHelper = new DateTimeHelper();
             _helper = new Helper();
+            baseUrl = sandbox 
+                ? "https://openapi-sandbox.kucoin.com"
+                : "https://openapi-v2.kucoin.com";
+        }
+
+        public void SetApiKey(ApiInformation apiInformation)
+        {
+            _apiInfo = apiInformation;
         }
 
         public void SetTimestamp(bool useSystemTimestamp)
@@ -63,9 +82,9 @@ namespace KuCoinApi.Net.Data
 
             try
             {
-                var response = await _restRepo.GetApiStream<T>(url);
+                var response = await _restRepo.GetApiStream<ApiResponse<T>>(url);
 
-                return response;
+                return response.Data;
             }
             catch (Exception ex)
             {
@@ -88,9 +107,9 @@ namespace KuCoinApi.Net.Data
 
             try
             {
-                var response = await _restRepo.GetApiStream<T>(url, headers);
+                var response = await _restRepo.GetApiStream<ApiResponse<T>>(url, headers);
 
-                return response;
+                return response.Data;
             }
             catch (Exception ex)
             {
@@ -114,9 +133,9 @@ namespace KuCoinApi.Net.Data
 
             try
             {
-                var response = await _restRepo.PostApi<T, SortedDictionary<string, object>>(url, body, headers);
+                var response = await _restRepo.PostApi<ApiResponse<T>, SortedDictionary<string, object>>(url, body, headers);
 
-                return response;
+                return response.Data;
             }
             catch (Exception ex)
             {
@@ -139,9 +158,9 @@ namespace KuCoinApi.Net.Data
 
             try
             {
-                var response = await _restRepo.DeleteApi<T>(url, headers);
+                var response = await _restRepo.DeleteApi<ApiResponse<T>>(url, headers);
 
-                return response;
+                return response.Data;
             }
             catch (Exception ex)
             {
@@ -159,40 +178,15 @@ namespace KuCoinApi.Net.Data
         /// <returns>Dictionary of request headers</returns>
         private Dictionary<string, string> GetRequestHeaders(HttpMethod httpMethod, string endpoint, long timestamp, SortedDictionary<string, object> body = null)
         {
-            var nonce = timestamp.ToString();
             var headers = new Dictionary<string, string>();
 
             headers.Add("KC-API-KEY", _apiInfo.ApiKey);
-            headers.Add("KC-API-SIGN", GetSignature(httpMethod, endpoint, nonce, body));
-            headers.Add("KC-API-TIMESTAMP", nonce);
+            headers.Add("KC-API-SIGN", security.GetSignature(httpMethod, endpoint, timestamp, _apiInfo.ApiSecret, body));
+            headers.Add("KC-API-TIMESTAMP", timestamp.ToString());
             headers.Add("KC-API-PASSPHRASE", _apiInfo.ApiPassword);
             headers.Add("User-Agent", "Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1)");
 
             return headers;
-        }
-
-        /// <summary>
-        /// Create signature for message
-        /// </summary>
-        /// <typeparam name="T">Type of data in post request</typeparam>
-        /// <param name="endpoint">Endpoint to access</param>
-        /// <param name="nonce">Current nonce</param>
-        /// <param name="queryString">Querystring to be passed</param>
-        /// <param name="value">Data to be sent</param>
-        /// <returns>String of signature</returns>
-        private string GetSignature(HttpMethod method, string endpoint, string nonce, SortedDictionary<string, object> parms = null)
-        {
-            var callMethod = method.ToString().ToUpper();
-
-            var jsonedParams = parms.Count > 0
-                ? JsonConvert.SerializeObject(parms)
-                : string.Empty;
-
-            var sigString = $"{nonce}{callMethod}{endpoint}{jsonedParams}";
-
-            var signature = security.GetKuCoinHMACSignature(_apiInfo.ApiSecret, sigString);
-
-            return signature;
         }
     }
 }

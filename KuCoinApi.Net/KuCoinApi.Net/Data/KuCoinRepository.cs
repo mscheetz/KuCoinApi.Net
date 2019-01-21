@@ -15,8 +15,8 @@ namespace KuCoinApi.Net.Data
     using KuCoinApi.Net.Data.Interface;
     using KuCoinApi.Net.Entities;
     using Newtonsoft.Json;
-    using RESTApiAccess;
-    using RESTApiAccess.Interface;
+    //using RESTApiAccess;
+    //using RESTApiAccess.Interface;
     using System;
     using System.Collections.Generic;
     using System.Linq;
@@ -38,7 +38,8 @@ namespace KuCoinApi.Net.Data
         /// <summary>
         /// Constructor for non-signed endpoints
         /// </summary>
-        public KuCoinRepository()
+        /// <param name="sandbox">Use sandbox? (default = false)</param>
+        public KuCoinRepository(bool sandbox = false) : base(sandbox)
         {
             LoadRepository();
         }
@@ -49,28 +50,46 @@ namespace KuCoinApi.Net.Data
         /// <param name="apiKey">Api key</param>
         /// <param name="apiSecret">Api secret</param>
         /// <param name="apiPassword">Api password</param>
-        public KuCoinRepository(string apiKey, string apiSecret, string apiPassword)
+        /// <param name="sandbox">Use sandbox? (default = false)</param>
+        public KuCoinRepository(string apiKey, string apiSecret, string apiPassword, bool sandbox = false) : this (new ApiInformation { ApiKey = apiKey, ApiSecret = apiSecret, ApiPassword = apiPassword }, sandbox)
         {
-            LoadRepository(apiKey, apiSecret, apiPassword);
         }
 
         /// <summary>
         /// Constructor for signed endpoints
         /// </summary>
         /// <param name="configPath">String of path to configuration file</param>
-        public KuCoinRepository(string configPath)
+        /// <param name="sandbox">Use sandbox? (default = false)</param>
+        public KuCoinRepository(string configPath, bool sandbox = false) : base(sandbox)
         {
             IFileRepository _fileRepo = new FileRepository();
 
             if (_fileRepo.FileExists(configPath))
             {
                 _apiInfo = _fileRepo.GetDataFromFile<ApiInformation>(configPath);
-                LoadRepository();
+                base.SetApiKey(_apiInfo);
+                LoadRepository(_apiInfo);
             }
             else
             {
                 throw new Exception("Config file not found");
             }
+        }
+
+        /// <summary>
+        /// Constructor for signed endpoints
+        /// </summary>
+        /// <param name="apiInformation">Api Key information</param>
+        /// <param name="sandbox">Use sandbox? (default = false)</param>
+        public KuCoinRepository(ApiInformation apiInformation, bool sandbox = false) : base(apiInformation, sandbox)
+        {
+            _apiInfo = apiInformation;
+            LoadRepository(apiInformation);
+        }
+
+        private void LoadRepository(ApiInformation apiInformation)
+        {
+            LoadRepository(apiInformation.ApiKey, apiInformation.ApiSecret, apiInformation.ApiPassword);
         }
 
         /// <summary>
@@ -214,7 +233,9 @@ namespace KuCoinApi.Net.Data
             if (type != null)
                 parms.Add("type", type.ToString().ToLower());
 
-            endpoint = endpoint + $"?{_helper.ObjectToString(parms)}";
+            var queryString = parms.Count > 0 ? $"?{_helper.SortedDictionaryToString(parms)}" : string.Empty;
+
+            endpoint = endpoint + queryString;
 
             return await Get<List<Balance>>(endpoint, true);
         }
@@ -226,7 +247,7 @@ namespace KuCoinApi.Net.Data
         /// <returns>Balance object</returns>
         public async Task<Balance> GetBalance(string accountId)
         {
-            var endpoint = $"/v1/accounts/{accountId}";
+            var endpoint = $"/api/v1/accounts/{accountId}";
 
             return await Get<Balance>(endpoint, true);
         }
@@ -245,7 +266,9 @@ namespace KuCoinApi.Net.Data
             body.Add("currency", symbol);
             body.Add("type", type.ToString().ToLower());
 
-            return await Post<string>(endpoint, body);
+            var response = await Post<IdResponse>(endpoint, body);
+
+            return response.Id;
         }
         
         /// <summary>
@@ -291,12 +314,16 @@ namespace KuCoinApi.Net.Data
                 parms.Add("startAt", startAt);
             if (endAt > 0)
                 parms.Add("endAt", endAt);
-            if (page > 1)
-                parms.Add("currentPage", page);
-            if (pageSize != 50 && pageSize > 0)
-                parms.Add("pageSize", pageSize);
+            if (page == 0)
+                page = 1;
 
-            var queryString = parms.Count > 0 ? $"?{_helper.ObjectToString(parms)}" : string.Empty;
+            parms.Add("currentPage", page);
+            if (pageSize == 0)
+                pageSize = 100;
+
+            parms.Add("pageSize", pageSize);
+
+            var queryString = parms.Count > 0 ? $"?{_helper.DictionaryToString(parms)}" : string.Empty;
 
             endpoint += queryString;
 
@@ -315,12 +342,15 @@ namespace KuCoinApi.Net.Data
             var endpoint = $"/api/v1/accounts/{accountId}/holds";
 
             var parms = new Dictionary<string, object>();
-            if (page > 1)
-                parms.Add("currentPage", page);
-            if (pageSize > 0)
-                parms.Add("pageSize", pageSize);
+            if (page == 0)
+                page = 1;
+            parms.Add("currentPage", page);
+            if (pageSize == 0)
+                pageSize = 100;
 
-            var queryString = parms.Count > 0 ? $"&{_helper.ObjectToString(parms)}" : string.Empty;
+            parms.Add("pageSize", pageSize);
+
+            var queryString = parms.Count > 0 ? $"&{_helper.DictionaryToString(parms)}" : string.Empty;
 
             endpoint += queryString;
 
@@ -336,7 +366,7 @@ namespace KuCoinApi.Net.Data
         /// <returns>Id of funds transfer order</returns>
         public async Task<string> InnerTransfer(string fromId, string toId, decimal amount)
         {
-            var clientOid = Guid.NewGuid().ToString();
+            var clientOid = Guid.NewGuid().ToString().Replace("-","");
 
             return await InnerTransfer(clientOid, fromId, toId, amount);
         }
@@ -359,7 +389,9 @@ namespace KuCoinApi.Net.Data
             body.Add("recAccountId", toId);
             body.Add("amount", amount);
 
-            return await Post<string>(endpoint, body);
+            var response = await Post<OrderResponse>(endpoint, body);
+
+            return response.OrderId;
         }
 
         /// <summary>
@@ -383,11 +415,11 @@ namespace KuCoinApi.Net.Data
                 body.Add("remark", parms.Remark);
             if(parms.SelfTradeProtect != null)
                 body.Add("stp", parms.SelfTradeProtect.ToString());
-            body.Add("side", parms.Side.ToString());
+            body.Add("side", parms.Side.ToString().ToLower());
             body.Add("size", parms.Size);
             if(parms.TimeInForce != null)
                 body.Add("timeInForce", parms.TimeInForce);
-            body.Add("type", parms.Type.ToString());
+            body.Add("type", parms.Type.ToString().ToLower());
 
             return await OnPlaceOrder(body);
         }
@@ -410,9 +442,9 @@ namespace KuCoinApi.Net.Data
                 body.Add("remark", parms.Remark);
             if (parms.SelfTradeProtect != null)
                 body.Add("stp", parms.SelfTradeProtect.ToString());
-            body.Add("side", parms.Side.ToString());
+            body.Add("side", parms.Side.ToString().ToLower());
             body.Add("size", parms.Size);
-            body.Add("type", parms.Type.ToString());
+            body.Add("type", parms.Type.ToString().ToLower());
 
             return await OnPlaceOrder(body);
         }
@@ -438,13 +470,13 @@ namespace KuCoinApi.Net.Data
                 body.Add("remark", parms.Remark);
             if (parms.SelfTradeProtect != null)
                 body.Add("stp", parms.SelfTradeProtect.ToString());
-            body.Add("side", parms.Side.ToString());
+            body.Add("side", parms.Side.ToString().ToLower());
             body.Add("size", parms.Size);
             body.Add("stop", parms.Stop.ToString());
             body.Add("stopPrice", parms.StopPrice);
             if (parms.TimeInForce != null)
                 body.Add("timeInForce", parms.TimeInForce.ToString());
-            body.Add("type", parms.Type.ToString());
+            body.Add("type", parms.Type.ToString().ToLower());
 
             return await OnPlaceOrder(body);
         }
@@ -458,7 +490,9 @@ namespace KuCoinApi.Net.Data
         {
             var endpoint = "/api/v1/orders";
 
-            return await Post<string>(endpoint, body);
+            var response = await Post<OrderResponse>(endpoint, body);
+
+            return response.OrderId;
         }
 
         /// <summary>
@@ -689,12 +723,14 @@ namespace KuCoinApi.Net.Data
                 parms.Add("startAt", startAt);
             if (endAt > 0)
                 parms.Add("endAt", endAt);
-            if (page > 1)
-                parms.Add("currentPage", page);
-            if (pageSize != 50)
-                parms.Add("pageSize", pageSize);
+            if (page == 0)
+                page = 1;
+            parms.Add("currentPage", page);
+            if (pageSize == 0)
+                pageSize = 100;
+            parms.Add("pageSize", pageSize);
 
-            var queryString = parms.Count > 0 ? $"?{_helper.ObjectToString(parms)}" : string.Empty;
+            var queryString = parms.Count > 0 ? $"?{_helper.DictionaryToString(parms)}" : string.Empty;
 
             endpoint += queryString;
 
@@ -817,12 +853,14 @@ namespace KuCoinApi.Net.Data
                 parms.Add("startAt", startAt);
             if (endAt > 0)
                 parms.Add("endAt", endAt);
-            if (page > 1)
-                parms.Add("currentPage", page);
-            if (pageSize != 50)
-                parms.Add("pageSize", pageSize);
+            if (page == 0)
+                page = 1;
+            parms.Add("currentPage", page);
+            if (pageSize == 0)
+                pageSize = 100;
+            parms.Add("pageSize", pageSize);
 
-            var queryString = parms.Count > 0 ? $"?{_helper.ObjectToString(parms)}" : string.Empty;
+            var queryString = parms.Count > 0 ? $"?{_helper.DictionaryToString(parms)}" : string.Empty;
 
             endpoint += queryString;
 
@@ -922,12 +960,14 @@ namespace KuCoinApi.Net.Data
                 parms.Add("endAt", endAt);
             if (status != null)
                 parms.Add("status", status.ToString());
-            if (page > 1)
-                parms.Add("currentPage", page);
-            if (pageSize != 50)
-                parms.Add("pageSize", pageSize);
+            if (page == 0)
+                page = 1;
+            parms.Add("currentPage", page);
+            if (pageSize == 0)
+                pageSize = 100;
+            parms.Add("pageSize", pageSize);
 
-            var queryString = parms.Count > 0 ? $"?{_helper.ObjectToString(parms)}" : string.Empty;
+            var queryString = parms.Count > 0 ? $"?{_helper.DictionaryToString(parms)}" : string.Empty;
 
             endpoint += queryString;
 
@@ -1000,12 +1040,14 @@ namespace KuCoinApi.Net.Data
                 parms.Add("endAt", endAt);
             if (status != null)
                 parms.Add("status", status.ToString());
-            if (page > 1)
-                parms.Add("currentPage", page);
-            if (pageSize != 50)
-                parms.Add("pageSize", pageSize);
+            if (page == 0)
+                page = 1;
+            parms.Add("currentPage", page);
+            if (pageSize == 0)
+                pageSize = 100;
+            parms.Add("pageSize", pageSize);
 
-            var queryString = parms.Count > 0 ? $"?{_helper.ObjectToString(parms)}" : string.Empty;
+            var queryString = parms.Count > 0 ? $"?{_helper.DictionaryToString(parms)}" : string.Empty;
 
             endpoint += queryString;
 
@@ -1085,7 +1127,7 @@ namespace KuCoinApi.Net.Data
         /// <returns>Collection of Trading Pair Details</returns>
         public async Task<List<TradingPairDetail>> GetTradingPairDetails()
         {
-            var endpoint = "/apio/v1/symbols";
+            var endpoint = "/api/v1/symbols";
 
             return await Get<List<TradingPairDetail>>(endpoint, false);
         }
@@ -1278,9 +1320,9 @@ namespace KuCoinApi.Net.Data
         {
             var endpoint = "/api/v1/timestamp";
 
-            var response = await Get<Dictionary<string, object>>(endpoint, false);
+            var response = await base.GetRequest<long>(endpoint);
 
-            return (long)response["data"];
+            return response;
         }
 
         #endregion Public Endpoints
@@ -1333,166 +1375,6 @@ namespace KuCoinApi.Net.Data
             var timestamp = GetTimestamp();
 
             return await base.PostRequest<T>(endpoint, timestamp, body);
-        }
-
-        /// <summary>
-        /// Get Request headers
-        /// </summary>
-        /// <param name="httpMethod">Http Method</param>
-        /// <param name="endpoint">Endpoint to access</param>
-        /// <param name="body">Body data to be passed</param>
-        /// <returns>Dictionary of request headers</returns>
-        private Dictionary<string, string> GetRequestHeaders(HttpMethod httpMethod, string endpoint, SortedDictionary<string, object> body = null)
-        {
-            var nonce = GetTimestamp().ToString();
-            var headers = new Dictionary<string, string>();
-
-            headers.Add("KC-API-KEY", _apiInfo.ApiKey);
-            headers.Add("KC-API-SIGN", GetSignature(httpMethod, endpoint, nonce, body));
-            headers.Add("KC-API-TIMESTAMP", nonce);
-            headers.Add("KC-API-PASSPHRASE", _apiInfo.ApiPassword);
-            headers.Add("User-Agent", "Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1)");
-
-            return headers;
-        }
-
-        /// <summary>
-        /// Get GET headers
-        /// </summary>
-        /// <param name="endpoint">Endpoint to access</param>
-        /// <returns>Dictionary of request headers</returns>
-        private Dictionary<string, string> GetRequestHeaders(string endpoint)
-        {
-            var nonce = GetTimestamp().ToString();
-            var headers = new Dictionary<string, string>();
-
-            headers.Add("KC-API-KEY", _apiInfo.ApiKey);
-            headers.Add("KC-API-SIGN", GetSignature(HttpMethod.Get, endpoint, nonce, null));
-            headers.Add("KC-API-TIMESTAMP", nonce);
-            headers.Add("KC-API-PASSPHRASE", _apiInfo.ApiPassword);
-            headers.Add("User-Agent", "Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1)");
-
-            return headers;
-        }
-
-        /// <summary>
-        /// Get POST headers
-        /// </summary>
-        /// <typeparam name="T">Type of data in post request</typeparam>
-        /// <param name="endpoint">Endpoint to access</param>
-        /// <param name="body">Body data to be passed</param>
-        /// <returns>Dictionary of request headers</returns>
-        private Dictionary<string, string> PostRequestHeaders(string endpoint, SortedDictionary<string, object> body)
-        {
-            var nonce = GetTimestamp().ToString();
-            var headers = new Dictionary<string, string>();
-
-            headers.Add("KC-API-KEY", _apiInfo.ApiKey);
-            headers.Add("KC-API-SIGN", GetSignature(HttpMethod.Post, endpoint, nonce, body));
-            headers.Add("KC-API-TIMESTAMP", nonce);
-            headers.Add("KC-API-PASSPHRASE", _apiInfo.ApiPassword);
-            headers.Add("User-Agent", "Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1)");
-
-            return headers;
-        }
-
-        /// <summary>
-        /// Get GET headers
-        /// </summary>
-        /// <param name="endpoint">Endpoint to access</param>
-        /// <param name="queryString">Querystring to be passed</param>
-        /// <returns>Dictionary of request headers</returns>
-        private Dictionary<string, string> GetRequestHeaders(string endpoint, string[] queryString = null)
-        {
-            var nonce = GetTimestamp().ToString();
-            var headers = new Dictionary<string, string>();
-
-            headers.Add("KC-API-KEY", _apiInfo.ApiKey);
-            headers.Add("KC-API-SIGN", GetSignature(endpoint, nonce, queryString, 0));
-            headers.Add("KC-API-TIMESTAMP", nonce);
-            headers.Add("KC-API-PASSPHRASE", _apiInfo.ApiPassword);
-            headers.Add("User-Agent", "Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1)");
-
-            return headers;
-        }
-
-        /// <summary>
-        /// Get POST headers
-        /// </summary>
-        /// <typeparam name="T">Type of data in post request</typeparam>
-        /// <param name="endpoint">Endpoint to access</param>
-        /// <param name="queryString">Querystring to be passed</param>
-        /// <param name="postData">Data to be sent</param>
-        /// <returns>Dictionary of request headers</returns>
-        private Dictionary<string, string> PostRequestHeaders<T>(string endpoint, string[] queryString, T postData)
-        {
-            var nonce = GetTimestamp().ToString();
-            var headers = new Dictionary<string, string>();
-
-            headers.Add("KC-API-KEY", _apiInfo.ApiKey);
-            headers.Add("KC-API-SIGN", GetSignature(endpoint, nonce, queryString, postData));
-            headers.Add("KC-API-TIMESTAMP", nonce);
-            headers.Add("KC-API-PASSPHRASE", _apiInfo.ApiPassword);
-            headers.Add("User-Agent", "Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1)");
-
-            return headers;
-        }
-
-        /// <summary>
-        /// Create signature for message
-        /// </summary>
-        /// <typeparam name="T">Type of data in post request</typeparam>
-        /// <param name="endpoint">Endpoint to access</param>
-        /// <param name="nonce">Current nonce</param>
-        /// <param name="queryString">Querystring to be passed</param>
-        /// <param name="value">Data to be sent</param>
-        /// <returns>String of signature</returns>
-        private string GetSignature(HttpMethod method, string endpoint, string nonce, SortedDictionary<string, object> parms = null)
-        {
-            var callMethod = method.ToString().ToUpper();
-
-            var jsonedParams = parms.Count > 0 
-                ? JsonConvert.SerializeObject(parms) 
-                : string.Empty;
-
-            var sigString = $"{nonce}{callMethod}{endpoint}{jsonedParams}";
-
-            var signature = security.GetKuCoinHMACSignature(_apiInfo.ApiSecret, sigString);
-
-            return signature;
-        }
-
-        /// <summary>
-        /// Create signature for message
-        /// </summary>
-        /// <typeparam name="T">Type of data in post request</typeparam>
-        /// <param name="endpoint">Endpoint to access</param>
-        /// <param name="nonce">Current nonce</param>
-        /// <param name="queryString">Querystring to be passed</param>
-        /// <param name="value">Data to be sent</param>
-        /// <returns>String of signature</returns>
-        private string GetSignature<T>(string endpoint, string nonce, string[] queryString = null, T value = default(T))
-        {
-            queryString = queryString ?? new string[0];
-
-            Array.Sort(queryString, StringComparer.InvariantCulture);
-
-            var qsValues = string.Empty;
-
-            if(queryString.Length> 0)
-            {
-                qsValues = _helper.ArrayToString(queryString);
-            }
-            else if(typeof(T) != typeof(int))
-            {
-                qsValues += _helper.ObjectToString<T>(value);
-            }
-
-            var sigString = $"{endpoint}/{nonce}/{qsValues}";
-
-            var signature = security.GetKuCoinHMACSignature(_apiInfo.ApiSecret, sigString);
-
-            return signature;
         }
 
         #endregion Helpers
