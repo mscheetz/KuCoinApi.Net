@@ -1,5 +1,8 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -8,24 +11,47 @@ namespace KuCoinApi.Net.Core
     public class Security
     {
         /// <summary>
-        /// Get KuCoin HMAC Signature
+        /// Create signature for message
         /// </summary>
-        /// <param name="secretKey">Api secret</param>
-        /// <param name="message">Message to sign</param>
-        /// <returns>Signature for request</returns>
-        public string GetKuCoinHMACSignature(string secretKey, string message)
+        /// <typeparam name="T">Type of data in post request</typeparam>
+        /// <param name="method">HttpMethod being called</param>
+        /// <param name="endpoint">Endpoint to access</param>
+        /// <param name="nonce">Current nonce</param>
+        /// <param name="apiSecret">ApiSecret value</param>
+        /// <param name="body">Request body message</param>
+        /// <returns>String of signature</returns>
+        public string GetSignature(HttpMethod method, string endpoint, long nonce, string apiSecret, SortedDictionary<string, object> body = null)
         {
-            var msgString = Convert.ToBase64String(Encoding.UTF8.GetBytes(message));
+            var timestamp = nonce.ToString();
+            var callMethod = method.ToString().ToUpper();
 
-            byte[] keyBytes = Encoding.UTF8.GetBytes(secretKey);
-            byte[] msgBytes = Encoding.UTF8.GetBytes(msgString);
+            var jsonedBody = body != null && body.Count > 0
+                ? JsonConvert.SerializeObject(body)
+                : string.Empty;
 
-            using (var hmac = new HMACSHA256(keyBytes))
-            {
-                byte[] hash = hmac.ComputeHash(msgBytes);
-                var result = BitConverter.ToString(hash).Replace("-", "").ToLower();
-                return Convert.ToBase64String(Encoding.UTF8.GetBytes(result));
-            }
+            var sigString = $"{nonce}{callMethod}{endpoint}{jsonedBody}";
+
+            var signature = HmacSha256(sigString, apiSecret);
+
+            return signature;
+        }
+
+        /// <summary>
+        /// Get HMAC Sha256 Signature
+        /// </summary>
+        /// <param name="message">Message to sign</param>
+        /// <param name="secret">Api secret</param>
+        /// <returns>Signature for request</returns>
+        public string HmacSha256(string message, string secret)
+        {
+            var encoding = new ASCIIEncoding();
+            var msgBytes = encoding.GetBytes(message);
+            var secretBytes = encoding.GetBytes(secret);
+            var hmac = new HMACSHA256(secretBytes);
+
+            var hash = hmac.ComputeHash(msgBytes);
+
+            return Convert.ToBase64String(hash);
         }
     }
 }

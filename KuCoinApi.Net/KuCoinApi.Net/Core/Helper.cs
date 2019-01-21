@@ -154,6 +154,42 @@ namespace KuCoinApi.Net.Core
         }
 
         /// <summary>
+        /// Convert a Dictionary to a string of property names and values
+        /// </summary>
+        /// <param name="dictionary">Dictionary to convert</param>
+        /// <returns>String of properties and values</returns>
+        public string DictionaryToString(Dictionary<string, object> dictionary)
+        {
+            var qsValues = string.Empty;
+
+            foreach (var kvp in dictionary)
+            {
+                qsValues += qsValues != string.Empty ? "&" : "";
+                qsValues += $"{kvp.Key}={kvp.Value}";
+            }
+
+            return qsValues;
+        }
+
+        /// <summary>
+        /// Convert a SortedDictionary to a string of property names and values
+        /// </summary>
+        /// <param name="dictionary">Dictionary to convert</param>
+        /// <returns>String of properties and values</returns>
+        public string SortedDictionaryToString(SortedDictionary<string, object> dictionary)
+        {
+            var qsValues = string.Empty;
+
+            foreach (var kvp in dictionary)
+            {
+                qsValues += qsValues != string.Empty ? "&" : "";
+                qsValues += $"{kvp.Key}={kvp.Value}";
+            }
+
+            return qsValues;
+        }
+
+        /// <summary>
         /// Convert an object to a string of property names and values
         /// </summary>
         /// <typeparam name="T">Object type</typeparam>
