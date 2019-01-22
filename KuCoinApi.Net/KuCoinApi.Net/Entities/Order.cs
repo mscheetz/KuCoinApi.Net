@@ -51,7 +51,7 @@ namespace KuCoinApi.Net.Entities
         public decimal Fee { get; set; }
 
         [JsonProperty(PropertyName = "feeCurrency")]
-        public decimal FeeCurrency { get; set; }
+        public string FeeCurrency { get; set; }
 
         [JsonProperty(PropertyName = "stp")]
         public SelfTradeProtect? SelfTradeProtect { get; set; }

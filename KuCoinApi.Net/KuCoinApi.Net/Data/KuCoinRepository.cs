@@ -115,40 +115,6 @@ namespace KuCoinApi.Net.Data
         }
 
         /// <summary>
-        /// Compare exchange and system unix timestamps
-        /// </summary>
-        /// <returns>True if difference less than 1000 MS, otherwise false</returns>
-        private bool TimestampCompare()
-        {
-            var exchangeTS = GetTimestamp();
-            var systemTS = _dtHelper.UTCtoUnixTimeMilliseconds();
-            if (exchangeTS == systemTS || Math.Abs((decimal)exchangeTS - (decimal)systemTS) < 1000)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-
-        /// <summary>
-        /// Get unix timestamp
-        /// </summary>
-        /// <returns>Long of timestamp</returns>
-        private long GetTimestamp()
-        {
-            if (_systemTimetamp)
-            {
-                return _dtHelper.UTCtoUnixTimeMilliseconds();
-            }
-            else
-            {
-                return GetServerTime().Result;
-            }
-        }
-
-        /// <summary>
         /// Check if the Exchange Repository is ready for trading
         /// </summary>
         /// <returns>Boolean of validation</returns>
@@ -1328,6 +1294,40 @@ namespace KuCoinApi.Net.Data
         #endregion Public Endpoints
 
         #region Helpers
+
+        /// <summary>
+        /// Compare exchange and system unix timestamps
+        /// </summary>
+        /// <returns>True if difference less than 1000 MS, otherwise false</returns>
+        private bool TimestampCompare()
+        {
+            var exchangeTS = GetTimestamp();
+            var systemTS = _dtHelper.UTCtoUnixTimeMilliseconds();
+            if (exchangeTS == systemTS || Math.Abs((decimal)exchangeTS - (decimal)systemTS) < 1000)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Get unix timestamp
+        /// </summary>
+        /// <returns>Long of timestamp</returns>
+        private long GetTimestamp()
+        {
+            if (_systemTimetamp)
+            {
+                return _dtHelper.UTCtoUnixTimeMilliseconds();
+            }
+            else
+            {
+                return GetServerTime().Result;
+            }
+        }
 
         /// <summary>
         /// Delete request pre-processor

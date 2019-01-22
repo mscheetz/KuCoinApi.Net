@@ -11,7 +11,7 @@ namespace KuCoinApi.Net.Tests
     public class KuCoinRepositoryTests : IDisposable
     {
         private ApiInformation _exchangeApi = null;
-        private IKuCoinRepository _repo;
+        private IKuCoinDotNet _service;
         private string configPath = "config.json";
         private string apiKey = string.Empty;
         private string apiSecret = string.Empty;
@@ -26,11 +26,11 @@ namespace KuCoinApi.Net.Tests
             }
             if (_exchangeApi != null || !string.IsNullOrEmpty(apiKey))
             {
-                _repo = new KuCoinRepository(_exchangeApi, useSandbox);
+                _service = new KuCoinDotNet(_exchangeApi, useSandbox);
             }
             else
             {
-                _repo = new KuCoinRepository(useSandbox);
+                _service = new KuCoinDotNet(useSandbox);
             }
         }
 
@@ -44,7 +44,7 @@ namespace KuCoinApi.Net.Tests
         public void GetBalances_HideZeros_Test()
         {
             var hideZeros = true;
-            var balances = _repo.GetBalances(hideZeros).Result;
+            var balances = _service.GetBalances(hideZeros).Result;
 
             Assert.NotNull(balances);
         }
@@ -52,7 +52,7 @@ namespace KuCoinApi.Net.Tests
         [Fact]
         public void GetBalances_Test()
         {
-            var balances = _repo.GetBalances().Result;
+            var balances = _service.GetBalances().Result;
 
             Assert.NotNull(balances);
         }
@@ -61,7 +61,7 @@ namespace KuCoinApi.Net.Tests
         public void GetBalances_Symbol_Test()
         {
             var symbol = "BTC";
-            var balances = _repo.GetBalances(symbol).Result;
+            var balances = _service.GetBalances(symbol).Result;
 
             Assert.NotNull(balances);
         }
@@ -70,7 +70,7 @@ namespace KuCoinApi.Net.Tests
         public void GetBalances_Account_Test()
         {
             var type = AccountType.Main;
-            var balances = _repo.GetBalances(type).Result;
+            var balances = _service.GetBalances(type).Result;
 
             Assert.NotNull(balances);
         }
@@ -80,7 +80,7 @@ namespace KuCoinApi.Net.Tests
         {
             var symbol = "BTC";
             var type = AccountType.Main;
-            var balances = _repo.GetBalances(symbol, type).Result;
+            var balances = _service.GetBalances(symbol, type).Result;
 
             Assert.NotNull(balances);
         }
@@ -88,10 +88,10 @@ namespace KuCoinApi.Net.Tests
         [Fact]
         public void GetBalance_Test()
         {
-            var balances = _repo.GetBalances().Result;
+            var balances = _service.GetBalances().Result;
             var id = balances.Select(b => b.Id).FirstOrDefault();
 
-            var balance = _repo.GetBalance(id).Result;
+            var balance = _service.GetBalance(id).Result;
 
             Assert.NotNull(balance);
         }
@@ -102,7 +102,7 @@ namespace KuCoinApi.Net.Tests
             var symbol = "KCS";
             var type = AccountType.Trade;
 
-            var accountId = _repo.CreateAccount(symbol, type).Result;
+            var accountId = _service.CreateAccount(symbol, type).Result;
 
             Assert.NotNull(accountId);
         }
@@ -110,12 +110,13 @@ namespace KuCoinApi.Net.Tests
         [Fact]
         public void GetAccountHistory_Test()
         {
-            var balances = _repo.GetBalances().Result;
-            var accountId = balances.Select(b => b.Id).FirstOrDefault();
-            var startDate = DateTime.UtcNow.AddDays(-100);
+            var symbol = "BTC";
+            var balances = _service.GetBalances().Result;
+            var accountId = balances.Where(b => b.Symbol.Equals(symbol) && b.Type.Equals("trade")).Select(b => b.Id).FirstOrDefault();
+            var startDate = DateTime.UtcNow.AddDays(-5);
             var endDate = DateTime.UtcNow;
 
-            var history = _repo.GetAccountHistory(accountId, startDate, endDate).Result;
+            var history = _service.GetAccountHistory(accountId, startDate, endDate).Result;
 
             Assert.NotNull(history);
         }
@@ -123,10 +124,11 @@ namespace KuCoinApi.Net.Tests
         [Fact]
         public void GetHolds_Test()
         {
-            var balances = _repo.GetBalances().Result;
-            var accountId = balances.Select(b => b.Id).FirstOrDefault();
+            var symbol = "BTC";
+            var balances = _service.GetBalances().Result;
+            var accountId = balances.Where(b => b.Symbol.Equals(symbol) && b.Type.Equals("trade")).Select(b => b.Id).FirstOrDefault();
 
-            var holds = _repo.GetHolds(accountId).Result;
+            var holds = _service.GetHolds(accountId).Result;
 
             // TODO: Check this one
             Assert.NotNull(holds);
@@ -136,12 +138,12 @@ namespace KuCoinApi.Net.Tests
         public void InnerTransfer_Test()
         {
             var symbol = "BTC";
-            var balances = _repo.GetBalances(symbol).Result;
+            var balances = _service.GetBalances(symbol).Result;
             var fromId = balances.Where(b => b.Type == "main").Select(b => b.Id).FirstOrDefault();
             var amount = balances.Where(b => b.Type == "main").Select(b => b.Total).FirstOrDefault();
             var toId = balances.Where(b => b.Type == "trade").Select(b => b.Id).FirstOrDefault();
 
-            var orderId = _repo.InnerTransfer(fromId, toId, amount).Result;
+            var orderId = _service.InnerTransfer(fromId, toId, amount).Result;
 
             Assert.NotNull(orderId);
         }
@@ -158,7 +160,7 @@ namespace KuCoinApi.Net.Tests
                 Size = 2
             };
 
-            var orderId = _repo.PlaceLimitOrder(orderParams).Result;
+            var orderId = _service.PlaceLimitOrder(orderParams).Result;
 
             Assert.NotNull(orderId);
         }
@@ -174,7 +176,7 @@ namespace KuCoinApi.Net.Tests
                 Size = 2
             };
 
-            var orderId = _repo.PlaceMarketOrder(orderParams).Result;
+            var orderId = _service.PlaceMarketOrder(orderParams).Result;
 
             Assert.NotNull(orderId);
         }
@@ -182,13 +184,25 @@ namespace KuCoinApi.Net.Tests
         [Fact]
         public void PlaceStopOrder_Test()
         {
-            var orderParams = new StopLimitOrderParams
-            {
-            };
+            var pair = "ETH-BTC";
+            var side = Side.BUY;
+            var price = 0.00002M;
+            var stopPrice = 0.000025M;
+            var quantity = 5;
+            var stopType = StopType.ENTRY;
 
-            var orderId = _repo.PlaceStopOrder(orderParams).Result;
+            // TODO need to fix this one
+            var orderId = _service.PlaceStopOrder(pair, side, price, quantity, stopPrice, stopType).Result;
 
             Assert.NotNull(orderId);
+        }
+
+        [Fact]
+        public void GetOpenOrders_Test()
+        {
+            var orders = _service.GetOpenOrders().Result;
+
+            Assert.NotNull(orders);
         }
 
         #endregion Private Endpoints
@@ -196,9 +210,19 @@ namespace KuCoinApi.Net.Tests
         #region Public Endpoints
 
         [Fact]
+        public void ValidateExchangeConfigured_Test()
+        {
+            var expected = _exchangeApi != null ? true : false;
+
+            var result = _service.ValidateExchangeConfigured();
+
+            Assert.True(expected == result);
+        }
+
+        [Fact]
         public void GetMarkets_Test()
         {
-            var markets = _repo.GetMarkets().Result;
+            var markets = _service.GetMarkets().Result;
 
             Assert.NotNull(markets);
         }
@@ -206,11 +230,100 @@ namespace KuCoinApi.Net.Tests
         [Fact]
         public void GetTradingPairDetails_Test()
         {
-            var markets = _repo.GetTradingPairDetails().Result;
+            var markets = _service.GetTradingPairDetails().Result;
 
             Assert.NotNull(markets);
         }
 
+        [Fact]
+        public void GetTicker_Test()
+        {
+            var pair = "ETH-BTC";
+
+            var ticker = _service.GetTicker(pair).Result;
+
+            Assert.NotNull(ticker);
+        }
+
+        [Fact]
+        public void GetPartOrderBook_Test()
+        {
+            var pair = "ETH-BTC";
+
+            var orderBook = _service.GetPartOrderBook(pair).Result;
+
+            Assert.NotNull(orderBook);
+        }
+
+        [Fact]
+        public void GetFullOrderBook_Test()
+        {
+            var pair = "ETH-BTC";
+
+            var orderBook = _service.GetFullOrderBook(pair).Result;
+
+            Assert.NotNull(orderBook);
+        }
+
+        [Fact]
+        public void GetEntireOrderBook_Test()
+        {
+            var pair = "ETH-BTC";
+
+            var orderBook = _service.GetEntireOrderBook(pair).Result;
+
+            Assert.NotNull(orderBook);
+        }
+
+        [Fact]
+        public void GetTradeHistory_Test()
+        {
+            var pair = "ETH-BTC";
+
+            var history = _service.GetTradeHistory(pair).Result;
+
+            Assert.NotNull(history);
+        }
+
+        [Fact]
+        public void GetCandleStick_Simple_Test()
+        {
+            var pair = "ETH-BTC";
+            var interval = Interval.OneH;
+            var count = 5;
+
+            var candlesticks = _service.GetCandlestick(pair, interval, count).Result;
+
+            Assert.NotNull(candlesticks);
+        }
+
+        [Fact]
+        public void Get24hrStats_Test()
+        {
+            var pair = "ETH-BTC";
+
+            var stats = _service.Get24HrStats(pair).Result;
+
+            Assert.NotNull(stats);
+        }
+
+        [Fact]
+        public void GetCurrencies_Test()
+        {
+            var currencies = _service.GetCurrencies().Result;
+
+            Assert.NotNull(currencies);
+        }
+
+        [Fact]
+        public void GetCurrency_Test()
+        {
+            var symbol = "BTC";
+            var currency = _service.GetCurrency(symbol).Result;
+
+            Assert.NotNull(currency);
+        }
+        
         #endregion Public Endpoints
     }
 }
