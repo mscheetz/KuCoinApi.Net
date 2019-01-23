@@ -1,11 +1,7 @@
-# KuCoinApi.NetCore
-.Net Standard library for accessing the [KuCoin Exchange](https://www.kucoin.com/#/?r=1ds25) api  
+# KuCoinApi.Net v2.0
+.Net Standard library for accessing the [KuCoin Exchange](https://www.kucoin.com/#/?r=1ds25) version 2.0 api  
   
-This library is available on NuGet for download: https://www.nuget.org/packages/KuCoinApi.NetCore  
-```
-PM> Install-Package KuCoinApi.NetCore
-```
-
+This library will soon be available on NuGet for download:  
   
 To trade, log into your KuCoin account and create an api key with trading permissions:  
 Account -> API Keys -> Create (with Read Information & Trading Authority)  
@@ -14,56 +10,66 @@ Account -> API Keys -> Create (with Read Information & Trading Authority)
 Initialization:  
 Non-secured endpoints only:  
 ```
-var kucoin = new KuCoinClient();
+IKuCoinDotNet kucoin = new KuCoinDotNet();
 ```  
   
 Secure & non-secure endpoints:  
 ```
-var kucoin = new KuCoinClient("api-key", "api-secret");
+IKuCoinDotNet kucoin = new KuCoinDotNet("api-key", "api-secret", "api-password");
 ```  
 or
 ```
 create config file config.json
 {
   "apiKey": "api-key",
-  "apiSecret": "api-secret"
+  "apiSecret": "api-secret",
+  "apiPassword": "api-password"
 }
-var kucoin = new KuCoinClient("/path-to/config.json");
+IKuCoinDotNet kucoin = new KuCoinDotNet("/path-to/config.json");
 ```
+
+#### All endpoints are asyncronous.  
 
 Using an endpoint:  
 ```  
-var balance = await kucoin.GetBalanceAsync();
+var balances = await kucoin.GetBalances();
 ```  
-or  
-```
-var balance = kucoin.GetBalance();
-```
 
 Non-secure endpoints:  
-GetCandlesticks() | GetCandlesticksAsync() - Get charting candlesticks  
-GetOrderBook() | GetOrderBookAsync() - Get current order book for a trading pair  
-GetTick() | GetTickAsync()- Get tick for a trading pair  
-GetTicks() | GetTicksAsync() - Get ticker for all trading pairs  
-GetMarkets() | GetMarketsAsync() - Get markets trading on exchange  
-GetTradingSymbolTick() GetTradingSymbolTickAsync() - Get details for all coins  
-GetTradingPairs() | GetTradingPairsAsync() - Get all trading pairs on exchange  
-GetCoin() | GetCoinAsync() - Get information about a coin  
-GetCoins() | GetCoinsAsync() - Get information about all coins  
-GetTrendings() | GetTrendingsAsync() - Get open sells for all pairs or a market  
-GetKuCoinTime() - Get current KuCoin server time  
+GetMarkets() - Get list of markets on exchange  
+GetTradingPairDetails() - Get details on trading pairs  
+GetTicker() - Get Ticker for a trading pair  
+GetPartOrderBook() - Get best 100 bids and asks on order book  
+GetFullOrderBook() - Get all bids and asks on order book  
+GetEntireOrderBook() - Get full depth order book  
+GetTradeHistory() - Get latest trades for a trading pair  
+GetCandlestick() - Get candlesticks for a trading pair  
+Get24HrStats() - Get 24 hour statistics for a trading pair    
+GetCurrencies() - Get known currencies  
+GetCurrency() - Get currency detail  
+GetServerTime() - Get current KuCoin server time  
 
 Secure endpoints:  
-GetBalance() | GetBalanceAsync() - Get current asset balances  
-GetOrder() | GetOrderAsync() - Get information for an order  
-GetOrders() | GetOrdersAsync() - Get all current user order information  
-GetOpenOrders() | GetOpenOrdersAsync() - Get all current user open orders   
-PostTrade() | PostTradeAsync() - Post a new trade  
-DeleteTrade() | DeleteTradeAsync() - Delete a current open trade  
-GetDepositAddress() | GetDepositAddressAsync() - Get deposit address  
-WithdrawFunds() | WithdrawFundsAsync() - Withdraw from exchange  
-GetDeposits() | GetDepositsAsync() - Get deposit history  
-GetWithdrawals() | GetWithdrawalsAsync() - Get withdraw history  
+GetBalances() - Get current asset balances  
+GetAccountHistory() - Get account history  
+GetHolds() - Get funds on hold  
+InnerTransfer() - Send funds between main and trade accounts  
+PlaceLimitOrder() - Place a limit order  
+PlaceMarketOrder() - Place a market order  
+PlaceStopOrder() - Place a stop order  
+PlaceOrder() - Place an order  
+CancelOrder() - Cancel an active order  
+CancelAllOrders() - Cancel all active orders  
+GetOrders() - Get multiple orders
+GetOrder() - Get an order  
+GetOpenOrders() - Get active orders  
+GetFills() - Get fills for orders  
+CreateDepositAddress() - Create a deposit address  
+GetDepositAddress() - Get a deposit address
+GetWithdrawalHistory() - Get withdrawal history  
+GetWithdrawalQuota() - Get withdrawal quotas  
+Withdrawal() - Withdrawal funds  
+CancelWithdrawal() - Cancel a withdrawal  
 
 KCS:  
 0x011bd184fc7fd1964702844ffd668318f7c3d4c4  
@@ -73,3 +79,5 @@ BTC:
 1MGLPvTzxK9argeNRTHJ9EZ3WtGZV6nxit  
 XLM:  
 GA6JNJRSTBV54W3EGWDAWKPEGGD3QCXIGEHMQE2TUYXUKKTNKLYWEXVV  
+NEO:  
+AHtB1D5UtMiTJbDTn5pfJdPit77de19oao  
