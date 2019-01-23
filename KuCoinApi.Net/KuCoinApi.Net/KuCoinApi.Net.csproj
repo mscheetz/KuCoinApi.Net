@@ -34,6 +34,7 @@
 
   <ItemGroup>
     <Folder Include="Core.Interface\" />
+    <Folder Include="Data.Interface\" />
   </ItemGroup>
 
 </Project>

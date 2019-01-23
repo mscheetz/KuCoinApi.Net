@@ -11,15 +11,12 @@ namespace KuCoinApi.Net.Data
 
     using DateTimeHelpers;
     using KuCoinApi.Net.Core;
-    using KuCoinApi.Net.Data.Interface;
     using KuCoinApi.Net.Entities;
-    using Newtonsoft.Json;
-    //using RESTApiAccess;
-    //using RESTApiAccess.Interface;
+    using RESTApiAccess;
+    using RESTApiAccess.Interface;
     using System;
     using System.Collections.Generic;
     using System.Net.Http;
-    using System.Text;
     using System.Threading.Tasks;
 
     #endregion Usings

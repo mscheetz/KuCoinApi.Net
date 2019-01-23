@@ -13,12 +13,12 @@ namespace KuCoinApi.Net
     using FileRepository;
     using KuCoinApi.Net.Core;
     using KuCoinApi.Net.Data;
-    using KuCoinApi.Net.Data.Interface;
     using KuCoinApi.Net.Entities;
+    using RESTApiAccess;
+    using RESTApiAccess.Interface;
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Text;
     using System.Threading.Tasks;
 
     #endregion Usings
@@ -27,9 +27,6 @@ namespace KuCoinApi.Net
     {
         #region Properties
 
-        private Security security;
-        private IRESTRepository _restRepo;
-        private string baseUrl;
         private ApiInformation _apiInfo;
         private DateTimeHelper _dtHelper;
         private Helper _helper;
@@ -104,9 +101,6 @@ namespace KuCoinApi.Net
         /// <param name="password">Api password value (default = "")</param>
         private void LoadRepository(string key = "", string secret = "", string password = "")
         {
-            security = new Security();
-            _restRepo = new RESTRepository();
-            baseUrl = "https://openapi-v2.kucoin.com";
             _dtHelper = new DateTimeHelper();
             _helper = new Helper();
             _apiInfo = new ApiInformation
@@ -116,6 +110,7 @@ namespace KuCoinApi.Net
                 ApiPassword = password
             };
             _systemTimetamp = TimestampCompare();
+            base.SetTimestamp(_systemTimetamp);
         }
 
         #endregion Constructor
@@ -188,8 +183,8 @@ namespace KuCoinApi.Net
         public async Task<PagedResponse<List<AccountAction>>> GetAccountHistory(string accountId, long startAt, long endAt, int page = 0, int pageSize = 0)
         {
             var endpoint = $"/api/v1/accounts/{accountId}/ledgers";
-
-            if (startAt >= endAt)
+            
+            if ((startAt > 0 && endAt > 0) && startAt >= endAt)
             {
                 throw new Exception("Start date cannot be >= End date.");
             }
@@ -287,7 +282,9 @@ namespace KuCoinApi.Net
         {
             var endpoint = $"/api/v1/orders/{orderId}";
 
-            return await Delete<string>(endpoint);
+            var result = await Delete<Dictionary<string, string[]>>(endpoint);
+
+            return result["cancelledOrderIds"][0];
         }
 
         /// <summary>
@@ -298,7 +295,9 @@ namespace KuCoinApi.Net
         {
             var endpoint = $"/api/v1/orders";
 
-            return await Delete<List<string>>(endpoint);
+            var result = await Delete<Dictionary<string, string[]>>(endpoint);
+
+            return result["cancelledOrderIds"].ToList();
         }
 
         /// <summary>
@@ -375,12 +374,12 @@ namespace KuCoinApi.Net
         /// <returns>Page collection of Fills</returns>
         public async Task<PagedResponse<List<Fill>>> GetFills(string orderId = null, string pair = null, Side? side = null, OrderType? type = null, long startAt = 0, long endAt = 0, int page = 0, int pageSize = 0)
         {
-            if (startAt >= endAt)
+            if ((startAt > 0 && endAt > 0) && startAt >= endAt)
             {
                 throw new Exception("Start time cannot be on or after End time");
             }
 
-            var endpoint = $"/api/v1/orders";
+            var endpoint = $"/api/v1/fills";
 
             var parms = new Dictionary<string, object>();
             if (!string.IsNullOrEmpty(orderId))
@@ -532,12 +531,10 @@ namespace KuCoinApi.Net
         /// <param name="inner">Internal withdrawal?</param>
         /// <param name="remark">Remarks of transaction</param>
         /// <returns>WithdrawalQuota details</returns>
-        public async Task<string> Withdrawal(string symbol, string address, string memo, decimal amount, bool inner, string remark)
+        public async Task<string> Withdrawal(string symbol, string address, decimal amount, string memo = "", bool inner = false, string remark = "")
         {
             var endpoint = $"/api/v1/withdrawals";
-
-            var url = baseUrl + endpoint;
-
+            
             var body = new SortedDictionary<string, object>();
             body.Add("currency", symbol);
             body.Add("address", address);
@@ -647,7 +644,7 @@ namespace KuCoinApi.Net
         /// <returns>Collection of candlesticks</returns>
         public async Task<List<Candlestick>> GetCandlestick(string pair, long startAt, long endAt, Interval interval)
         {
-            if (startAt >= endAt)
+            if ((startAt > 0 && endAt > 0) && startAt >= endAt)
             {
                 throw new Exception("Start time cannot be >= end time.");
             }
@@ -780,10 +777,10 @@ namespace KuCoinApi.Net
         /// <returns>Async task of response</returns>
         public async Task<T> Get<T>(string endpoint, bool secure)
         {
-            var timestamp = GetTimestamp();
-
             if (secure)
             {
+                var timestamp = GetTimestamp();
+
                 return await base.GetRequest<T>(endpoint, timestamp);
             }
             else

@@ -57,7 +57,7 @@ namespace KuCoinApi.Net.Entities
         public SelfTradeProtect? SelfTradeProtect { get; set; }
 
         [JsonProperty(PropertyName = "stop")]
-        public string Stop { get; set; }
+        public StopType? Stop { get; set; }
 
         [JsonProperty(PropertyName = "stopTriggered")]
         public bool StopTriggered { get; set; }
@@ -78,7 +78,7 @@ namespace KuCoinApi.Net.Entities
         public bool Iceberge { get; set; }
 
         [JsonProperty(PropertyName = "visibleSize")]
-        public bool VisibleSize { get; set; }
+        public decimal VisibleSize { get; set; }
 
         [JsonProperty(PropertyName = "cancelAfter")]
         public long CancelAfter { get; set; }

@@ -105,7 +105,14 @@ namespace KuCoinApi.Net
         /// <param name="pageSize">page size</param>
         /// <returns>Paged list of Orders</returns>
         Task<PagedResponse<List<Order>>> GetOrders(OrderStatus? status = null, string pair = null, Side? side = null, OrderType? type = null, long startAt = 0, long endAt = 0, int page = 1, int pageSize = 50);
-        
+
+        /// <summary>
+        /// Get an order
+        /// </summary>
+        /// <param name="orderId">Order id</param>
+        /// <returns>An Order</returns>
+        Task<Order> GetOrder(string orderId);
+
         /// <summary>
         /// Get Fills
         /// </summary>
@@ -175,7 +182,7 @@ namespace KuCoinApi.Net
         /// <param name="inner">Internal withdrawal?</param>
         /// <param name="remark">Remarks of transaction</param>
         /// <returns>WithdrawalQuota details</returns>
-        Task<string> Withdrawal(string symbol, string address, string memo, decimal amount, bool inner, string remark);
+        Task<string> Withdrawal(string symbol, string address, decimal amount, string memo = "", bool inner = false, string remark = "");
 
         /// <summary>
         /// Cancel a withdrawal

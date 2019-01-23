@@ -219,7 +219,8 @@ namespace KuCoinApi.Net
             body.Add("size", quantity);
             body.Add("stop", stopType.ToString().ToLower());
             body.Add("stopPrice", stopPrice);
-            body.Add("type", OrderType.LIMIT_STOP.ToString().ToLower());
+            body.Add("price", price);
+            body.Add("type", OrderType.LIMIT.ToString().ToLower());
 
             return await service.PlaceOrder(body);
         }
@@ -247,7 +248,7 @@ namespace KuCoinApi.Net
                 body.Add("stp", parms.SelfTradeProtect.ToString());
             body.Add("side", parms.Side.ToString().ToLower());
             body.Add("size", parms.Size);
-            body.Add("stop", parms.Stop.ToString());
+            body.Add("stop", parms.Stop.ToString().ToLower());
             body.Add("stopPrice", parms.StopPrice);
             if (parms.TimeInForce != null)
                 body.Add("timeInForce", parms.TimeInForce.ToString());

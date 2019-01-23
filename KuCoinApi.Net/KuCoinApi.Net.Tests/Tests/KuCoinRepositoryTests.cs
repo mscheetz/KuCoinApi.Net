@@ -1,13 +1,22 @@
-﻿using KuCoinApi.Net.Entities;
-using KuCoinApi.Net.Data.Interface;
-using System;
-using System.Linq;
-using Xunit;
-using KuCoinApi.Net.Data;
-using FileRepository;
+﻿// -----------------------------------------------------------------------------
+// <copyright file="KuCoinRepositoryTests" company="Matt Scheetz">
+//     Copyright (c) Matt Scheetz All Rights Reserved
+// </copyright>
+// <author name="Matt Scheetz" date="1/20/2019 7:52:48 PM" />
+// -----------------------------------------------------------------------------
 
 namespace KuCoinApi.Net.Tests
 {
+    #region Usings
+
+    using KuCoinApi.Net.Entities;
+    using System;
+    using System.Linq;
+    using Xunit;
+    using FileRepository;
+
+    #endregion Usings
+
     public class KuCoinRepositoryTests : IDisposable
     {
         private ApiInformation _exchangeApi = null;
@@ -19,7 +28,7 @@ namespace KuCoinApi.Net.Tests
         public KuCoinRepositoryTests()
         {
             var useSandbox = true;
-            IFileRepository _fileRepo = new FileRepository.FileRepository();
+            IFileRepository _fileRepo = new FileRepository();
             if (_fileRepo.FileExists(configPath))
             {
                 _exchangeApi = _fileRepo.GetDataFromFile<ApiInformation>(configPath);
@@ -186,12 +195,11 @@ namespace KuCoinApi.Net.Tests
         {
             var pair = "ETH-BTC";
             var side = Side.BUY;
-            var price = 0.00002M;
-            var stopPrice = 0.000025M;
+            var price = 0.0002M;
+            var stopPrice = 0.00021M;
             var quantity = 5;
             var stopType = StopType.ENTRY;
 
-            // TODO need to fix this one
             var orderId = _service.PlaceStopOrder(pair, side, price, quantity, stopPrice, stopType).Result;
 
             Assert.NotNull(orderId);
@@ -203,6 +211,129 @@ namespace KuCoinApi.Net.Tests
             var orders = _service.GetOpenOrders().Result;
 
             Assert.NotNull(orders);
+        }
+
+        [Fact]
+        public void CancelOpenOrders_Test()
+        {
+            var orders = _service.GetOpenOrders().Result;
+            var ids = orders.Data.Select(d => d.Id).ToArray();
+
+            var cancel = _service.CancelOrder(ids[0]).Result;
+            
+            Assert.NotNull(cancel);
+        }
+
+        [Fact]
+        public void CancelAllOpenOrders_Test()
+        {
+            var orders = _service.GetOpenOrders().Result;
+
+            var cancel = _service.CancelAllOrders().Result;
+
+            Assert.NotNull(cancel);
+        }
+
+        [Fact]
+        public void GetOrders_Test()
+        {
+            var orders = _service.GetOrders().Result;
+
+            Assert.NotNull(orders);
+        }
+
+        [Fact]
+        public void GetOrder_Id_Test()
+        {
+            var orders = _service.GetOrders().Result;
+            var id = orders.Data.Select(d => d.Id).FirstOrDefault();
+
+            var order = _service.GetOrder(id).Result;
+
+            Assert.NotNull(order);
+        }
+
+        [Fact]
+        public void GetOrders_Complete_Test()
+        {
+            var orders = _service.GetOrders(OrderStatus.DONE).Result;
+
+            Assert.NotNull(orders);
+        }
+
+        [Fact]
+        public void GetFills_Test()
+        {
+            var fills = _service.GetFills().Result;
+
+            Assert.NotNull(fills);
+        }
+
+        [Fact]
+        public void CreateDepositAddress_Test()
+        {
+            var symbol = "BTC";
+            var address = _service.CreateDepositAddress(symbol).Result;
+
+            Assert.NotNull(address);
+        }
+
+        [Fact]
+        public void GetDepositAddress_Test()
+        {
+            var symbol = "BTC";
+            var address = _service.GetDepositAddress(symbol).Result;
+
+            Assert.NotNull(address);
+        }
+
+        [Fact]
+        public void GetDeposits_Test()
+        {
+            var symbol = "BTC";
+            var history = _service.GetDepositHistory(symbol).Result;
+
+            Assert.NotNull(history);
+        }
+
+        [Fact]
+        public void GetWithdrawals_Test()
+        {
+            var symbol = "BTC";
+            var history = _service.GetWithdrawalHistory(symbol).Result;
+
+            Assert.NotNull(history);
+        }
+
+        [Fact]
+        public void GetWithdrawalQuota_Test()
+        {
+            var symbol = "BTC";
+            var history = _service.GetWithdrawalQuota(symbol).Result;
+
+            Assert.NotNull(history);
+        }
+
+        [Fact]
+        public void Withdrawal_Test()
+        {
+            var symbol = "BTC";
+            var address = "13VFW1D9ZPhXHLQGeZ4Vyf39LJpFbhopNR";
+            var amount = 0.01M;
+
+            var withdrawal = _service.Withdrawal(symbol: symbol, address: address, amount: amount).Result;
+
+            Assert.NotNull(withdrawal);
+        }
+
+        [Fact]
+        public void CancelWithdrawal_Test()
+        {
+            var id = "";
+
+            var withdrawal = _service.CancelWithdrawal(id).Result;
+
+            Assert.NotNull(withdrawal);
         }
 
         #endregion Private Endpoints
