@@ -1,8 +1,12 @@
 # KuCoinApi.Net v2.0
 .Net Standard library for accessing the [KuCoin Exchange](https://www.kucoin.com/#/?r=1ds25) version 2.0 api  
   
-This library will soon be available on NuGet for download:  
-  
+This library is available on NuGet for download:  
+```
+PM> Install-Package KuCoinApi.Net -Version 0.1.0
+```
+
+
 To trade, log into your KuCoin account and create an api key with trading permissions:  
 Account -> API Keys -> Create (with Read Information & Trading Authority)  
 ** if you wish to use withdraw endpoint, you need to enable withdraws on your API key  
