@@ -8,9 +8,9 @@
     <PackageTags>kucoin cryptocurrency exchange trading api net standard bitcoin</PackageTags>
     <Description>Api library for accessing the KuCoin exchange Api v2.0 using .Net Standard</Description>
     <Copyright>2019 Matt Scheetz</Copyright>
-    <PackageReleaseNotes>Api library for accessing the KuCoin exchange Api v2.0 using .Net Standard</PackageReleaseNotes>
+    <PackageReleaseNotes>Add all tickers endpoint</PackageReleaseNotes>
     <IsPackable>true</IsPackable>
-    <Version>0.1.0</Version>
+    <Version>0.1.1</Version>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>    
     <IsPackable>true</IsPackable>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
