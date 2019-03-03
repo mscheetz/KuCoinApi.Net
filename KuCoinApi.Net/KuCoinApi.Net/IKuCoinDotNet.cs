@@ -254,6 +254,12 @@ namespace KuCoinApi.Net
         Task<List<Candlestick>> GetCandlestick(string pair, long startAt, long endAt, Interval interval);
 
         /// <summary>
+        /// Get All tickers for exchange
+        /// </summary>
+        /// <returns>Collection of TradingPairStats objects</returns>
+        Task<List<TradingPairStats>> GetAllTickers();
+
+        /// <summary>
         /// Get 24 hour stats for a trading pair
         /// </summary>
         /// <param name="pair">Trading pair</param>

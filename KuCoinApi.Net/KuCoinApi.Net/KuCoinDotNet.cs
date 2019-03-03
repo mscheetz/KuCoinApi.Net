@@ -14,8 +14,6 @@ namespace KuCoinApi.Net
     using KuCoinApi.Net.Core;
     using KuCoinApi.Net.Data;
     using KuCoinApi.Net.Entities;
-    using RESTApiAccess;
-    using RESTApiAccess.Interface;
     using System;
     using System.Collections.Generic;
     using System.Linq;
@@ -654,6 +652,19 @@ namespace KuCoinApi.Net
             var endpoint = $"/api/v1/market/candles?symbol={pair}&startAt={startAt}&endAt={endAt}&type={type}";
 
             return await Get<List<Candlestick>>(endpoint, false);
+        }
+
+        /// <summary>
+        /// Get All tickers for exchange
+        /// </summary>
+        /// <returns>Collection of TradingPairStats objects</returns>
+        public async Task<List<TradingPairStats>> GetAllTickers()
+        {
+            var endpoint = $"/api/v1/market/allTickers";
+
+            var result =  await Get<AllTickerResponse>(endpoint, false);
+
+            return result.Tickers;
         }
 
         /// <summary>

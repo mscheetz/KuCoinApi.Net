@@ -429,6 +429,14 @@ namespace KuCoinApi.Net.Tests
         }
 
         [Fact]
+        public void GetAllTickers_Test()
+        {
+            var tickers = _service.GetAllTickers().Result;
+
+            Assert.NotNull(tickers);
+        }
+
+        [Fact]
         public void Get24hrStats_Test()
         {
             var pair = "ETH-BTC";
