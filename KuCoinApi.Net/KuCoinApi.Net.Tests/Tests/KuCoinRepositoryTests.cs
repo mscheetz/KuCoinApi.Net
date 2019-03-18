@@ -27,7 +27,7 @@ namespace KuCoinApi.Net.Tests
 
         public KuCoinRepositoryTests()
         {
-            var useSandbox = true;
+            var useSandbox = false;
             IFileRepository _fileRepo = new FileRepository();
             if (_fileRepo.FileExists(configPath))
             {
@@ -254,6 +254,17 @@ namespace KuCoinApi.Net.Tests
         }
 
         [Fact]
+        public void GetHistoricOrders_Test()
+        {
+            var start = new DateTime(2018, 10, 1);
+            var end = new DateTime(2018, 12, 31);
+
+            var orders = _service.GetHistoricOrders(start, end).Result;
+
+            Assert.NotNull(orders);
+        }
+
+        [Fact]
         public void GetOrders_Complete_Test()
         {
             var orders = _service.GetOrders(OrderStatus.DONE).Result;
@@ -351,9 +362,9 @@ namespace KuCoinApi.Net.Tests
         }
 
         [Fact]
-        public void GetMarkets_Test()
+        public void GetTradingPairs_Test()
         {
-            var markets = _service.GetMarkets().Result;
+            var markets = _service.GetTradingPairs().Result;
 
             Assert.NotNull(markets);
         }
@@ -447,6 +458,14 @@ namespace KuCoinApi.Net.Tests
         }
 
         [Fact]
+        public void GetMarkets_Test()
+        {
+            var stats = _service.GetMarkets().Result;
+
+            Assert.NotNull(stats);
+        }
+
+        [Fact]
         public void GetCurrencies_Test()
         {
             var currencies = _service.GetCurrencies().Result;
@@ -461,6 +480,14 @@ namespace KuCoinApi.Net.Tests
             var currency = _service.GetCurrency(symbol).Result;
 
             Assert.NotNull(currency);
+        }
+
+        [Fact]
+        public void GetFiatPrice_Test()
+        {
+            var fiats = _service.GetFiatPrice().Result;
+
+            Assert.NotNull(fiats);
         }
         
         #endregion Public Endpoints

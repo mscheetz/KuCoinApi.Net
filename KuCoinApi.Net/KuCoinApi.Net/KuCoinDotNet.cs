@@ -359,6 +359,48 @@ namespace KuCoinApi.Net
         }
 
         /// <summary>
+        /// Get a list of KuCoin V1 historical orders.
+        /// </summary>
+        /// <param name="pair">Trading pair</param>
+        /// <param name="side">Side of trade</param>
+        /// <param name="startAt">Start Date (Unix time)</param>
+        /// <param name="endAt">End Date (Unix time)</param>
+        /// <param name="page">page number</param>
+        /// <param name="pageSize">page size</param>
+        /// <returns>Paged list of Orders</returns>
+        public async Task<PagedResponse<List<HistoricOrder>>> GetHistoricOrders(string pair = null, Side? side = null, long startAt = 0, long endAt = 0, int page = 1, int pageSize = 50)
+        {
+            if ((startAt > 0 && endAt > 0) && startAt >= endAt)
+            {
+                throw new Exception("Start time cannot be on or after End time");
+            }
+
+            var endpoint = $"/api/v1/hist-orders";
+
+            var parms = new Dictionary<string, object>();
+            if (!string.IsNullOrEmpty(pair))
+                parms.Add("symbol", pair);
+            if (side != null)
+                parms.Add("side", side.ToString().ToLower());
+            if (startAt > 0)
+                parms.Add("startAt", startAt);
+            if (endAt > 0)
+                parms.Add("endAt", endAt);
+            if (page == 0)
+                page = 1;
+            parms.Add("currentPage", page);
+            if (pageSize == 0)
+                pageSize = 100;
+            parms.Add("pageSize", pageSize);
+
+            var queryString = parms.Count > 0 ? $"?{_helper.DictionaryToString(parms)}" : string.Empty;
+
+            endpoint += queryString;
+
+            return await Get<PagedResponse<List<HistoricOrder>>>(endpoint, true);
+        }
+
+        /// <summary>
         /// Get Fills
         /// </summary>
         /// <param name="orderId">Order id</param>
@@ -674,9 +716,20 @@ namespace KuCoinApi.Net
         /// <returns>TradingPairStats object</returns>
         public async Task<TradingPairStats> Get24HrStats(string pair)
         {
-            var endpoint = $"/api/v1/market/stats/{pair}";
+            var endpoint = $"/api/v1/market/stats?symbol={pair}";
 
             return await Get<TradingPairStats>(endpoint, false);
+        }
+
+        /// <summary>
+        /// Get the transaction currency for the entire trading market.
+        /// </summary>
+        /// <returns>Collection of currencies</returns>
+        public async Task<List<string>> GetMarkets()
+        {
+            var endpoint = $"/api/v1/markets";
+
+            return await Get<List<string>>(endpoint, false);
         }
 
         /// <summary>
@@ -700,6 +753,27 @@ namespace KuCoinApi.Net
             var endpoint = $"/api/v1/currencies/{symbol}";
 
             return await Get<CurrencyDetail>(endpoint, false);
+        }
+
+        /// <summary>
+        /// Get fiat price for currency
+        /// </summary>
+        /// <param name="baseCurrency">Base currency (USD, EUR) Default USD</param>
+        /// <param name="currencies">Comma separated list of currencies to limit out put (BTC, ETH) default all</param>
+        /// <returns>Currencies and fiat prices</returns>
+        public async Task<Dictionary<string, decimal>> GetFiatPrice(string baseCurrency = null, string currencies = null)
+        {
+            var endpoint = $"/api/v1/prices";
+
+            var parms = new Dictionary<string, object>();
+            if (!string.IsNullOrEmpty(baseCurrency))
+                parms.Add("base", baseCurrency);
+            if (!string.IsNullOrEmpty(currencies))
+                parms.Add("currencies", currencies);
+
+            var queryString = parms.Count > 0 ? $"?{_helper.DictionaryToString(parms)}" : string.Empty;
+
+            return await Get<Dictionary<string, decimal>>(endpoint, false);
         }
 
         /// <summary>

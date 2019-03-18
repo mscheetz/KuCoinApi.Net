@@ -19,30 +19,41 @@ namespace KuCoinApi.Net.Entities
 
         [JsonProperty(PropertyName = "symbol")]
         public string Pair { get; set; }
-        
-        [JsonProperty(PropertyName = "changeRate")]
-        public decimal ChangeRate { get; set; }
-        
-        [JsonProperty(PropertyName = "changePrice")]
-        public decimal ChangePrice { get; set; }
-        
-        [JsonProperty(PropertyName = "open")]
-        public decimal Open { get; set; }
-        
-        [JsonProperty(PropertyName = "close")]
-        public decimal Close { get; set; }
 
         [JsonProperty(PropertyName = "high")]
         public decimal High { get; set; }
 
+        [JsonProperty(PropertyName = "vol")]
+        public decimal Volume { get; set; }
+        
+        public decimal Close
+        {
+            get
+            {
+                return this.Last;
+            }
+        }
+
+        [JsonProperty(PropertyName = "last")]
+        public decimal Last { get; set; }
+
         [JsonProperty(PropertyName = "low")]
         public decimal Low { get; set; }
 
-        [JsonProperty(PropertyName = "vol")]
-        public decimal Volume { get; set; }
+        [JsonProperty(PropertyName = "buy")]
+        public decimal Buy { get; set; }
 
-        [JsonProperty(PropertyName = "volValue")]
-        public decimal VolumeValue { get; set; }
+        [JsonProperty(PropertyName = "sell")]
+        public decimal Sell { get; set; }
+        
+        [JsonProperty(PropertyName = "changePrice")]
+        public decimal ChangePrice { get; set; }
+
+        [JsonProperty(PropertyName = "time")]
+        public long Time { get; set; }
+
+        [JsonProperty(PropertyName = "changeRate")]
+        public decimal ChangeRate { get; set; }
 
         #endregion Properties
     }

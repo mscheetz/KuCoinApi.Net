@@ -114,6 +114,18 @@ namespace KuCoinApi.Net
         Task<Order> GetOrder(string orderId);
 
         /// <summary>
+        /// Get a list of KuCoin V1 historical orders.
+        /// </summary>
+        /// <param name="pair">Trading pair</param>
+        /// <param name="side">Side of trade</param>
+        /// <param name="startAt">Start Date (Unix time)</param>
+        /// <param name="endAt">End Date (Unix time)</param>
+        /// <param name="page">page number</param>
+        /// <param name="pageSize">page size</param>
+        /// <returns>Paged list of Orders</returns>
+        Task<PagedResponse<List<HistoricOrder>>> GetHistoricOrders(string pair = null, Side? side = null, long startAt = 0, long endAt = 0, int page = 1, int pageSize = 50);
+
+        /// <summary>
         /// Get Fills
         /// </summary>
         /// <param name="orderId">Order id</param>
@@ -267,6 +279,12 @@ namespace KuCoinApi.Net
         Task<TradingPairStats> Get24HrStats(string pair);
 
         /// <summary>
+        /// Get the transaction currency for the entire trading market.
+        /// </summary>
+        /// <returns>Collection of currencies</returns>
+        Task<List<string>> GetMarkets();
+
+        /// <summary>
         /// Get known currencies
         /// </summary>
         /// <returns>Collection of Currency objects</returns>
@@ -278,6 +296,14 @@ namespace KuCoinApi.Net
         /// <param name="symbol">Currency symbol</param>
         /// <returns>CurrencyDetail objects</returns>
         Task<CurrencyDetail> GetCurrency(string symbol);
+
+        /// <summary>
+        /// Get fiat price for currency
+        /// </summary>
+        /// <param name="baseCurrency">Base currency (USD, EUR) Default USD</param>
+        /// <param name="currencies">Comma separated list of currencies to limit out put (BTC, ETH) default all</param>
+        /// <returns>Currencies and fiat prices</returns>
+        Task<Dictionary<string, decimal>> GetFiatPrice(string baseCurrency = null, string currencies = null);
 
         /// <summary>
         /// Get server time from KuCoin

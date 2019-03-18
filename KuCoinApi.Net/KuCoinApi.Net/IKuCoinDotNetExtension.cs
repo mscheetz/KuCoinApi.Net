@@ -431,6 +431,78 @@ namespace KuCoinApi.Net
         }
 
         /// <summary>
+        /// Get a list of KuCoin V1 historical orders.
+        /// </summary>
+        /// <param name="page">page number</param>
+        /// <param name="pageSize">page size</param>
+        /// <returns>Paged list of Orders</returns>
+        public static async Task<PagedResponse<List<HistoricOrder>>> GetHistoricOrders(this IKuCoinDotNet service, int page = 0, int pageSize = 0)
+        {
+            return await service.GetHistoricOrders(page: page, pageSize: pageSize);
+        }
+
+        /// <summary>
+        /// Get a list of KuCoin V1 historical orders.
+        /// </summary>
+        /// <param name="pair">Trading pair</param>
+        /// <param name="page">page number</param>
+        /// <param name="pageSize">page size</param>
+        /// <returns>Paged list of Orders</returns>
+        public static async Task<PagedResponse<List<HistoricOrder>>> GetHistoricOrders(this IKuCoinDotNet service, string pair, int page = 0, int pageSize = 0)
+        {
+            return await service.GetHistoricOrders(pair: pair, page: page, pageSize: pageSize);
+        }
+
+        /// <summary>
+        /// Get a list of KuCoin V1 historical orders.
+        /// </summary>
+        /// <param name="pair">Trading pair</param>
+        /// <param name="side">Trade side</param>
+        /// <param name="page">page number</param>
+        /// <param name="pageSize">page size</param>
+        /// <returns>Paged list of Orders</returns>
+        public static async Task<PagedResponse<List<HistoricOrder>>> GetHistoricOrders(this IKuCoinDotNet service, string pair, Side side, int page = 0, int pageSize = 0)
+        {
+            return await service.GetHistoricOrders(pair: pair, side: side, page: page, pageSize: pageSize);
+        }
+
+        /// <summary>
+        /// Get a list of KuCoin V1 historical orders.
+        /// </summary>
+        /// <param name="startDate">Start Date</param>
+        /// <param name="endDate">End Date</param>
+        /// <param name="page">page number</param>
+        /// <param name="pageSize">page size</param>
+        /// <returns>Paged list of Orders</returns>
+        public static async Task<PagedResponse<List<HistoricOrder>>> GetHistoricOrders(this IKuCoinDotNet service, DateTime? startDate, DateTime? endDate, int page = 0, int pageSize = 0)
+        {
+            var _dtHelper = new DateTimeHelper();
+            var startAt = startDate != null ? _dtHelper.LocalToUnixTime((DateTime)startDate) : 0;
+            var endAt = endDate != null ? _dtHelper.LocalToUnixTime((DateTime)endDate) : 0;
+
+            return await service.GetHistoricOrders(startAt: startAt, endAt: endAt, page: page, pageSize: pageSize);
+        }
+
+        /// <summary>
+        /// Get a list of KuCoin V1 historical orders.
+        /// </summary>
+        /// <param name="pair">Trading pair</param>
+        /// <param name="side">Trade side</param>
+        /// <param name="startDate">Start Date</param>
+        /// <param name="endDate">End Date</param>
+        /// <param name="page">page number</param>
+        /// <param name="pageSize">page size</param>
+        /// <returns>Paged list of Orders</returns>
+        public static async Task<PagedResponse<List<HistoricOrder>>> GetHistoricOrders(this IKuCoinDotNet service, string pair, Side? side, DateTime? startDate, DateTime? endDate, int page = 0, int pageSize = 0)
+        {
+            var _dtHelper = new DateTimeHelper();
+            var startAt = startDate != null ? _dtHelper.LocalToUnixTime((DateTime)startDate) : 0;
+            var endAt = endDate != null ? _dtHelper.LocalToUnixTime((DateTime)endDate) : 0;
+
+            return await service.GetHistoricOrders(pair, side, startAt, endAt, page, pageSize);
+        }
+
+        /// <summary>
         /// Get Fills
         /// </summary>
         /// <returns>Page collection of Fills</returns>
@@ -594,11 +666,11 @@ namespace KuCoinApi.Net
         #region Public Endpoints
 
         /// <summary>
-        /// Get current markets on the exchange
+        /// Get current trading pairs on the exchange
         /// </summary>
         /// <param name="trading">Currently trading</param>
         /// <returns>Collection of trading pairs</returns>
-        public static async Task<List<string>> GetMarkets(this IKuCoinDotNet service, bool trading = true)
+        public static async Task<List<string>> GetTradingPairs(this IKuCoinDotNet service, bool trading = true)
         {
             var details = await service.GetTradingPairDetails();
 
@@ -672,6 +744,15 @@ namespace KuCoinApi.Net
             var endAt = _dtHelper.LocalToUnixTime(endDate);
 
             return await service.GetCandlestick(pair, startAt, endAt, interval);
+        }
+
+        /// <summary>
+        /// Get fiat price for currency
+        /// </summary>
+        /// <returns>Currencies and fiat prices</returns>
+        public static async Task<Dictionary<string, decimal>> GetFiatPrice(this IKuCoinDotNet service)
+        {
+            return await service.GetFiatPrice();
         }
 
         #endregion Public Endpoints
