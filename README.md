@@ -3,7 +3,7 @@
   
 This library is available on NuGet for download:  
 ```
-PM> Install-Package KuCoinApi.Net -Version 0.1.0
+PM> Install-Package KuCoinApi.Net
 ```
 
 
@@ -40,6 +40,7 @@ var balances = await kucoin.GetBalances();
 ```  
 
 Non-secure endpoints:  
+GetAllTickers() - Get tickers for all trading pairs  
 GetMarkets() - Get list of markets on exchange  
 GetTradingPairDetails() - Get details on trading pairs  
 GetTicker() - Get Ticker for a trading pair  
