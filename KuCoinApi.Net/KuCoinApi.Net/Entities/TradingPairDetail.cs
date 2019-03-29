@@ -50,6 +50,9 @@ namespace KuCoinApi.Net.Entities
         [JsonProperty(PropertyName = "priceIncrement")]
         public decimal PriceIncrement { get; set; }
 
+        [JsonProperty(PropertyName = "feeCurrency")]
+        public string FeeCurrency { get; set; }
+
         [JsonProperty(PropertyName = "enableTrading")]
         public bool EnableTrading { get; set; }
 

@@ -47,6 +47,9 @@ namespace KuCoinApi.Net.Entities
         [JsonProperty(PropertyName = "updatedAt")]
         public long UpdatedAt { get; set; }
 
+        [JsonProperty(PropertyName = "remark")]
+        public string Remark { get; set; }
+
         #endregion Properties
     }
 }

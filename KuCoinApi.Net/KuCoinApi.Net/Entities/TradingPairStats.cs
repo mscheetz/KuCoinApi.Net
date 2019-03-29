@@ -25,7 +25,10 @@ namespace KuCoinApi.Net.Entities
 
         [JsonProperty(PropertyName = "vol")]
         public decimal Volume { get; set; }
-        
+
+        [JsonProperty(PropertyName = "volValue")]
+        public decimal Volume24HrTotal { get; set; }
+
         public decimal Close
         {
             get
