@@ -166,6 +166,18 @@ namespace KuCoinApi.Net
         Task<PagedResponse<List<Deposit>>> GetDepositHistory(string symbol = null, long startAt = 0, long endAt = 0, DepositStatus? status = null, int page = 0, int pageSize = 0);
 
         /// <summary>
+        /// Get historic deposit history (KuCoin v1)
+        /// </summary>
+        /// <param name="symbol">Symbol of currency</param>
+        /// <param name="startAt">Start date</param>
+        /// <param name="endAt">End date</param>
+        /// <param name="status">Deposit status</param>
+        /// <param name="page">Page number</param>
+        /// <param name="pageSize">Page size</param>
+        /// <returns>Paged collection of Deposits</returns>
+        Task<PagedResponse<List<Deposit>>> GetHistoricDeposits(string symbol = null, long startAt = 0, long endAt = 0, DepositStatus? status = null, int page = 0, int pageSize = 0);
+
+        /// <summary>
         /// Get withdrawal history
         /// </summary>
         /// <param name="symbol">Symbol of currency</param>
@@ -176,6 +188,18 @@ namespace KuCoinApi.Net
         /// <param name="pageSize">Page size</param>
         /// <returns>Paged collection of withdrawals</returns>
         Task<PagedResponse<List<Withdrawal>>> GetWithdrawalHistory(string symbol = null, long startAt = 0, long endAt = 0, WithdrawalStatus? status = null, int page = 0, int pageSize = 0);
+
+        /// <summary>
+        /// Get historic deposit history (KuCoin v1)
+        /// </summary>
+        /// <param name="symbol">Symbol of currency</param>
+        /// <param name="startAt">Start date</param>
+        /// <param name="endAt">End date</param>
+        /// <param name="status">Withdrawal status</param>
+        /// <param name="page">Page number</param>
+        /// <param name="pageSize">Page size</param>
+        /// <returns>Paged collection of withdrawals</returns>
+        Task<PagedResponse<List<Withdrawal>>> GetHistoricWithdrawals(string symbol = null, long startAt = 0, long endAt = 0, WithdrawalStatus? status = null, int page = 0, int pageSize = 0);
 
         /// <summary>
         /// Get withdrawal details

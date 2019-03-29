@@ -618,6 +618,50 @@ namespace KuCoinApi.Net
         }
 
         /// <summary>
+        /// Get historic deposit history (KuCoin v1)
+        /// </summary>
+        /// <param name="symbol">Symbol of currency</param>
+        /// <param name="page">Page number</param>
+        /// <param name="pageSize">Page size</param>
+        /// <returns>Paged collection of Deposits</returns>
+        public static async Task<PagedResponse<List<Deposit>>> GetHistoricDeposits(this IKuCoinDotNet service, string symbol, int page = 0, int pageSize = 0)
+        {
+            return await service.GetHistoricDeposits(symbol: symbol, page: page, pageSize: pageSize);
+        }
+
+        /// <summary>
+        /// Get historic deposit history (KuCoin v1)
+        /// </summary>
+        /// <param name="symbol">Symbol of currency</param>
+        /// <param name="status">Deposit status</param>
+        /// <param name="page">Page number</param>
+        /// <param name="pageSize">Page size</param>
+        /// <returns>Paged collection of Deposits</returns>
+        public static async Task<PagedResponse<List<Deposit>>> GetHistoricDeposits(this IKuCoinDotNet service, string symbol, DepositStatus status, int page = 0, int pageSize = 0)
+        {
+            return await service.GetHistoricDeposits(symbol: symbol, status: status, page: page, pageSize: pageSize);
+        }
+
+        /// <summary>
+        /// Get historic deposit history (KuCoin v1)
+        /// </summary>
+        /// <param name="symbol">Symbol of currency</param>
+        /// <param name="startDate">Start date</param>
+        /// <param name="endDate">End date</param>
+        /// <param name="status">Deposit status</param>
+        /// <param name="page">Page number</param>
+        /// <param name="pageSize">Page size</param>
+        /// <returns>Paged collection of Deposits</returns>
+        public static async Task<PagedResponse<List<Deposit>>> GetHistoricDeposits(this IKuCoinDotNet service, string symbol = null, DateTime? startDate = null, DateTime? endDate = null, DepositStatus? status = null, int page = 0, int pageSize = 0)
+        {
+            var _dtHelper = new DateTimeHelper();
+            var startAt = startDate != null ? _dtHelper.LocalToUnixTime((DateTime)startDate) : 0;
+            var endAt = endDate != null ? _dtHelper.LocalToUnixTime((DateTime)endDate) : 0;
+
+            return await service.GetHistoricDeposits(symbol, startAt, endAt, status, page, pageSize);
+        }
+
+        /// <summary>
         /// Get withdrawal history
         /// </summary>
         /// <param name="symbol">Symbol of currency</param>
@@ -659,6 +703,50 @@ namespace KuCoinApi.Net
             var endAt = endDate != null ? _dtHelper.LocalToUnixTime((DateTime)endDate) : 0;
 
             return await service.GetWithdrawalHistory(symbol, startAt, endAt, status, page, pageSize);
+        }
+
+        /// <summary>
+        /// Get historic withdrawal history (KuCoin v1)
+        /// </summary>
+        /// <param name="symbol">Symbol of currency</param>
+        /// <param name="page">Page number</param>
+        /// <param name="pageSize">Page size</param>
+        /// <returns>Paged collection of withdrawals</returns>
+        public static async Task<PagedResponse<List<Withdrawal>>> GetHistoricWithdrawals(this IKuCoinDotNet service, string symbol, int page = 0, int pageSize = 0)
+        {
+            return await service.GetHistoricWithdrawals(symbol: symbol, page: page, pageSize: pageSize);
+        }
+
+        /// <summary>
+        /// Get historic withdrawal history (KuCoin v1)
+        /// </summary>
+        /// <param name="symbol">Symbol of currency</param>
+        /// <param name="status">Withdrawal status</param>
+        /// <param name="page">Page number</param>
+        /// <param name="pageSize">Page size</param>
+        /// <returns>Paged collection of withdrawals</returns>
+        public static async Task<PagedResponse<List<Withdrawal>>> GetHistoricWithdrawals(this IKuCoinDotNet service, string symbol, DepositStatus status, int page = 0, int pageSize = 0)
+        {
+            return await service.GetHistoricWithdrawals(symbol: symbol, status: status, page: page, pageSize: pageSize);
+        }
+
+        /// <summary>
+        /// Get historic withdrawal history (KuCoin v1)
+        /// </summary>
+        /// <param name="symbol">Symbol of currency</param>
+        /// <param name="startDate">Start date</param>
+        /// <param name="endDate">End date</param>
+        /// <param name="status">Withdrawal status</param>
+        /// <param name="page">Page number</param>
+        /// <param name="pageSize">Page size</param>
+        /// <returns>Paged collection of withdrawals</returns>
+        public static async Task<PagedResponse<List<Withdrawal>>> GetHistoricWithdrawals(this IKuCoinDotNet service, string symbol = null, DateTime? startDate = null, DateTime? endDate = null, WithdrawalStatus? status = null, int page = 0, int pageSize = 0)
+        {
+            var _dtHelper = new DateTimeHelper();
+            var startAt = startDate != null ? _dtHelper.LocalToUnixTime((DateTime)startDate) : 0;
+            var endAt = endDate != null ? _dtHelper.LocalToUnixTime((DateTime)endDate) : 0;
+
+            return await service.GetHistoricWithdrawals(symbol, startAt, endAt, status, page, pageSize);
         }
 
         #endregion Secure Endpoints

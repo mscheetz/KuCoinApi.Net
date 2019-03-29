@@ -513,6 +513,43 @@ namespace KuCoinApi.Net
         }
 
         /// <summary>
+        /// Get historic deposit history (KuCoin v1)
+        /// </summary>
+        /// <param name="symbol">Symbol of currency</param>
+        /// <param name="startAt">Start date</param>
+        /// <param name="endAt">End date</param>
+        /// <param name="status">Deposit status</param>
+        /// <param name="page">Page number</param>
+        /// <param name="pageSize">Page size</param>
+        /// <returns>Paged collection of Deposits</returns>
+        public async Task<PagedResponse<List<Deposit>>> GetHistoricDeposits(string symbol = null, long startAt = 0, long endAt = 0, DepositStatus? status = null, int page = 0, int pageSize = 0)
+        {
+            var endpoint = $"/api/v1/hist-deposits";
+
+            var parms = new Dictionary<string, object>();
+            if (!string.IsNullOrEmpty(symbol))
+                parms.Add("currency", symbol);
+            if (startAt > 0)
+                parms.Add("startAt", startAt);
+            if (endAt > 0)
+                parms.Add("endAt", endAt);
+            if (status != null)
+                parms.Add("status", status.ToString());
+            if (page == 0)
+                page = 1;
+            parms.Add("currentPage", page);
+            if (pageSize == 0)
+                pageSize = 100;
+            parms.Add("pageSize", pageSize);
+
+            var queryString = parms.Count > 0 ? $"?{_helper.DictionaryToString(parms)}" : string.Empty;
+
+            endpoint += queryString;
+
+            return await Get<PagedResponse<List<Deposit>>>(endpoint, true);
+        }
+
+        /// <summary>
         /// Get withdrawal history
         /// </summary>
         /// <param name="symbol">Symbol of currency</param>
@@ -525,6 +562,43 @@ namespace KuCoinApi.Net
         public async Task<PagedResponse<List<Withdrawal>>> GetWithdrawalHistory(string symbol = null, long startAt = 0, long endAt = 0, WithdrawalStatus? status = null, int page = 0, int pageSize = 0)
         {
             var endpoint = $"/api/v1/withdrawals";
+
+            var parms = new Dictionary<string, object>();
+            if (!string.IsNullOrEmpty(symbol))
+                parms.Add("currency", symbol);
+            if (startAt > 0)
+                parms.Add("startAt", startAt);
+            if (endAt > 0)
+                parms.Add("endAt", endAt);
+            if (status != null)
+                parms.Add("status", status.ToString());
+            if (page == 0)
+                page = 1;
+            parms.Add("currentPage", page);
+            if (pageSize == 0)
+                pageSize = 100;
+            parms.Add("pageSize", pageSize);
+
+            var queryString = parms.Count > 0 ? $"?{_helper.DictionaryToString(parms)}" : string.Empty;
+
+            endpoint += queryString;
+
+            return await Get<PagedResponse<List<Withdrawal>>>(endpoint, true);
+        }
+
+        /// <summary>
+        /// Get historic deposit history (KuCoin v1)
+        /// </summary>
+        /// <param name="symbol">Symbol of currency</param>
+        /// <param name="startAt">Start date</param>
+        /// <param name="endAt">End date</param>
+        /// <param name="status">Withdrawal status</param>
+        /// <param name="page">Page number</param>
+        /// <param name="pageSize">Page size</param>
+        /// <returns>Paged collection of withdrawals</returns>
+        public async Task<PagedResponse<List<Withdrawal>>> GetHistoricWithdrawals(string symbol = null, long startAt = 0, long endAt = 0, WithdrawalStatus? status = null, int page = 0, int pageSize = 0)
+        {
+            var endpoint = $"/api/v1/hist-withdrawals";
 
             var parms = new Dictionary<string, object>();
             if (!string.IsNullOrEmpty(symbol))
