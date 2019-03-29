@@ -121,10 +121,11 @@ namespace KuCoinApi.Net.Data
         /// <param name="endpoint">Endpoint of request</param>
         /// <param name="timestamp">Timestamp for transaction</param>
         /// <param name="body">Request body data</param>
+        /// <param name="secure">Secure endpoint?</param>
         /// <returns>Object from response</returns>
-        public async Task<T> PostRequest<T>(string endpoint, long timestamp, SortedDictionary<string, object> body)
+        public async Task<T> PostRequest<T>(string endpoint, long timestamp, SortedDictionary<string, object> body, bool secure)
         {
-            var headers = GetRequestHeaders(HttpMethod.Post, endpoint, timestamp, body);
+            var headers = secure ? GetRequestHeaders(HttpMethod.Post, endpoint, timestamp, body) : null;
 
             var url = baseUrl + endpoint;
 

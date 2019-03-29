@@ -10,6 +10,7 @@ namespace KuCoinApi.Net
     #region Usings
 
     using KuCoinApi.Net.Entities;
+    using KuCoinApi.Net.Entities.Websocket;
     using System.Collections.Generic;
     using System.Threading.Tasks;
 
@@ -336,5 +337,21 @@ namespace KuCoinApi.Net
         Task<long> GetServerTime();
 
         #endregion Public Endpoints
+
+        #region Websocket
+
+        /// <summary>
+        /// Get websocket channel list (public channels)
+        /// </summary>
+        /// <returns>Collection of servers</returns>
+        Task<Bullet> GetPublicChannels();
+
+        /// <summary>
+        /// Get websocket channel list (private channels)
+        /// </summary>
+        /// <returns>Collection of servers</returns>
+        Task<Bullet> GetPrivateChannels();
+
+        #endregion Websocket
     }
 }

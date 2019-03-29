@@ -27,7 +27,7 @@ namespace KuCoinApi.Net.Tests
 
         public KuCoinRepositoryTests()
         {
-            var useSandbox = false;
+            var useSandbox = true;
             IFileRepository _fileRepo = new FileRepository();
             if (_fileRepo.FileExists(configPath))
             {
@@ -489,7 +489,27 @@ namespace KuCoinApi.Net.Tests
 
             Assert.NotNull(fiats);
         }
-        
+
         #endregion Public Endpoints
+
+        #region Websocket
+
+        [Fact]
+        public void GetPublicChannels_Test()
+        {
+            var channels = _service.GetPublicChannels().Result;
+
+            Assert.NotNull(channels);
+        }
+
+        [Fact]
+        public void GetPrivateChannels_Test()
+        {
+            var channels = _service.GetPrivateChannels().Result;
+
+            Assert.NotNull(channels);
+        }
+
+        #endregion Websocket
     }
 }

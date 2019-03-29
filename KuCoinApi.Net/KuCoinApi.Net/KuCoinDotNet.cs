@@ -14,6 +14,7 @@ namespace KuCoinApi.Net
     using KuCoinApi.Net.Core;
     using KuCoinApi.Net.Data;
     using KuCoinApi.Net.Entities;
+    using KuCoinApi.Net.Entities.Websocket;
     using System;
     using System.Collections.Generic;
     using System.Linq;
@@ -878,6 +879,32 @@ namespace KuCoinApi.Net
 
         #endregion Public Endpoints
 
+        #region Websocket
+
+        /// <summary>
+        /// Get websocket channel list (public channels)
+        /// </summary>
+        /// <returns>Collection of servers</returns>
+        public async Task<Bullet> GetPublicChannels()
+        {
+            var endpoint = $"/api/v1/bullet-public";
+
+            return await Post<Bullet>(endpoint, body: null, secure: true);
+        }
+
+        /// <summary>
+        /// Get websocket channel list (private channels)
+        /// </summary>
+        /// <returns>Collection of servers</returns>
+        public async Task<Bullet> GetPrivateChannels()
+        {
+            var endpoint = $"/api/v1/bullet-private";
+            
+            return await Post<Bullet>(endpoint, null);
+        }
+
+        #endregion Websocket
+
         #region Helpers
 
         /// <summary>
@@ -954,12 +981,13 @@ namespace KuCoinApi.Net
         /// <typeparam name="T"></typeparam>
         /// <param name="endpoint">Endpoint string</param>
         /// <param name="body">Request body data</param>
+        /// <param name="secure">Secure endpoint? default = true</param>
         /// <returns>Async task of response</returns>
-        public async Task<T> Post<T>(string endpoint, SortedDictionary<string, object> body)
+        public async Task<T> Post<T>(string endpoint, SortedDictionary<string, object> body, bool secure = true)
         {
             var timestamp = GetTimestamp();
 
-            return await base.PostRequest<T>(endpoint, timestamp, body);
+            return await base.PostRequest<T>(endpoint, timestamp, body, secure);
         }
 
         #endregion Helpers
