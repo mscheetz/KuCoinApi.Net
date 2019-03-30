@@ -8,9 +8,9 @@
     <PackageTags>kucoin cryptocurrency exchange trading api net standard bitcoin</PackageTags>
     <Description>Api library for accessing the KuCoin exchange Api v2.0 using .Net Standard</Description>
     <Copyright>2019 Matt Scheetz</Copyright>
-    <PackageReleaseNotes>Added historic endpoints, websocket bullet calls, updated properties per api documentation</PackageReleaseNotes>
+    <PackageReleaseNotes>Updated dependency: RESTApiAccess</PackageReleaseNotes>
     <IsPackable>true</IsPackable>
-    <Version>0.3.0</Version>
+    <Version>0.4.0</Version>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>    
     <IsPackable>true</IsPackable>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -28,10 +28,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DateTimeHelpers" Version="1.3.0" />
-    <PackageReference Include="FileRepository" Version="1.1.0" />
+    <PackageReference Include="DateTimeHelpers" Version="1.3.2" />
+    <PackageReference Include="FileRepository" Version="1.1.1" />
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
-    <PackageReference Include="RESTApiAccess" Version="1.2.1" />
+    <PackageReference Include="RESTApiAccess" Version="1.3.1" />
   </ItemGroup>
 
   <ItemGroup>

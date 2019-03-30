@@ -900,7 +900,7 @@ namespace KuCoinApi.Net
         {
             var endpoint = $"/api/v1/bullet-private";
             
-            return await Post<Bullet>(endpoint, null);
+            return await Post<Bullet>(endpoint, body: null, secure: true);
         }
 
         #endregion Websocket

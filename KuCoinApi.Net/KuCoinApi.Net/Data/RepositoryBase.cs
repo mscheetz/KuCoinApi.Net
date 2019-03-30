@@ -52,9 +52,9 @@ namespace KuCoinApi.Net.Data
             _restRepo = new RESTRepository();
             _dtHelper = new DateTimeHelper();
             _helper = new Helper();
-            baseUrl = sandbox 
+            baseUrl = sandbox
                 ? "https://openapi-sandbox.kucoin.com"
-                : "https://openapi-v2.kucoin.com";
+                : "https://api.kucoin.com";// "https://openapi-v2.kucoin.com";
         }
 
         public void SetApiKey(ApiInformation apiInformation)
@@ -131,7 +131,9 @@ namespace KuCoinApi.Net.Data
 
             try
             {
-                var response = await _restRepo.PostApi<ApiResponse<T>, SortedDictionary<string, object>>(url, body, headers);
+                var response = body == null 
+                    ? await _restRepo.PostApi<ApiResponse<T>, SortedDictionary<string, object>>(url, body, headers)
+                    : await _restRepo.PostApi<ApiResponse<T>>(url, headers);
 
                 return response.Data;
             }
@@ -174,9 +176,9 @@ namespace KuCoinApi.Net.Data
         /// <param name="timestamp">Timestamp for transaction</param>
         /// <param name="body">Body data to be passed</param>
         /// <returns>Dictionary of request headers</returns>
-        private Dictionary<string, string> GetRequestHeaders(HttpMethod httpMethod, string endpoint, long timestamp, SortedDictionary<string, object> body = null)
+        private Dictionary<string, object> GetRequestHeaders(HttpMethod httpMethod, string endpoint, long timestamp, SortedDictionary<string, object> body = null)
         {
-            var headers = new Dictionary<string, string>();
+            var headers = new Dictionary<string, object>();
 
             headers.Add("KC-API-KEY", _apiInfo.ApiKey);
             headers.Add("KC-API-SIGN", security.GetSignature(httpMethod, endpoint, timestamp, _apiInfo.ApiSecret, body));

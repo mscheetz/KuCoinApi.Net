@@ -119,9 +119,8 @@ namespace KuCoinApi.Net.Tests
         [Fact]
         public void GetAccountHistory_Test()
         {
-            var symbol = "BTC";
             var balances = _service.GetBalances().Result;
-            var accountId = balances.Where(b => b.Symbol.Equals(symbol) && b.Type.Equals("trade")).Select(b => b.Id).FirstOrDefault();
+            var accountId = balances.Where(b => b.Type.Equals("trade")).Select(b => b.Id).FirstOrDefault();
             var startDate = DateTime.UtcNow.AddDays(-5);
             var endDate = DateTime.UtcNow;
 
@@ -294,6 +293,12 @@ namespace KuCoinApi.Net.Tests
         {
             var symbol = "BTC";
             var address = _service.GetDepositAddress(symbol).Result;
+            if(address == null)
+            {
+                var newAddress = _service.CreateDepositAddress(symbol).Result;
+
+                address = _service.GetDepositAddress(symbol).Result;
+            }
 
             Assert.NotNull(address);
         }
