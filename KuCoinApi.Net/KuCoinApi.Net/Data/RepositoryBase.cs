@@ -131,7 +131,7 @@ namespace KuCoinApi.Net.Data
 
             try
             {
-                var response = body == null 
+                var response = body != null 
                     ? await _restRepo.PostApi<ApiResponse<T>, SortedDictionary<string, object>>(url, body, headers)
                     : await _restRepo.PostApi<ApiResponse<T>>(url, headers);
 
