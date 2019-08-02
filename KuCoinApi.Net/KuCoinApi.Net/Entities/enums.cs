@@ -121,8 +121,8 @@ namespace KuCoinApi.Net.Entities
 
     public enum OrderStatus
     {
-        DONE,
-        ACTIVE
+        doge,
+        active
     }
 
     public enum DepositStatus
