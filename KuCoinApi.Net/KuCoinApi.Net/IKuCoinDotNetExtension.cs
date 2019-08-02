@@ -366,7 +366,7 @@ namespace KuCoinApi.Net
         /// <returns>Paged list of Orders</returns>
         public static async Task<PagedResponse<List<Order>>> GetOpenOrders(this IKuCoinDotNet service, int page = 0, int pageSize = 0)
         {
-            return await service.GetOrders(status: OrderStatus.ACTIVE, page: page, pageSize: pageSize);
+            return await service.GetOrders(status: OrderStatus.active, page: page, pageSize: pageSize);
         }
 
         /// <summary>
@@ -378,7 +378,7 @@ namespace KuCoinApi.Net
         /// <returns>Paged list of Orders</returns>
         public static async Task<PagedResponse<List<Order>>> GetOpenOrders(this IKuCoinDotNet service, string pair, int page = 0, int pageSize = 0)
         {
-            return await service.GetOrders(status: OrderStatus.ACTIVE, pair: pair, page: page, pageSize: pageSize);
+            return await service.GetOrders(status: OrderStatus.active, pair: pair, page: page, pageSize: pageSize);
         }
 
         /// <summary>
@@ -391,7 +391,7 @@ namespace KuCoinApi.Net
         /// <returns>Paged list of Orders</returns>
         public static async Task<PagedResponse<List<Order>>> GetOpenOrders(this IKuCoinDotNet service, string pair, Side side, int page = 0, int pageSize = 0)
         {
-            return await service.GetOrders(OrderStatus.ACTIVE, pair: pair, side: side, page: 0, pageSize: 0);
+            return await service.GetOrders(OrderStatus.active, pair: pair, side: side, page: 0, pageSize: 0);
         }
 
         /// <summary>
@@ -411,7 +411,7 @@ namespace KuCoinApi.Net
             var startAt = startDate != null ? _dtHelper.LocalToUnixTime((DateTime)startDate) : 0;
             var endAt = endDate != null ? _dtHelper.LocalToUnixTime((DateTime)endDate) : 0;
 
-            return await service.GetOrders(OrderStatus.ACTIVE, pair, side, type, startAt, endAt, page, pageSize);
+            return await service.GetOrders(OrderStatus.active, pair, side, type, startAt, endAt, page, pageSize);
         }
 
         /// <summary>
@@ -427,7 +427,7 @@ namespace KuCoinApi.Net
         /// <returns>Paged list of Orders</returns>
         public static async Task<PagedResponse<List<Order>>> GetOpenOrders(this IKuCoinDotNet service, string pair, Side? side, OrderType? type, long startAt, long endAt, int page = 0, int pageSize = 0)
         {
-            return await service.GetOrders(OrderStatus.ACTIVE, pair, side, type, startAt, endAt, page, pageSize);
+            return await service.GetOrders(OrderStatus.active, pair, side, type, startAt, endAt, page, pageSize);
         }
 
         /// <summary>
