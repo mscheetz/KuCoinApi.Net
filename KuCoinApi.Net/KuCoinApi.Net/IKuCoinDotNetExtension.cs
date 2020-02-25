@@ -574,6 +574,43 @@ namespace KuCoinApi.Net
         }
 
         /// <summary>
+        /// Get Fills
+        /// </summary>
+        /// <param name="pair">Trading pair</param>
+        /// <param name="side">Trade side</param>
+        /// <param name="type">Order type</param>
+        /// <param name="startDate">Start date</param>
+        /// <param name="endDate">End date</param>
+        /// <param name="page">Page number</param>
+        /// <param name="pageSize">Page size</param>
+        /// <returns>Page collection of Fills</returns>
+        public static async Task<PagedResponse<List<Fill>>> GetFills(this IKuCoinDotNet service, string pair = null, Side? side = null, OrderType? type = null, DateTime? startDate = null, DateTime? endDate = null, int page = 0, int pageSize = 0)
+        {
+            var _dtHelper = new DateTimeHelper();
+            var startAt = startDate != null ? _dtHelper.LocalToUnixTime((DateTime)startDate) : 0;
+            var endAt = endDate != null ? _dtHelper.LocalToUnixTime((DateTime)endDate) : 0;
+
+            return await service.GetFills(null, pair, side, type, startAt, endAt, page, pageSize);
+        }
+
+        /// <summary>
+        /// Get Fills
+        /// </summary>
+        /// <param name="startDate">Start date</param>
+        /// <param name="endDate">End date</param>
+        /// <param name="page">Page number</param>
+        /// <param name="pageSize">Page size</param>
+        /// <returns>Page collection of Fills</returns>
+        public static async Task<PagedResponse<List<Fill>>> GetFills(this IKuCoinDotNet service, DateTime? startDate, DateTime? endDate, int page = 0, int pageSize = 0)
+        {
+            var _dtHelper = new DateTimeHelper();
+            var startAt = startDate != null ? _dtHelper.LocalToUnixTime((DateTime)startDate) : 0;
+            var endAt = endDate != null ? _dtHelper.LocalToUnixTime((DateTime)endDate) : 0;
+
+            return await service.GetFills(null, null, null, null, startAt, endAt, page, pageSize);
+        }
+
+        /// <summary>
         /// Get deposit history
         /// </summary>
         /// <param name="symbol">Symbol of currency</param>

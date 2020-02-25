@@ -27,7 +27,7 @@ namespace KuCoinApi.Net.Tests
 
         public KuCoinRepositoryTests()
         {
-            var useSandbox = true;
+            var useSandbox = false;
             IFileRepository _fileRepo = new FileRepository();
             if (_fileRepo.FileExists(configPath))
             {
@@ -266,7 +266,7 @@ namespace KuCoinApi.Net.Tests
         [Fact]
         public void GetOrders_Complete_Test()
         {
-            var orders = _service.GetOrders(OrderStatus.DONE).Result;
+            var orders = _service.GetOrders(OrderStatus.done).Result;
 
             Assert.NotNull(orders);
         }
@@ -275,6 +275,16 @@ namespace KuCoinApi.Net.Tests
         public void GetFills_Test()
         {
             var fills = _service.GetFills().Result;
+
+            Assert.NotNull(fills);
+        }
+
+        [Fact]
+        public void GetFillsII_Test()
+        {
+            var start = new DateTime(2020, 02, 12).Date;
+            var end = new DateTime(2020, 02, 14).Date;
+            var fills = _service.GetFills(start, end).Result;
 
             Assert.NotNull(fills);
         }

@@ -254,20 +254,30 @@ namespace KuCoinApi.Net.Core
             {
                 case Interval.OneM:
                     return 0;
-                case Interval.FiveM:
+                case Interval.ThreeM:
                     return 1;
-                case Interval.FifteenM:
+                case Interval.FiveM:
                     return 2;
-                case Interval.ThirtyM:
+                case Interval.FifteenM:
                     return 3;
-                case Interval.OneH:
+                case Interval.ThirtyM:
                     return 4;
-                case Interval.FourH:
+                case Interval.OneH:
                     return 5;
-                case Interval.OneD:
+                case Interval.TwoH:
                     return 6;
-                case Interval.OneW:
+                case Interval.FourH:
                     return 7;
+                case Interval.SixH:
+                    return 8;
+                case Interval.EightH:
+                    return 9;
+                case Interval.TwelveH:
+                    return 10;
+                case Interval.OneD:
+                    return 11;
+                case Interval.OneW:
+                    return 12;
                 default:
                     return 0;
             }
@@ -284,6 +294,8 @@ namespace KuCoinApi.Net.Core
             {
                 case Interval.OneM:
                     return "1";
+                case Interval.ThreeM:
+                    return "3";
                 case Interval.FiveM:
                     return "5";
                 case Interval.FifteenM:
@@ -292,8 +304,16 @@ namespace KuCoinApi.Net.Core
                     return "30";
                 case Interval.OneH:
                     return "60";
+                case Interval.TwoH:
+                    return "120";
                 case Interval.FourH:
+                    return "240";
+                case Interval.SixH:
+                    return "360";
+                case Interval.EightH:
                     return "480";
+                case Interval.TwelveH:
+                    return "720";
                 case Interval.OneD:
                     return "D";
                 case Interval.OneW:
@@ -314,6 +334,8 @@ namespace KuCoinApi.Net.Core
             {
                 case Interval.OneM:
                     return (60 * 1);
+                case Interval.ThreeM:
+                    return (60 * 3);
                 case Interval.FiveM:
                     return (60 * 5);
                 case Interval.FifteenM:
@@ -322,8 +344,16 @@ namespace KuCoinApi.Net.Core
                     return (60 * 30);
                 case Interval.OneH:
                     return (60 * 60);
+                case Interval.TwoH:
+                    return (60 * 60 * 2);
                 case Interval.FourH:
-                    return (60 * 60 * 5);
+                    return (60 * 60 * 4);
+                case Interval.SixH:
+                    return (60 * 60 * 6);
+                case Interval.EightH:
+                    return (60 * 60 * 8);
+                case Interval.TwelveH:
+                    return (60 * 60 * 12);
                 case Interval.OneD:
                     return (60 * 60 * 24);
                 case Interval.OneW:
